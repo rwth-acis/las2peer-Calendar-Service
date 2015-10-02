@@ -1,0 +1,2 @@
+String test = "hello";
+test = test.substring(2);test
