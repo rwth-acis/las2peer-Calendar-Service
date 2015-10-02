@@ -136,7 +136,9 @@ public class MyCalendar extends Service {
 
 		
 	/**
-	 * Creates an entry and saves it permanently in the node storage
+	 * Creates an entry and saves it permanently in the node storage.
+	 * THIS DOES NOT WORK YET UNFORTUNATELY BUT THIS IS THE WAY TO GO
+	 * To create temporary entries use the method createEntry.
 	 * 
 	 * @param title
 	 * 			title of the new entry
