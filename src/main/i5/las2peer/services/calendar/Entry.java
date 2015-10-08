@@ -1,8 +1,11 @@
 package i5.las2peer.services.calendar;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import org.apache.commons.lang3.StringUtils;
 
 import i5.las2peer.persistency.MalformedXMLException;
 import i5.las2peer.persistency.XmlAble;
@@ -252,11 +255,66 @@ public class Entry implements XmlAble {
 		return false;
 	}
 	
+	/**
+	 * turns a calendar date into a string
+	 * 
+	 * @param date 
+	 * 		  the date to be turned into a string
+	 * @return
+	 * 		  a string representation of the date
+	 */
+	public String dateToString(Calendar date){ //pretty nasty way to do this, but the easier way to do this threw strange error
+		String ret = date.toString();
+		int year = Integer.parseInt(ret.substring(ret.indexOf("YEAR=")+5, ret.indexOf(",",ret.indexOf("YEAR="))));
+		int month = Integer.parseInt(ret.substring(ret.indexOf("MONTH=")+6, ret.indexOf(",",ret.indexOf("MONTH="))));
+		int day = Integer.parseInt(ret.substring(ret.indexOf("DAY_OF_MONTH=")+13, ret.indexOf(",",ret.indexOf("DAY_OF_MONTH="))));
+		int hour = Integer.parseInt(ret.substring(ret.indexOf("HOUR=")+5, ret.indexOf(",",ret.indexOf("HOUR="))));
+		int minute = Integer.parseInt(ret.substring(ret.indexOf("MINUTE=")+7, ret.indexOf(",",ret.indexOf("MINUTE="))));
+		return year + ":" + month + ":" + day + ":" + hour + ":" + minute;
+	}
+	
+	/**
+	 * parses a string into a calendar
+	 * 
+	 * @param sDate
+	 * 		  the string to be parsed
+	 * @return
+	 * 		  the calendar object parsed from the string
+	 */
+	public static Calendar stringToDate(String sDate){
+		
+		String[] parseArray = sDate.split(":");
+		int year = Integer.parseInt(parseArray[0]);
+		int month = Integer.parseInt(parseArray[1]);
+		int day = Integer.parseInt(parseArray[2]);
+		int hour = Integer.parseInt(parseArray[3]);
+		int minute = Integer.parseInt(parseArray[4]);
+		
+		return new GregorianCalendar(year, month, day, hour, minute);
+		
+	}
+	
 	@Override
 	public String toXmlString(){ //no date or comments at the moment
 		
-		return "<las2peer:entry id=\"" + this.uniqueID + "\" creator=\"" + this.creatorId 
-				+ "\" description=\"" + this.description +"\">" + this.title + "</las2peer:entry>\n";
+		String returnString = "";
+		
+		returnString += "<las2peer:entry id=\"" + this.uniqueID + "\" creator=\"" + this.creatorId 
+				+ "\" description=\"" + this.description + "\" start=\"" + dateToString(this.getStart()) + "\" end=\""  
+				+ dateToString(this.getEnd()) + "\" comment=\""; 
+		
+		
+		for(Comment aComment: this.comments){ // every comment to a string
+			returnString += "UID:" + aComment.getUniqueID() + ":" + aComment.getCreatorId() + ":" + aComment.getMessage() 
+			                + ":" + aComment.getTime().get(Calendar.YEAR) + ":" + aComment.getTime().get(Calendar.MONTH) + ":"
+			                + aComment.getTime().get(Calendar.DAY_OF_MONTH) + ":" + aComment.getTime().get(Calendar.HOUR_OF_DAY) + ":" + aComment.getTime().get(Calendar.MINUTE) 
+			                + ":";
+		}
+		
+	    returnString += "\">" + this.title +  "</las2peer:entry>\n";
+	    
+	    return returnString;
+	
 	}
 	
 	public static Entry createFromXml(String xml) throws MalformedXMLException {
@@ -270,8 +328,33 @@ public class Entry implements XmlAble {
 			long creator = Long.parseLong(root.getAttribute("creator"));
 			String title = child.getText();
 			String description = root.getAttribute("description");
+			String comment = root.getAttribute("comment");
+			String startDate = root.getAttribute("start");
+			String endDate = root.getAttribute("end");
+			int occurance = StringUtils.countMatches(comment, "UID");
+			String[] commentArray = comment.split(":"); // split the different comments
 			
-			Entry xmlEntry = new Entry(uniqueID, creator, title, description, 2);
+			Entry xmlEntry = new Entry(uniqueID, creator, title, description, 2); //create Entry
+
+			for(int i = 0; i < occurance; i++){ // go through the commentArray for one comment
+				int iter = i*9 + 1; 
+				String unique = commentArray[iter];
+				String creatorID = commentArray[iter+1];
+				long creatorLong = Long.parseLong(creatorID);
+				String message = commentArray[iter+2];
+				int year = Integer.parseInt(commentArray[iter+3]);
+				int month = Integer.parseInt(commentArray[iter+4]);
+				int day = Integer.parseInt(commentArray[iter+5]);
+				int hour = Integer.parseInt(commentArray[iter+6]);
+				int minute = Integer.parseInt(commentArray[iter+7]);
+				GregorianCalendar time = new GregorianCalendar(year, month, day, hour, minute);
+				Comment aComment = new Comment(unique, creatorLong, time, message);
+				xmlEntry.comments.add(aComment); //add the comment to the list of the entry
+			}
+		
+			xmlEntry.start = stringToDate(startDate); //add the dates to the entry
+			xmlEntry.end = stringToDate(endDate);
+			
 			return xmlEntry;
 			
 		}

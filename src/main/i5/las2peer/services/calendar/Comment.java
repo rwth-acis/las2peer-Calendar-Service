@@ -40,6 +40,14 @@ public class Comment {
 		this.time = time;
 		this.message = message;
 	}
+	
+	public Comment(String uniqueID, long creatorId, Calendar time, String message) {
+		super();
+		this.uniqueID = uniqueID;
+		this.creatorId = creatorId;
+		this.time = time;
+		this.message = message;
+	}
 
 	public long getCreatorId() {
 		return creatorId;

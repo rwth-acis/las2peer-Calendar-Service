@@ -354,9 +354,17 @@ public class ServiceTest {
        try{
 			
 			Entry test = new Entry(testAgent.getId(), "hallo", "test", 10);
+			test.setStart(2009, 9, 10, 10, 20);
+			test.setEnd(2012, 12, 12, 11, 20);
+			test.createComment(testAgent.getId(), "das ist ein kommentar");
+			test.createComment(testAgent.getId(), "ein weiterer kommentar");
 			String xml = test.toXmlString();
 			
 			Entry test2 = Entry.createFromXml(xml);
+			
+			assertTrue(test2.getTitle().equals("hallo"));
+			assertTrue(test2.getComments().get(0).getMessage().equals("das ist ein kommentar"));
+			assertTrue(test2.getComments().get(1).getMessage().equals("ein weiterer kommentar"));
 			
 		} catch(Exception e) {
 			e.printStackTrace();

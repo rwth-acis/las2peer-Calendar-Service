@@ -26,6 +26,8 @@ import i5.las2peer.restMapper.tools.XMLCheck;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.DatabaseManager;
+import i5.las2peer.services.calendar.storage.MyStorageObject;
+import i5.las2peer.services.calendar.storage.StorageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -134,6 +136,16 @@ public class MyCalendar extends Service {
 	// Service methods.
 	// //////////////////////////////////////////////////////////////////////////////////////
 
+	@GET
+	@Path("/awake/{test}")
+	public HttpResponse awake( @PathParam("test") String message){
+		
+		MyStorageObject test = new MyStorageObject(message);
+		StorageService moin = new StorageService();
+		moin.persistObject("hallo", test);
+		return new HttpResponse ("perfekt", HttpURLConnection.HTTP_ACCEPTED);
+		
+	}
 		
 	/**
 	 * Creates an entry and saves it permanently in the node storage.
@@ -181,7 +193,7 @@ public class MyCalendar extends Service {
 			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
 			 return new HttpResponse("entry was sucessfully stored", HttpURLConnection.HTTP_OK);
 		     } catch (Exception e) {
-				Context.logError(this, "Can't persist entries to network storage! " + e);
+				Context.logError(this, "Can't persist entries to network storage! " + e.getMessage());
 				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
 		     }
 	}
