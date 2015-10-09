@@ -1,6 +1,5 @@
 package i5.las2peer.services.calendar;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -264,6 +263,7 @@ public class Entry implements XmlAble {
 	 * 		  a string representation of the date
 	 */
 	public String dateToString(Calendar date){ //pretty nasty way to do this, but the easier way to do this threw strange error
+		if(date == null) return "";
 		String ret = date.toString();
 		int year = Integer.parseInt(ret.substring(ret.indexOf("YEAR=")+5, ret.indexOf(",",ret.indexOf("YEAR="))));
 		int month = Integer.parseInt(ret.substring(ret.indexOf("MONTH=")+6, ret.indexOf(",",ret.indexOf("MONTH="))));
@@ -283,6 +283,7 @@ public class Entry implements XmlAble {
 	 */
 	public static Calendar stringToDate(String sDate){
 		
+		if(sDate.equals("")) return null;
 		String[] parseArray = sDate.split(":");
 		int year = Integer.parseInt(parseArray[0]);
 		int month = Integer.parseInt(parseArray[1]);
@@ -352,8 +353,10 @@ public class Entry implements XmlAble {
 				xmlEntry.comments.add(aComment); //add the comment to the list of the entry
 			}
 		
+			if(!(startDate.equals("")) && !(endDate.equals(""))){
 			xmlEntry.start = stringToDate(startDate); //add the dates to the entry
 			xmlEntry.end = stringToDate(endDate);
+			}
 			
 			return xmlEntry;
 			

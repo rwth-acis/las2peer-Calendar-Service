@@ -105,32 +105,6 @@ public class ServiceTest {
 		System.out.println(logStream.toString());
 
 	}
-
-	/**
-	 * 
-	 * Tests the validation method.
-	 * 
-	 */
-	@Test
-	public void testValidateLogin()
-	{
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-
-		try
-		{
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("GET", mainPath + "validation", "");
-            assertEquals(200, result.getHttpCode());
-			assertTrue(result.getResponse().trim().contains("adam")); // login name is part of response
-			System.out.println("Result of 'testValidateLogin': " + result.getResponse().trim());
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-
-	}
 	
 	
 	/**
@@ -173,34 +147,6 @@ public class ServiceTest {
 		
 	}
 	
-
-
-	/**
-	 * 
-	 * Test the example method that consumes one path parameter
-	 * which we give the value "testInput" in this test.
-	 * 
-	 */
-	@Test
-	public void testExampleMethod()
-	{
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-
-		try
-		{
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("POST", mainPath + "myResourcePath/testInput", ""); // testInput is
-																										// the pathParam
-			assertEquals(200, result.getHttpCode());
-			assertTrue(result.getResponse().trim().contains("testInput")); // "testInput" name is part of response
-			System.out.println("Result of 'testExampleMethod': " + result.getResponse().trim());
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-	}
-	
 	@Test
 	public void testCreateEntry()
 	{
@@ -214,7 +160,7 @@ public class ServiceTest {
 		    ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", "");
 		    assertTrue(result.getResponse().trim().contains("0"));
 		    
-			result = c.sendRequest("GET", mainPath + "createEntry/testname/description", ""); // testInput is															
+			result = c.sendRequest("GET", mainPath + "create/testname/description", ""); // testInput is															
 			assertEquals(200, result.getHttpCode());
 			assertTrue(result.getResponse().trim().contains("testname")); // "testInput" name is part of response
 			
@@ -327,23 +273,6 @@ public class ServiceTest {
 		
 	}
 	
-//	@Test
-//	public void databaseTEST()
-//	{
-//		MiniClient c = new MiniClient();
-//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-//		
-//		try{
-//			
-//			ClientResponse result = c.sendRequest("POST", mainPath + "userEmail/melvin/esklappt", "");
-//			assertEquals(200,result.getHttpCode());
-//			
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//			fail("Exception: " + e);
-//		}
-//		
-//	}
 	
 	@Test
 	public void xmlTEST()

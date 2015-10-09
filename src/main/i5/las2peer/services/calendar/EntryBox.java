@@ -29,6 +29,28 @@ public class EntryBox implements Serializable {
 		}
 		
 		/**
+		 * get Entry by putting in ID
+		 * 
+		 * @param newEntry
+		 * 			   entry that should be returned
+		 */
+		public Entry returnEntry(String id){
+			try{
+			for(String anEntry : entries) {
+				if(anEntry.contains(id)){
+					return Entry.createFromXml(anEntry);
+				}
+			}
+			Context.logError(this, "couldn't find entry '");
+			return null;
+			}
+			catch(Exception e){
+				Context.logError(this, "can't parse massage from XML '");
+				return null;
+			}
+		}
+		
+		/**
 		 * get an entry with all the entries of the storage
 		 * 
 		 * @return array with all entries of the storage
@@ -51,6 +73,23 @@ public class EntryBox implements Serializable {
 		}
 		
 		/**
+		 * delete an entry by putting in its id
+		 * 
+		 * return whether or not entry was found
+		 */
+		public boolean delete(String id){
+			for(String anEntry : entries) {
+				if(anEntry.contains(id)){
+					entries.remove(anEntry);
+					return true;
+				}
+			}
+			Context.logError(this, "id wasn't found'");
+			return false;
+		}
+		
+		
+		/**
 		 * returns the size of the entry storage
 		 */
 		public int size(){
@@ -62,6 +101,19 @@ public class EntryBox implements Serializable {
 		 */
 		public void delete(){
 			entries.clear();
+		}
+		
+		/**
+		 * find the entry id for a comment i
+		 * return the id of the entry
+		 */
+		public String findComment(String commentID){
+			for(String anEntry: entries){
+				if(anEntry.contains(commentID)){
+					return anEntry;
+				}
+			}
+			return "";
 		}
 		
 		

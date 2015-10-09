@@ -26,8 +26,6 @@ import i5.las2peer.restMapper.tools.XMLCheck;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.DatabaseManager;
-import i5.las2peer.services.calendar.storage.MyStorageObject;
-import i5.las2peer.services.calendar.storage.StorageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -136,16 +134,6 @@ public class MyCalendar extends Service {
 	// Service methods.
 	// //////////////////////////////////////////////////////////////////////////////////////
 
-	@GET
-	@Path("/awake/{test}")
-	public HttpResponse awake( @PathParam("test") String message){
-		
-		MyStorageObject test = new MyStorageObject(message);
-		StorageService moin = new StorageService();
-		moin.persistObject("hallo", test);
-		return new HttpResponse ("perfekt", HttpURLConnection.HTTP_ACCEPTED);
-		
-	}
 		
 	/**
 	 * Creates an entry and saves it permanently in the node storage.
@@ -157,7 +145,7 @@ public class MyCalendar extends Service {
 	 * @param description
 	 * 			description of the new entry
 	 * @return
-	 * 		   whether or not creation was sucessful
+	 * 		   whether or not creation was successful
 	 */
 	@GET
 	@Path("/create/{title}/{description}")
@@ -168,6 +156,7 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 Entry newEntry = new Entry(getActiveAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
+		 String id = newEntry.getUniqueID();
 		 
 		 // save entry using envelopes
 		 try{
@@ -191,7 +180,7 @@ public class MyCalendar extends Service {
 			 env.store();
 			 env.close();
 			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
-			 return new HttpResponse("entry was sucessfully stored", HttpURLConnection.HTTP_OK);
+			 return new HttpResponse("entry with id:" + id +":was sucessfully stored", HttpURLConnection.HTTP_OK);
 		     } catch (Exception e) {
 				Context.logError(this, "Can't persist entries to network storage! " + e.getMessage());
 				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
@@ -270,14 +259,44 @@ public class MyCalendar extends Service {
 	@GET
 	@Path("/deleteEntry/{id}")
 	public HttpResponse deleteEntry( @PathParam("id") String id) {
-		Entry dummy = retrieveEntry(id);
-		if(dummy == null){
-			return new HttpResponse("fail", HttpURLConnection.HTTP_NOT_FOUND);
-		}
-		this.getEntries().remove(dummy);
-		String returnString = "";
-		returnString += ((UserAgent) getActiveAgent()).getLoginName() + " deleted an entry with the name " + dummy.getTitle();
-		return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
+		
+		try{
+
+			 Envelope env = null;
+			 
+			 try{
+				 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			 }
+			 
+			 catch (Exception e){
+				 Context.logMessage(this, "Network storage not found. " + e);
+				 return new HttpResponse("There is not network storage yet", HttpURLConnection.HTTP_BAD_REQUEST);
+			 }
+			 
+			 env.open(getAgent());
+			 EntryBox stored = env.getContent(EntryBox.class);
+			 boolean result = stored.delete(id);
+			 env.updateContent(stored);
+			 env.addSignature(getAgent());
+			 env.store();
+			 env.close();
+			 
+			 if(result==true){
+			 Context.logMessage(this, "deleted" + stored.size() + " entries in network storage");
+			 return new HttpResponse("entry was sucessfully deleted", HttpURLConnection.HTTP_OK);
+			 }
+			 
+			 else{
+				 
+				 return new HttpResponse("entry wansn't found", HttpURLConnection.HTTP_OK);
+				 
+			 }
+			 
+		     } catch (Exception e) {
+				Context.logError(this, "Couldn't delete the entry" + e.getMessage());
+				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
+		     }
+		
 	}
 	
 	/**
@@ -289,9 +308,32 @@ public class MyCalendar extends Service {
 	@GET
 	@Path("/getNumber")
 	public HttpResponse getNumberOfEntries(){
-		int counter = this.getEntries().size();
-		String count = Integer.toString(counter);
-		return new HttpResponse(count, HttpURLConnection.HTTP_OK);
+		
+		Envelope env = null;
+		 
+		 try{ //try to load the entryBox
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		 }
+		 
+		 catch (Exception e){
+			 Context.logMessage(this, "Network storage not found." + e);
+			 return new HttpResponse("0", HttpURLConnection.HTTP_BAD_REQUEST);
+		 }
+		 
+		 try{
+			 
+		 env.open(getAgent());
+		 EntryBox stored = env.getContent(EntryBox.class);
+		 int size = stored.size();
+		 env.close();
+		 return new HttpResponse("The amount of entries is: " + size, HttpURLConnection.HTTP_OK);
+		 
+		 }
+		 
+		 catch(Exception e){
+			 Context.logError(this, "Can't read messages from storage");
+		     }
+		 return new HttpResponse("GetNumber Fail", HttpURLConnection.HTTP_BAD_REQUEST);
 	}
 	
 	
@@ -319,26 +361,47 @@ public class MyCalendar extends Service {
 	public HttpResponse setStart( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
 			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
 	{
-		if(retrieveEntry(id) == null){
-			return new HttpResponse("Entry not found", HttpURLConnection.HTTP_NOT_FOUND);
-		}
 		
-		int yearInt   = Integer.parseInt(year);
-		int monthInt  = Integer.parseInt(month);
-		int dayInt    = Integer.parseInt(day);
-		int hourInt   = Integer.parseInt(hour);
-		int minuteInt = Integer.parseInt(minute);
-		
-		
-		boolean result = retrieveEntry(id).setStart(yearInt, monthInt, dayInt, hourInt, minuteInt);
-		if(result == true){
-		return new HttpResponse("Start date set", HttpURLConnection.HTTP_OK);
-		}
-		
-		else{
-			return new HttpResponse("Start date could not be set", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
-
+			int yearInt   = Integer.parseInt(year);
+			int monthInt  = Integer.parseInt(month);
+			int dayInt    = Integer.parseInt(day);
+			int hourInt   = Integer.parseInt(hour);
+			int minuteInt = Integer.parseInt(minute);
+			
+			 Envelope env = null;
+			 
+			 try{
+				 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			 }
+			 
+			 catch (Exception e){
+				 Context.logMessage(this, "there is not storage yet");
+				 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+			 }
+			
+			 try{
+				 
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			
+			 env.open(getAgent());
+			 EntryBox stored = env.getContent(EntryBox.class);
+			 Entry updatedEntry = stored.returnEntry(id); //get the entry whose start date is supposed to be stored
+			 updatedEntry.setStart(yearInt, monthInt, dayInt, hourInt, minuteInt);
+			 stored.delete(id);
+			 stored.addEntry(updatedEntry);
+			 
+			 env.updateContent(stored);
+			 env.addSignature(getAgent());
+			 env.store();
+			 env.close();
+			 
+			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+			 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+			 } 
+			 catch(Exception e){
+				 Context.logMessage(this, "couldn't open the storage");
+				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+			 }
 	}
 	
 	
@@ -366,26 +429,47 @@ public class MyCalendar extends Service {
 	public HttpResponse setEnd( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
 			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
 	{
-		if(retrieveEntry(id) == null){
-			return new HttpResponse("Entry not found", HttpURLConnection.HTTP_NOT_FOUND);
-		}
 		
-		int yearInt   = Integer.parseInt(year);
-		int monthInt  = Integer.parseInt(month);
-		int dayInt    = Integer.parseInt(day);
-		int hourInt   = Integer.parseInt(hour);
-		int minuteInt = Integer.parseInt(minute);
-		
-		
-		boolean result = retrieveEntry(id).setEnd(yearInt, monthInt, dayInt, hourInt, minuteInt);
-		if(result == true){
-		return new HttpResponse("End date set", HttpURLConnection.HTTP_OK);
-		}
-		
-		else{
-			return new HttpResponse("End date could not be set", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
-
+			int yearInt   = Integer.parseInt(year);
+			int monthInt  = Integer.parseInt(month);
+			int dayInt    = Integer.parseInt(day);
+			int hourInt   = Integer.parseInt(hour);
+			int minuteInt = Integer.parseInt(minute);
+			
+			 Envelope env = null;
+			 
+			 try{
+				 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			 }
+			 
+			 catch (Exception e){
+				 Context.logMessage(this, "there is not storage yet");
+				 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+			 }
+			
+			 try{
+				 
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			
+			 env.open(getAgent());
+			 EntryBox stored = env.getContent(EntryBox.class);
+			 Entry updatedEntry = stored.returnEntry(id); //get the entry whose start date is supposed to be stored
+			 updatedEntry.setEnd(yearInt, monthInt, dayInt, hourInt, minuteInt);
+			 stored.delete(id);
+			 stored.addEntry(updatedEntry);
+			 
+			 env.updateContent(stored);
+			 env.addSignature(getAgent());
+			 env.store();
+			 env.close();
+			 
+			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+			 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+			 }
+			 catch(Exception e){
+				 Context.logMessage(this, "couldn't open the storage");
+				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+			 }
 	}
 	
 	/**
@@ -401,21 +485,40 @@ public class MyCalendar extends Service {
 	@Path("/createComment/{id}/{comment}")
 	public HttpResponse createComment( @PathParam("id") String id, @PathParam("comment") String comment) {
 		
-		Entry entry = retrieveEntry(id);
-		if(entry == null){
-			return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
+		Envelope env = null;
+		 
+		 try{
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		 }
+		 
+		 catch (Exception e){
+			 Context.logMessage(this, "there is not storage yet");
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+		 }
 		
-		String commentId = entry.createComment(getActiveAgent().getId(), comment);
+		 try{
+			 
+		 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
 		
-		if(commentId.equals("")){
-			return new HttpResponse("comment was empty", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
-		
-		String returnString = "";
-		returnString += "Comment could be created for the entry:" + id + "and the new id of the comment is:" + commentId + ":"; 
-		
-		return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
+		 env.open(getAgent());
+		 EntryBox stored = env.getContent(EntryBox.class);
+		 Entry updatedEntry = stored.returnEntry(id); //get the entry where a comment shall be written to
+		 updatedEntry.createComment(getActiveAgent().getId(), comment); //add the comment
+		 stored.delete(id); //delete the former entry
+		 stored.addEntry(updatedEntry); //upload the new entry
+		 
+		 env.updateContent(stored);
+		 env.addSignature(getAgent());
+		 env.store();
+		 env.close();
+		 
+		 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+		 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+		 } 
+		 catch(Exception e){
+			 Context.logMessage(this, "couldn't open the storage");
+			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+		 }
 	}
 	
 	/**
@@ -429,16 +532,46 @@ public class MyCalendar extends Service {
 	@Path("/deleteComment/{id}")
 	public HttpResponse deleteComment( @PathParam("id") String id) {
 		
-		for(Entry anEntry: this.getEntries()){
-			for(Comment aComment: anEntry.getComments()){
-				if(aComment.getUniqueID().equals(id)){
-					anEntry.getComments().remove(aComment);
-					return new HttpResponse("comment with the following id was deleted" + id, HttpURLConnection.HTTP_OK);
-				}
-			}
-		}
+		Envelope env = null;
+		 
+		 try{
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		 }
+		 
+		 catch (Exception e){
+			 Context.logMessage(this, "there is not storage yet");
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+		 }
 		
-		return new HttpResponse("comment was not found", HttpURLConnection.HTTP_BAD_REQUEST);
+		 try{
+			 
+		 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		
+		 env.open(getAgent());
+		 EntryBox stored = env.getContent(EntryBox.class);
+		 String entryID = stored.findComment(id);
+		 if(entryID.equals("")){
+			 Context.logMessage(this, "Comment was not found");
+			 return new HttpResponse("Comment was not found", HttpURLConnection.HTTP_ACCEPTED);
+		 }
+		 
+		 Entry newEntry = stored.returnEntry(entryID);
+		 newEntry.deleteComment(id);
+		 stored.delete(entryID); //delete the former entry
+		 stored.addEntry(newEntry); //upload the new entry
+		 
+		 env.updateContent(stored);
+		 env.addSignature(getAgent());
+		 env.store();
+		 env.close();
+		 
+		 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+		 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+		 } 
+		 catch(Exception e){
+			 Context.logMessage(this, "couldn't open the storage");
+			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+		 }
 	}
 	
 	/**
@@ -449,13 +582,33 @@ public class MyCalendar extends Service {
 	@Path("/getDay/{year}/{month}/{day}")
 	public HttpResponse getDay ( @PathParam("year") String year, @PathParam ("month") String month, @PathParam("day") String day){
 		
-		ArrayList<Entry> entryList = new ArrayList<Entry>();
-		int yearInt = Integer.parseInt(year);
-		int monthInt = Integer.parseInt(month);
-		int dayInt = Integer.parseInt(day);
-		GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, dayInt);
+		Envelope env = null;
 		
-		for(Entry anEntry: this.getEntries()){
+		 try{
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		 }
+		 
+		 catch (Exception e){
+			 Context.logMessage(this, "there is not storage yet");
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+		 }
+		 
+		 try{
+			 
+			 ArrayList<Entry> entryList = new ArrayList<>();
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			
+			 env.open(getAgent());
+			 EntryBox stored = env.getContent(EntryBox.class);
+			 
+			 Entry[] entries = stored.getEntries();
+			 int yearInt = Integer.parseInt(year);
+			 int monthInt = Integer.parseInt(month);
+			 int dayInt = Integer.parseInt(day);
+			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, dayInt);
+			 
+		
+		for(Entry anEntry: entries){
 			Calendar date = anEntry.getStart();
 			Calendar end = anEntry.getEnd();
 			if(date.get(Calendar.YEAR) == yearInt){ // if entry starts on the day
@@ -479,10 +632,7 @@ public class MyCalendar extends Service {
 				}
 			}
 		}
-		
-		if(entryList.isEmpty()){
-			return new HttpResponse("no matching entries were found", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
+	
 		
 		String returnString = "The following entries were found:";
 		for(Entry anEntry: entryList){
@@ -491,216 +641,13 @@ public class MyCalendar extends Service {
 		
 		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
 		
-	}
-
-	/**
-	 * Simple function to validate a user login.
-	 * Basically it only serves as a "calling point" and does not really validate a user
-	 * (since this is done previously by LAS2peer itself, the user does not reach this method
-	 * if he or she is not authenticated).
-	 * 
-	 */
-	@GET
-	@Path("/validation")
-	@Produces(MediaType.TEXT_PLAIN)
-	@ApiOperation(value = "User Validation",
-			notes = "Simple function to validate a user login.")
-	@ApiResponses(value = {
-			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Validation Confirmation"),
-			@ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized")
-	})
-	public HttpResponse validateLogin() {
-		String returnString = "";
-		returnString += "You are " + ((UserAgent) getActiveAgent()).getLoginName() + " and your login is valid!";
-		return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
-	}
-
-	/**
-	 * Example method that returns a phrase containing the received input.
-	 * 
-	 * @param myInput
-	 * 
-	 */
-	@POST
-	@Path("/myResourcePath/{input}")
-	@Produces(MediaType.TEXT_PLAIN)
-	@ApiResponses(value = {
-			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Input Phrase"),
-			@ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized")
-	})
-	@ApiOperation(value = "Sample Resource",
-			notes = "Example method that returns a phrase containing the received input.")
-	public HttpResponse exampleMethod(@PathParam("input") String myInput) {
-		String returnString = "";
-		returnString += "You have entered " + myInput + "!";
-
-		return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
-	}
-
-	/**
-	 * Example method that shows how to retrieve a user email address from a database 
-	 * and return an HTTP response including a JSON object.
-	 * 
-	 * WARNING: THIS METHOD IS ONLY FOR DEMONSTRATIONAL PURPOSES!!! 
-	 * IT WILL REQUIRE RESPECTIVE DATABASE TABLES IN THE BACKEND, WHICH DON'T EXIST IN THE TEMPLATE.
-	 * 
-	 */
-	@GET
-	@Path("/userEmail/{username}")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiResponses(value = {
-			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "User Email"),
-			@ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "User not found"),
-			@ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal Server Error")
-	})
-	@ApiOperation(value = "Email Address Administration",
-			notes = "Example method that retrieves a user email address from a database."
-					+ " WARNING: THIS METHOD IS ONLY FOR DEMONSTRATIONAL PURPOSES!!! "
-					+ "IT WILL REQUIRE RESPECTIVE DATABASE TABLES IN THE BACKEND, WHICH DON'T EXIST IN THE TEMPLATE.")
-	public HttpResponse getUserEmail(@PathParam("username") String username) {
-		String result = "";
-		Connection conn = null;
-		PreparedStatement stmnt = null;
-		ResultSet rs = null;
-		try {
-			// get connection from connection pool
-			conn = dbm.getConnection();
-
-			// prepare statement
-			stmnt = conn.prepareStatement("SELECT email FROM users WHERE username = ?;");
-			stmnt.setString(1, username);
-
-			// retrieve result set
-			rs = stmnt.executeQuery();
-
-			// process result set
-			if (rs.next()) {
-				result = rs.getString(1);
-
-				// setup resulting JSON Object
-				JSONObject ro = new JSONObject();
-				ro.put("email", result);
-
-				// return HTTP Response on success
-				return new HttpResponse(ro.toJSONString(), HttpURLConnection.HTTP_OK);
-			} else {
-				result = "No result for username " + username;
-
-				// return HTTP Response on error
-				return new HttpResponse(result, HttpURLConnection.HTTP_NOT_FOUND);
-			}
-		} catch (Exception e) {
-			// return HTTP Response on error
-			return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-		} finally {
-			// free resources
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (Exception e) {
-					Context.logError(this, e.getMessage());
-
-					// return HTTP Response on error
-					return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-				}
-			}
-			if (stmnt != null) {
-				try {
-					stmnt.close();
-				} catch (Exception e) {
-					Context.logError(this, e.getMessage());
-
-					// return HTTP Response on error
-					return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					Context.logError(this, e.getMessage());
-
-					// return HTTP Response on error
-					return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-				}
-			}
 		}
-	}
-
-	/**
-	 * Example method that shows how to change a user email address in a database.
-	 * 
-	 * WARNING: THIS METHOD IS ONLY FOR DEMONSTRATIONAL PURPOSES!!! 
-	 * IT WILL REQUIRE RESPECTIVE DATABASE TABLES IN THE BACKEND, WHICH DON'T EXIST IN THE TEMPLATE.
-	 * 
-	 */
-	@POST
-	@Path("/userEmail/{username}/{email}")
-	@Produces(MediaType.TEXT_PLAIN)
-	@ApiResponses(value = {
-			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Update Confirmation"),
-			@ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-			@ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal Server Error")
-	})
-	@ApiOperation(value = "setUserEmail",
-			notes = "Example method that changes a user email address in a database."
-					+ " WARNING: THIS METHOD IS ONLY FOR DEMONSTRATIONAL PURPOSES!!! "
-					+ "IT WILL REQUIRE RESPECTIVE DATABASE TABLES IN THE BACKEND, WHICH DON'T EXIST IN THE TEMPLATE.")
-	public HttpResponse setUserEmail(@PathParam("username") String username, @PathParam("email") String email) {
-
-		String result = "";
-		Connection conn = null;
-		PreparedStatement stmnt = null;
-		ResultSet rs = null;
-		try {
-			conn = dbm.getConnection();
-			stmnt = conn.prepareStatement("UPDATE users SET email = ? WHERE username = ?;");
-			stmnt.setString(1, email);
-			stmnt.setString(2, username);
-			int rows = stmnt.executeUpdate(); // same works for insert
-			result = "Database updated. " + rows + " rows affected";
-
-			// return
-			return new HttpResponse(result, HttpURLConnection.HTTP_OK);
-		} catch (Exception e) {
-			// return HTTP Response on error
-			return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-		} finally {
-			// free resources if exception or not
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (Exception e) {
-					Context.logError(this, e.getMessage());
-
-					// return HTTP Response on error
-					return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-				}
-			}
-			if (stmnt != null) {
-				try {
-					stmnt.close();
-				} catch (Exception e) {
-					Context.logError(this, e.getMessage());
-
-					// return HTTP Response on error
-					return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					Context.logError(this, e.getMessage());
-
-					// return HTTP Response on error
-					return new HttpResponse("Internal error: " + e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-				}
-			}
+		catch(Exception e){
+			 Context.logMessage(this, "couldn't open the storage");
+			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
 		}
+		
 	}
-	
 
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Methods required by the LAS2peer framework.

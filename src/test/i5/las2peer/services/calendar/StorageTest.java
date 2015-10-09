@@ -109,8 +109,31 @@ public class StorageTest {
 		try{
 			
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("GET", mainPath + "create/hello/test", "");
+			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); //assert there are no entries
+			assertTrue(result.getResponse().contains("0")); 
+			assertEquals(400,result.getHttpCode());
+		    result = c.sendRequest("GET", mainPath + "create/hello/test", ""); //create an entry
 			assertEquals(200,result.getHttpCode());
+			result = c.sendRequest("GET", mainPath + "getNumber", ""); // should return one 
+			assertTrue(result.getResponse().contains("1"));
+			result = c.sendRequest("GET", mainPath + "create/neuereintrag/willkommen", ""); //create another entry
+			
+			String[] returnID = result.getResponse().split(":");
+			String deleteID = returnID[1]; //get the id of the second entry
+			
+			result = c.sendRequest("GET", mainPath + "getNumber", "");
+			assertTrue(result.getResponse().contains("2"));
+			
+			result = c.sendRequest("POST", mainPath + "setStart/" + deleteID + "/2002/3/9/15/12", "");
+			assertEquals(200,result.getHttpCode());
+			 
+			result = c.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); //delete the second entry
+			assertEquals(200,result.getHttpCode());
+			
+			result = c.sendRequest("GET", mainPath + "getNumber", ""); //check if it really
+			assertTrue(result.getResponse().contains("1"));
+			
+			
 			
 		} catch(Exception e) {
 			e.printStackTrace();
