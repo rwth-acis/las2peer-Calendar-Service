@@ -105,6 +105,15 @@ public class MyCalendar extends Service {
 	public UserAgent getUserAgent(){
 		return (UserAgent) getActiveAgent();
 	}
+	
+	public void createEntry(String title, String description, String year, String month, String day, 
+							String sHour, String sMinute, String eHour, String eMinute){
+		String result = createEntry(title, description).getResult();
+		String[] resultArray = result.split(":");
+		String id = resultArray[1];
+		result = setStart(id, year, month, day, sHour,sMinute).getResult();
+		result = setEnd(id, year, month, day, eHour, eMinute).getResult();
+	}
 
 	// returns an entry within the calendar with an id
 	public Entry retrieveEntry(String id) {
@@ -649,6 +658,47 @@ public class MyCalendar extends Service {
 		
 	}
 
+	@POST
+	@Path("/createWeekly/{year}/{month}/{day}/{weeks}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}")
+	public HttpResponse createWeekly ( @PathParam("year") String year, @PathParam("month") String sMonth, 
+									   @PathParam("day") String day, 
+									   @PathParam ("weeks") String lengthWeek, @PathParam ("startHour") String sHour,
+									   @PathParam("startMinute") String sMinute, @PathParam("endHour") String eHour, 
+									   @PathParam("endMinute") String eMinute, @PathParam("title") String title, @PathParam("description") String description){
+		
+		int startYear = Integer.parseInt(year);
+		int month = Integer.parseInt(sMonth);
+		int weeks = Integer.parseInt(lengthWeek);
+		int startDay = Integer.parseInt(day);
+		int startHour = Integer.parseInt(sHour);
+		int startMinute = Integer.parseInt(sMinute);
+		int endHour = Integer.parseInt(eHour);
+		int endMinute = Integer.parseInt(eMinute);
+		
+		GregorianCalendar start = new GregorianCalendar(startYear, month, startDay, startHour, startMinute);
+		GregorianCalendar end = new GregorianCalendar(startYear, month, startDay, endHour, endMinute);
+		
+		if(start.after(end)){
+			return new HttpResponse("start was after end", HttpURLConnection.HTTP_BAD_REQUEST);
+		}
+		
+		createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+		
+		
+		while(weeks>(0)){
+			start.add(Calendar.DATE, 7);
+			year = Integer.toString(start.get(Calendar.YEAR));
+			sMonth = Integer.toString(start.get(Calendar.MONTH));
+			day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			weeks--;
+		}
+		
+		return new HttpResponse("dates were created", HttpURLConnection.HTTP_ACCEPTED);
+		
+	}
+	
+	
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Methods required by the LAS2peer framework.
 	// //////////////////////////////////////////////////////////////////////////////////////
