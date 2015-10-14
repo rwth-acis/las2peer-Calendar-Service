@@ -108,7 +108,7 @@ public class MyCalendar extends Service {
 	
 	public void createEntry(String title, String description, String year, String month, String day, 
 							String sHour, String sMinute, String eHour, String eMinute){
-		String result = createEntry(title, description).getResult();
+		String result = create(title, description).getResult();
 		String[] resultArray = result.split(":");
 		String id = resultArray[1];
 		result = setStart(id, year, month, day, sHour,sMinute).getResult();
@@ -658,6 +658,31 @@ public class MyCalendar extends Service {
 		
 	}
 
+	/**
+	 * method to create entries on a weekly basis
+	 * 
+	 * @param year
+	 * 			the year in which the dates should start
+	 * @param sMonth
+	 * 			starting month of the first date
+	 * @param day
+	 * 			starting day of the month of the first date
+	 * @param lengthWeek
+	 * 			the amount of entries that should be created (one per week)
+	 * @param sHour
+	 * 			the starting hour of the entries
+	 * @param sMinute
+	 * 			the starting minute of the entries
+	 * @param eHour
+	 * 			the end hour of the entries
+	 * @param eMinute
+	 * 			the ending minute of the entries
+	 * @param title
+	 * 			the title of the entries
+	 * @param description
+	 * 			the description of the entries
+	 * @return
+	 */
 	@POST
 	@Path("/createWeekly/{year}/{month}/{day}/{weeks}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}")
 	public HttpResponse createWeekly ( @PathParam("year") String year, @PathParam("month") String sMonth, 
@@ -683,7 +708,7 @@ public class MyCalendar extends Service {
 		}
 		
 		createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
-		
+		weeks--;
 		
 		while(weeks>(0)){
 			start.add(Calendar.DATE, 7);
@@ -694,7 +719,47 @@ public class MyCalendar extends Service {
 			weeks--;
 		}
 		
-		return new HttpResponse("dates were created", HttpURLConnection.HTTP_ACCEPTED);
+		return new HttpResponse("dates were created", HttpURLConnection.HTTP_OK);
+		
+	}
+	
+	@POST
+	@Path("/createMonthly/{year}/{month}/{day}/{months}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}")
+	public HttpResponse createMonthly ( @PathParam("year") String year, @PathParam("month") String sMonth, 
+									   @PathParam("day") String day, 
+									   @PathParam ("months") String lengthMonths, @PathParam ("startHour") String sHour,
+									   @PathParam("startMinute") String sMinute, @PathParam("endHour") String eHour, 
+									   @PathParam("endMinute") String eMinute, @PathParam("title") String title, @PathParam("description") String description){
+		
+		int startYear = Integer.parseInt(year);
+		int month = Integer.parseInt(sMonth);
+		int months = Integer.parseInt(lengthMonths);
+		int startDay = Integer.parseInt(day);
+		int startHour = Integer.parseInt(sHour);
+		int startMinute = Integer.parseInt(sMinute);
+		int endHour = Integer.parseInt(eHour);
+		int endMinute = Integer.parseInt(eMinute);
+		
+		GregorianCalendar start = new GregorianCalendar(startYear, month, startDay, startHour, startMinute);
+		GregorianCalendar end = new GregorianCalendar(startYear, month, startDay, endHour, endMinute);
+		
+		if(start.after(end)){
+			return new HttpResponse("start was after end", HttpURLConnection.HTTP_BAD_REQUEST);
+		}
+		
+		createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+		months--;
+		
+		while(months>(0)){
+			start.add(Calendar.MONTH, 1);
+			year = Integer.toString(start.get(Calendar.YEAR));
+			sMonth = Integer.toString(start.get(Calendar.MONTH));
+			day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			months--;
+		}
+		
+		return new HttpResponse("dates were created", HttpURLConnection.HTTP_OK);
 		
 	}
 	

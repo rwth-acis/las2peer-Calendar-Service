@@ -143,6 +143,37 @@ public class StorageTest {
 	}
 	
 	@Test
+	public void intervallTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); //assert there is one entry from the previous test
+			assertTrue(result.getResponse().contains("1"));
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			result = c.sendRequest("POST", mainPath + "createWeekly/2012/2/3/2/14/22/15/24/wocheneintrag/jedewoche", ""); //create two entries
+			assertEquals(200, result.getHttpCode());
+			
+			result = c.sendRequest("GET", mainPath + "getNumber", "");
+			assertTrue(result.getResponse().contains("3")); //check if they have been created
+			
+			result = c.sendRequest("POST", mainPath + "createMonthly/2002/5/10/4/12/12/17/34/monatseintrag/jedermonat", ""); //create 4 entries
+			assertEquals(200, result.getHttpCode());
+			
+			result = c.sendRequest("GET", mainPath + "getNumber", "");
+			assertTrue(result.getResponse().contains("7")); //check if they have been created
+		
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}		
+	}
+	
+	@Test
 	public void loadTEST()
 	{
 		MiniClient c = new MiniClient();

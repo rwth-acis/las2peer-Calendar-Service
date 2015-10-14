@@ -112,195 +112,112 @@ public class ServiceTest {
 	 * 
 	 */
 	
-	@Test
+//	@Test
 	
-	public void testDates(){
-		
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-		
-		try
-		{
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("GET", mainPath + "createEntry/testname/description", ""); 
-			
-			String[] test = result.getResponse().split(":"); // get the id
-			String entryID = test[1];
-			
-			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2010/11/13/12/34" , "");
-			assertEquals(200, result.getHttpCode());
-			
-			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2009/11/13/12/34", "");
-			assertEquals(400, result.getHttpCode());
-			
-			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
-			
-			
-			
-		}
-		
-		catch (Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-		
-		
-	}
-	
-	@Test
-	public void testCreateEntry()
-	{
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//	public void testDates(){
+//		
+//		MiniClient c = new MiniClient();
+//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//		
+//		try
+//		{
+//			c.setLogin(Long.toString(testAgent.getId()), testPass);
+//			ClientResponse result = c.sendRequest("GET", mainPath + "createEntry/testname/description", ""); 
+//			
+//			String[] test = result.getResponse().split(":"); // get the id
+//			String entryID = test[1];
+//			
+//			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2010/11/13/12/34" , "");
+//			assertEquals(200, result.getHttpCode());
+//			
+//			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2009/11/13/12/34", "");
+//			assertEquals(400, result.getHttpCode());
+//			
+//			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
+//			
+//			
+//			
+//		}
+//		
+//		catch (Exception e) {
+//			e.printStackTrace();
+//			fail("Exception: " + e);
+//		}
+//		
+//		
+//	}
+//	
 
-		try
-		{
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			
-		    ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", "");
-		    assertTrue(result.getResponse().trim().contains("0"));
-		    
-			result = c.sendRequest("GET", mainPath + "create/testname/description", ""); // testInput is															
-			assertEquals(200, result.getHttpCode());
-			assertTrue(result.getResponse().trim().contains("testname")); // "testInput" name is part of response
-			
-			String[] test = result.getResponse().split(":"); // get the id
-			String entryID = test[1];
-			
-			result = c.sendRequest("GET", mainPath + "getNumber", "");
-			assertTrue(result.getResponse().trim().contains("1"));
-			
-			result = c.sendRequest("POST", mainPath + "createComment/" + entryID + "/this is a test comment", "");
-			
-			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
-			assertEquals(200, result.getHttpCode());
-			
-			result = c.sendRequest("GET", mainPath + "getNumber", "");
-			assertTrue(result.getResponse().trim().contains("0"));
-			
-			
-			System.out.println("Result of 'testExampleMethod': " + result.getResponse().trim());
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-	}
 	
-	@Test
-	public void testComments()
-	{
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-
-		try{
-			
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("GET", mainPath + "createEntry/testname/description", "");
-			
-			String[] test = result.getResponse().split(":"); // get the id
-			String entryID = test[1];
-			
-			result = c.sendRequest("POST", mainPath + "createComment/" + entryID + "/this is a test", "");
-			test = result.getResponse().split(":");
-			String commentID = test[2];
-			
-			result = c.sendRequest("POST", mainPath + "deleteComment/" + commentID, "");
-			assertEquals(200, result.getHttpCode());
-			result = c.sendRequest("POST", mainPath + "deleteComment/" + commentID, "");
-			assertEquals(400, result.getHttpCode());
-			
-			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
-			assertEquals(200, result.getHttpCode()); 
-			
-			result = c.sendRequest("GET", mainPath + "getNumber", "");
-			assertTrue(result.getResponse().trim().contains("0"));
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-		
-	}
+//	@Test
+//	public void testComments()
+//	{
+//		MiniClient c = new MiniClient();
+//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//
+//		try{
+//			
+//			c.setLogin(Long.toString(testAgent.getId()), testPass);
+//			ClientResponse result = c.sendRequest("GET", mainPath + "createEntry/testname/description", "");
+//			
+//			String[] test = result.getResponse().split(":"); // get the id
+//			String entryID = test[1];
+//			
+//			result = c.sendRequest("POST", mainPath + "createComment/" + entryID + "/this is a test", "");
+//			test = result.getResponse().split(":");
+//			String commentID = test[2];
+//			
+//			result = c.sendRequest("POST", mainPath + "deleteComment/" + commentID, "");
+//			assertEquals(200, result.getHttpCode());
+//			result = c.sendRequest("POST", mainPath + "deleteComment/" + commentID, "");
+//			assertEquals(400, result.getHttpCode());
+//			
+//			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
+//			assertEquals(200, result.getHttpCode()); 
+//			
+//			result = c.sendRequest("GET", mainPath + "getNumber", "");
+//			assertTrue(result.getResponse().trim().contains("0"));
+//			
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			fail("Exception: " + e);
+//		}
+//		
+//	}
 	
 	/**
 	 * Test the getDay Method
 	 */
 	
-	@Test
-	public void testDaySearch()
-	{
-
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-
-		try{
-			
-			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", "");
-			assertTrue(result.getResponse().trim().contains("0"));
-			
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			result = c.sendRequest("GET", mainPath + "createEntry/testname/description", "");
-
-			String[] test = result.getResponse().split(":"); // get the id
-			String entryID = test[1];
-			
-			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2010/11/13/12/34" , "");
-			
-			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2010/11/13/12/50", "");
-			
-			result = c.sendRequest("GET", mainPath + "getDay/2010/11/13", "");
-			assertTrue(result.getResponse().trim().contains(entryID));			
-			
-			result = c.sendRequest("GET", mainPath + "createEntry/zweiter/description", "");
-			test = result.getResponse().split(":"); // get the id
-		    String entryIDsecond = test[1];
-		    
-		    result = c.sendRequest("POST", mainPath + "setStart/" + entryIDsecond + "/2011/12/13/12/34" , "");
-		    result = c.sendRequest("POST", mainPath + "setEnd/" + entryIDsecond + "/2011/12/15/12/50", "");
-		
-		    result = c.sendRequest("GET", mainPath + "getDay/2011/12/14", "");
-		    assertTrue(result.getResponse().trim().contains(entryIDsecond));
-		    assertFalse(result.getResponse().trim().contains(entryID));
-		    
-		    result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryIDsecond, "");
-		    result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-		
-		
-	}
 	
 	
-	@Test
-	public void xmlTEST()
-	{
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//	@Test
+//	public void xmlTEST()
+//	{
+//		MiniClient c = new MiniClient();
+//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//		
+//       try{
+//			
+//			Entry test = new Entry(testAgent.getId(), "hallo", "test", 10);
+//			test.setStart(2009, 9, 10, 10, 20);
+//			test.setEnd(2012, 12, 12, 11, 20);
+//			test.createComment(testAgent.getId(), "das ist ein kommentar");
+//			test.createComment(testAgent.getId(), "ein weiterer kommentar");
+//			String xml = test.toXmlString();
+//			
+//			Entry test2 = Entry.createFromXml(xml);
+//			
+//			assertTrue(test2.getTitle().equals("hallo"));
+//			assertTrue(test2.getComments().get(0).getMessage().equals("das ist ein kommentar"));
+//			assertTrue(test2.getComments().get(1).getMessage().equals("ein weiterer kommentar"));
+//			
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			fail("Exception: " + e);
+//		}
 		
-       try{
-			
-			Entry test = new Entry(testAgent.getId(), "hallo", "test", 10);
-			test.setStart(2009, 9, 10, 10, 20);
-			test.setEnd(2012, 12, 12, 11, 20);
-			test.createComment(testAgent.getId(), "das ist ein kommentar");
-			test.createComment(testAgent.getId(), "ein weiterer kommentar");
-			String xml = test.toXmlString();
-			
-			Entry test2 = Entry.createFromXml(xml);
-			
-			assertTrue(test2.getTitle().equals("hallo"));
-			assertTrue(test2.getComments().get(0).getMessage().equals("das ist ein kommentar"));
-			assertTrue(test2.getComments().get(1).getMessage().equals("ein weiterer kommentar"));
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-		
-	}
+//	}
 	
 	/**
 	 * Test the TemplateService for valid rest mapping.
