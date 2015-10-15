@@ -55,7 +55,7 @@ import net.minidev.json.JSONObject;
 @SwaggerDefinition(
 		info = @Info(
 				title = "LAS2peer Calendar Service",
-				version = "0.1",
+				version = "0.2",
 				description = "A LAS2peer Calendar Service.",
 				termsOfService = "http://your-terms-of-service-url.com",
 				contact = @Contact(
@@ -618,21 +618,19 @@ public class MyCalendar extends Service {
 			 
 		
 		for(Entry anEntry: entries){
+			if((anEntry.getEnd()!= null) && (anEntry.getStart() != null)) {
 			Calendar date = anEntry.getStart();
 			Calendar end = anEntry.getEnd();
-			if(date.get(Calendar.YEAR) == yearInt){ // if entry starts on the day
-				if(date.get(Calendar.MONTH) == monthInt){
-					if(date.get(Calendar.DAY_OF_MONTH) == dayInt){
+			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt) && (date.get(Calendar.DAY_OF_MONTH) == dayInt)){ // if entry starts on the day
+	
 						entryList.add(anEntry);
-					}
-				}
+			
 			}
-			else if(end.get(Calendar.YEAR) == yearInt){ // if entry ends on the day
-				  if(end.get(Calendar.MONTH) == monthInt){
-				   if(end.get(Calendar.DAY_OF_MONTH) == dayInt){
+			
+			else if((end.get(Calendar.YEAR) == yearInt) && (end.get(Calendar.MONTH) == monthInt) && (end.get(Calendar.DAY_OF_MONTH) == dayInt)){ // if entry ends on the day
+				
 						entryList.add(anEntry);
-					}
-				}
+				
 			}
 			
 			else{  //if entry starts before the day and ends after the day
@@ -640,6 +638,7 @@ public class MyCalendar extends Service {
 					entryList.add(anEntry);
 				}
 			}
+		  }
 		}
 	
 		
@@ -760,6 +759,79 @@ public class MyCalendar extends Service {
 		}
 		
 		return new HttpResponse("dates were created", HttpURLConnection.HTTP_OK);
+		
+	}
+	
+	/**
+	 * get all the ids of the entries of a certain month
+	 * 
+	 */
+	@GET
+	@Path("/getMonth/{year}/{month}")
+	public HttpResponse getMonth ( @PathParam("year") String year, @PathParam ("month") String month){
+		
+		Envelope env = null;
+		
+		 try{
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		 }
+		 
+		 catch (Exception e){
+			 Context.logMessage(this, "there is not storage yet");
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+		 }
+		 
+		 try{
+			 
+			 ArrayList<Entry> entryList = new ArrayList<>();
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			
+			 env.open(getAgent());
+			 EntryBox stored = env.getContent(EntryBox.class);
+			 
+			 Entry[] entries = stored.getEntries();
+			 int yearInt = Integer.parseInt(year);
+			 int monthInt = Integer.parseInt(month);
+			 
+			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, 15);
+			 
+		
+		for(Entry anEntry: entries){
+			if((anEntry.getStart() != null) && (anEntry.getEnd() != null)) {
+			Calendar date = anEntry.getStart();
+			Calendar end = anEntry.getEnd();
+			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt)){ // if entry starts in that month
+
+						entryList.add(anEntry);
+
+			}
+			else if((end.get(Calendar.YEAR) == yearInt) && (end.get(Calendar.MONTH) == monthInt) ){ // if entry ends in that month
+				  
+						entryList.add(anEntry);
+
+			}
+			
+			else{  //if entry starts before and ends after the month
+				if(date.before(dayDate) && end.after(dayDate)){
+					entryList.add(anEntry);
+				}
+			}
+		  }
+		}
+	
+		
+		String returnString = "The following entries were found:";
+		for(Entry anEntry: entryList){
+			returnString += anEntry.getUniqueID() + ","; 
+		}
+		
+		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
+		
+		}
+		catch(Exception e){
+			 Context.logMessage(this, "couldn't open the storage");
+			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+		}
 		
 	}
 	

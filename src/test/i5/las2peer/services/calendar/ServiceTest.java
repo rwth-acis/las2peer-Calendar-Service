@@ -1,17 +1,6 @@
 package i5.las2peer.services.calendar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import i5.las2peer.p2p.LocalNode;
-import i5.las2peer.security.ServiceAgent;
-import i5.las2peer.security.UserAgent;
-import i5.las2peer.services.calendar.MyCalendar;
-import i5.las2peer.testing.MockAgentFactory;
-import i5.las2peer.webConnector.WebConnector;
-import i5.las2peer.webConnector.client.ClientResponse;
-import i5.las2peer.webConnector.client.MiniClient;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -20,11 +9,16 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * Example Test Class demonstrating a basic JUnit test structure.
- *
- */
+import i5.las2peer.p2p.LocalNode;
+import i5.las2peer.security.ServiceAgent;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.testing.MockAgentFactory;
+import i5.las2peer.webConnector.WebConnector;
+import i5.las2peer.webConnector.client.ClientResponse;
+import i5.las2peer.webConnector.client.MiniClient;
+
 public class ServiceTest {
+
 
 	private static final String HTTP_ADDRESS = "http://127.0.0.1";
 	private static final int HTTP_PORT = WebConnector.DEFAULT_HTTP_PORT;
@@ -106,128 +100,67 @@ public class ServiceTest {
 
 	}
 	
-	
-	/**
-	 * Sets the start and end dates of an entry. An end date cannot be earlier than the start date
-	 * 
-	 */
-	
-//	@Test
-	
-//	public void testDates(){
-//		
-//		MiniClient c = new MiniClient();
-//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-//		
-//		try
-//		{
-//			c.setLogin(Long.toString(testAgent.getId()), testPass);
-//			ClientResponse result = c.sendRequest("GET", mainPath + "createEntry/testname/description", ""); 
-//			
-//			String[] test = result.getResponse().split(":"); // get the id
-//			String entryID = test[1];
-//			
-//			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2010/11/13/12/34" , "");
-//			assertEquals(200, result.getHttpCode());
-//			
-//			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2009/11/13/12/34", "");
-//			assertEquals(400, result.getHttpCode());
-//			
-//			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
-//			
-//			
-//			
-//		}
-//		
-//		catch (Exception e) {
-//			e.printStackTrace();
-//			fail("Exception: " + e);
-//		}
-//		
-//		
-//	}
-//	
-
-	
-//	@Test
-//	public void testComments()
-//	{
-//		MiniClient c = new MiniClient();
-//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-//
-//		try{
-//			
-//			c.setLogin(Long.toString(testAgent.getId()), testPass);
-//			ClientResponse result = c.sendRequest("GET", mainPath + "createEntry/testname/description", "");
-//			
-//			String[] test = result.getResponse().split(":"); // get the id
-//			String entryID = test[1];
-//			
-//			result = c.sendRequest("POST", mainPath + "createComment/" + entryID + "/this is a test", "");
-//			test = result.getResponse().split(":");
-//			String commentID = test[2];
-//			
-//			result = c.sendRequest("POST", mainPath + "deleteComment/" + commentID, "");
-//			assertEquals(200, result.getHttpCode());
-//			result = c.sendRequest("POST", mainPath + "deleteComment/" + commentID, "");
-//			assertEquals(400, result.getHttpCode());
-//			
-//			result = c.sendRequest("GET", mainPath + "deleteEntry/" + entryID, "");
-//			assertEquals(200, result.getHttpCode()); 
-//			
-//			result = c.sendRequest("GET", mainPath + "getNumber", "");
-//			assertTrue(result.getResponse().trim().contains("0"));
-//			
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//			fail("Exception: " + e);
-//		}
-//		
-//	}
-	
-	/**
-	 * Test the getDay Method
-	 */
-	
-	
-	
-//	@Test
-//	public void xmlTEST()
-//	{
-//		MiniClient c = new MiniClient();
-//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-//		
-//       try{
-//			
-//			Entry test = new Entry(testAgent.getId(), "hallo", "test", 10);
-//			test.setStart(2009, 9, 10, 10, 20);
-//			test.setEnd(2012, 12, 12, 11, 20);
-//			test.createComment(testAgent.getId(), "das ist ein kommentar");
-//			test.createComment(testAgent.getId(), "ein weiterer kommentar");
-//			String xml = test.toXmlString();
-//			
-//			Entry test2 = Entry.createFromXml(xml);
-//			
-//			assertTrue(test2.getTitle().equals("hallo"));
-//			assertTrue(test2.getComments().get(0).getMessage().equals("das ist ein kommentar"));
-//			assertTrue(test2.getComments().get(1).getMessage().equals("ein weiterer kommentar"));
-//			
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//			fail("Exception: " + e);
-//		}
+	@Test
+	public void monthTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
 		
-//	}
+		try{
+			
+			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); 
+			assertTrue(result.getResponse().contains("0"));
+			
+            result = c.sendRequest("GET", mainPath + "create/imMonat/Dieser Eintrag ist im Monat drinnen", ""); //create another entry
+			
+			String[] returnID = result.getResponse().split(":");
+			String entryID = returnID[1]; //get the id of the second entry
+			
+			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2005/5/4/15/12", "");
+			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2005/5/4/16/12", "");
+			
+			result = c.sendRequest("GET", mainPath + "create/outsideMonat/Dieser Eintrag ist nicht im Monat drinnen", "");
+			
+			returnID = result.getResponse().split(":");
+			String wrongID = returnID[1]; //get the id of the second entry
+			
+			result = c.sendRequest("POST", mainPath + "setStart/" + wrongID + "/2005/6/4/15/12", "");
+			result = c.sendRequest("POST", mainPath + "setEnd/" + wrongID + "/2005/7/4/16/12", "");
+			
+			result = c.sendRequest("GET", mainPath + "getMonth/2005/5", "");
+			
+			assertTrue(result.getResponse().contains(entryID));
+			assertFalse(result.getResponse().contains(wrongID));
+			
+			result = c.sendRequest("GET", mainPath + "create/outsideMonat/Dieser Eintrag beginnt vor und endet nach Monat", "");
+		
+			returnID = result.getResponse().split(":");
+			String betweenID = returnID[1]; //get the id of the second entry
+			
+			result = c.sendRequest("POST", mainPath + "setStart/" + betweenID + "/2005/2/4/15/12", "");
+			result = c.sendRequest("POST", mainPath + "setEnd/" + betweenID + "/2005/8/4/16/12", "");
+			
+			result = c.sendRequest("GET", mainPath + "getMonth/2005/5", "");
+			assertTrue(result.getResponse().contains(betweenID));
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}		
+	}
 	
-	/**
-	 * Test the TemplateService for valid rest mapping.
-	 * Important for development.
-	 */
+	@Test
+	public void loadTEST()
+	{
+	
+	}
+	
 	@Test
 	public void testDebugMapping()
 	{
 		MyCalendar cl = new MyCalendar();
 		assertTrue(cl.debugMapping());
 	}
+
 
 }

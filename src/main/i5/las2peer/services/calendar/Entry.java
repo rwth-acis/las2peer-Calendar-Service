@@ -353,9 +353,12 @@ public class Entry implements XmlAble {
 				xmlEntry.comments.add(aComment); //add the comment to the list of the entry
 			}
 		
-			if(!(startDate.equals("")) && !(endDate.equals(""))){
+			if(!(startDate.equals(""))){
 			xmlEntry.start = stringToDate(startDate); //add the dates to the entry
-			xmlEntry.end = stringToDate(endDate);
+			}
+			
+			if(!(endDate.equals(""))){
+				xmlEntry.end = stringToDate(endDate); //add the dates to the entry
 			}
 			
 			return xmlEntry;

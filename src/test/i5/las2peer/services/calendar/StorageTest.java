@@ -192,6 +192,35 @@ public class StorageTest {
 	}
 	
 	@Test
+	public void dateTEST()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("GET", mainPath + "create/hello/test", ""); //create an entry
+		
+			String[] returnID = result.getResponse().split(":");
+			String dateID = returnID[1]; //get the id of the second entry
+			
+			result = c.sendRequest("POST", mainPath + "setStart/" + dateID + "/2002/3/9/15/12", "");
+			result = c.sendRequest("POST", mainPath + "setEnd/" + dateID + "/2002/3/9/16/12", "");
+			assertEquals(200,result.getHttpCode());
+			
+			result = c.sendRequest("GET", mainPath + "getDay/2002/3/9", "");
+			assertTrue(result.getResponse().contains(dateID));
+			
+			
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}
+	}
+	
+	@Test
 	public void testDebugMapping()
 	{
 		MyCalendar cl = new MyCalendar();
