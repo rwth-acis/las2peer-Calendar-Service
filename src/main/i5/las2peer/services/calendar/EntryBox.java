@@ -80,6 +80,7 @@ public class EntryBox implements Serializable {
 		public boolean delete(String id){
 			for(String anEntry : entries) {
 				if(anEntry.contains(id)){
+					
 					entries.remove(anEntry);
 					return true;
 				}

@@ -255,6 +255,24 @@ public class Entry implements XmlAble {
 	}
 	
 	/**
+	 * searches for a specific comment with an id
+	 * 
+	 * @param id
+	 *  		the id of the wanted comment
+	 * @return
+	 * 		 the comment or null if not found
+	 */
+	public Comment returnComment(String id){
+		for(Comment aComment: this.comments){
+			if(aComment.getUniqueID().equals(id)){
+				return aComment;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * turns a calendar date into a string
 	 * 
 	 * @param date 

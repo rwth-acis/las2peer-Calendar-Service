@@ -28,8 +28,10 @@ public class StorageTest {
 	private static ByteArrayOutputStream logStream;
 
 	private static UserAgent testAgent;
+	private static UserAgent secondAgent;
+	
 	private static final String testPass = "adamspass";
-
+	private static final String secondPass = "evespass";
 	private static final String testTemplateService = MyCalendar.class.getCanonicalName();
 
 	private static final String mainPath = "example/";
@@ -47,6 +49,7 @@ public class StorageTest {
 		// start node
 		node = LocalNode.newNode();
 		node.storeAgent(MockAgentFactory.getAdam());
+		node.storeAgent(MockAgentFactory.getEve());
 		node.launch();
 
 		ServiceAgent testService = ServiceAgent.generateNewAgent(testTemplateService, "a pass");
@@ -62,6 +65,7 @@ public class StorageTest {
 		connector.start(node);
 		Thread.sleep(1000); // wait a second for the connector to become ready
 		testAgent = MockAgentFactory.getAdam();
+		secondAgent = MockAgentFactory.getEve();
 
 		connector.updateServiceList();
 		// avoid timing errors: wait for the repository manager to get all services before continuing
@@ -105,10 +109,13 @@ public class StorageTest {
 	{
 		MiniClient c = new MiniClient();
 		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		MiniClient c2 = new MiniClient();
+		c2.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
 		
 		try{
 			
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			c2.setLogin(Long.toString(secondAgent.getId()), secondPass);
 			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); //assert there are no entries
 			assertTrue(result.getResponse().contains("0")); 
 			assertEquals(400,result.getHttpCode());
@@ -133,7 +140,15 @@ public class StorageTest {
 			result = c.sendRequest("GET", mainPath + "getNumber", ""); //check if it really
 			assertTrue(result.getResponse().contains("1"));
 			
+			result = c.sendRequest("GET", mainPath + "create/deletethis/iwanttobedeleted", "");
+			returnID = result.getResponse().split(":");
+			deleteID = returnID[1]; // get the id
 			
+			result = c2.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); 
+			assertEquals(400,result.getHttpCode()); //shouldn't be able to delete this time
+			
+			result = c.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); //should be able to delete
+			assertEquals(200,result.getHttpCode());
 			
 		} catch(Exception e) {
 			e.printStackTrace();

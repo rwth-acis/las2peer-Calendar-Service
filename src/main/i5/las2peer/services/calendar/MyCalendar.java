@@ -284,6 +284,11 @@ public class MyCalendar extends Service {
 			 
 			 env.open(getAgent());
 			 EntryBox stored = env.getContent(EntryBox.class);
+			 Entry toDelete = stored.returnEntry(id);
+			 if(toDelete.getCreatorId()!=getActiveAgent().getId()){
+				 Context.logMessage(this, "cannot delete this entry by another user");
+				 return new HttpResponse("entry couldn't be deleted", HttpURLConnection.HTTP_BAD_REQUEST);
+			 }
 			 boolean result = stored.delete(id);
 			 env.updateContent(stored);
 			 env.addSignature(getAgent());
@@ -565,6 +570,13 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 Entry newEntry = stored.returnEntry(entryID);
+		 Comment deleteComment = newEntry.returnComment(id);
+		 if((deleteComment.getCreatorId()!=getActiveAgent().getId()) && (newEntry.getCreatorId()!=getActiveAgent().getId())){
+			 
+				 Context.logMessage(this, "cannot delete this comment by another user");
+				 return new HttpResponse("comment couldn't be deleted", HttpURLConnection.HTTP_BAD_REQUEST);
+				 
+		 }
 		 newEntry.deleteComment(id);
 		 stored.delete(entryID); //delete the former entry
 		 stored.addEntry(newEntry); //upload the new entry
