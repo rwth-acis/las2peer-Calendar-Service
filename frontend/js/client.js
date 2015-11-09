@@ -32,6 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
 * Instantiates a new TemplateServiceClient, given its endpoint URL.
 */
+
+var id = 0;
+
 function TemplateServiceClient(endpointUrl) {
 	// care for trailing slash in endpoint URL
 	if(endpointUrl.endsWith("/")) {
@@ -68,6 +71,35 @@ TemplateServiceClient.prototype.postMethod = function(input, successCallback, er
 		errorCallback
 	);
 };
+
+/**
+ * A function to retrieve the calendar entries on that given day 
+ */
+TemplateServiceClient.prototype.getDay = function(year, month, day, successCallback, errorCallback) {
+	this.sendRequest("GET", 
+			"example/getDay/" + year + "/" + month + "/" + day,
+			"",
+			"application/json",
+			{},
+			successCallback,
+			errorCallback
+	);
+}
+
+/**
+ * A function to create an entry on a certain date
+ */
+TemplateServiceClient.prototype.getDay = function(year, month, day, successCallback, errorCallback) {
+	this.sendRequest("GET", 
+			"example/getDay/" + year + "/" + month + "/" + day,
+			"",
+			"application/json",
+			{},
+			successCallback,
+			errorCallback
+	);
+}
+
 
 /**
 * sends an AJAX request to a resource.

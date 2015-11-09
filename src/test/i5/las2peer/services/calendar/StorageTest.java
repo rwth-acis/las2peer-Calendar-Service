@@ -175,6 +175,8 @@ public class StorageTest {
 			result = c.sendRequest("GET", mainPath + "getNumber", "");
 			assertTrue(result.getResponse().contains("3")); //check if they have been created
 			
+			result = c.sendRequest("GET", mainPath + "getDay/2042/2/3", ""); 
+			
 			result = c.sendRequest("POST", mainPath + "createMonthly/2002/5/10/4/12/12/17/34/monatseintrag/jedermonat", ""); //create 4 entries
 			assertEquals(200, result.getHttpCode());
 			

@@ -662,6 +662,7 @@ public class MyCalendar extends Service {
 		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
 		
 		}
+		 
 		catch(Exception e){
 			 Context.logMessage(this, "couldn't open the storage");
 			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);

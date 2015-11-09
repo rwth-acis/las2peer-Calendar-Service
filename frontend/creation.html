@@ -84,16 +84,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
   <!-- Container for actual page content -->
-  <div class="container" style="margin-top:60px">
-    <h2 class="authenticated hidden">Hello, <span id="uname"></span>!</h2>
-    <button onclick="getExample();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Click me!</span></button>
-    <p id="getExampleOutput"></p>
-    <button onclick="postExample('Yeeehaaaa!');" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Click me, too!</span></button>
-    <p id="postExampleOutput"></p>
-  </div>
   
-<div class="container" style="margin-top:0px">
-<div class="year" style="margin-top:20px">
+<div class="container" style="margin-top:50px">
+<div class="year" style="margin-top:0px">
  <form>
   Year:<br>
   <input type="text" name="year">
@@ -102,7 +95,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 </div>
 
-<div class="container" style="margin-top:60px">
+<div class="container" style="margin-top:10px">
   <label for="month">Select month:</label>
   <select class="form-control" id="sel1">
     <option>Januar</option>
@@ -120,78 +113,61 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </select>
 </div>
 
-<div class="container" style="margin-top:60px">
-<TABLE BORDER=3 CELLSPACING=3 CELLPADDING=3>
-<TR>
-<TD COLSPAN="7" ALIGN=center><B>December 2001</B></TD>
-</TR>
+<div class="container" style="margin-top:10px">
+<div class="day" style="margin-top:0px">
+ <form>
+  Day:<br>
+  <input type="text" name="day">
+  <br>
+</form> 
+</div>
+</div>
 
-<TR>
-<TD COLSPAN="7" ALIGN=center><I>Another year comes to an end</I></TD>
-</TR>
+<div class="container" style="margin-top:10px">
+<div class="sminute" style="margin-top:0px">
+ <form>
+  Start time: (use both boxes)<br>
+  <input type="text" name="sminute"> : 
+  <input type="text" name="ssecond"> 
+  <br>
+</form> 
+</div>
+</div>
 
-<TR>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center>1</TD>
-</TR>
+<div class="container" style="margin-top:10px">
+<div class="sminute" style="margin-top:0px">
+ <form>
+  End time: (use both boxes)<br>
+  <input type="text" name="eminute"> : 
+  <input type="text" name="esecond"> 
+  <br>
+</form> 
+</div>
+</div>
 
-<TR>
-<TD ALIGN=center>2</TD>
-<TD ALIGN=center>3</TD>
-<TD ALIGN=center>4</TD>
-<TD ALIGN=center>5</TD>
-<TD ALIGN=center>6</TD>
-<TD ALIGN=center>7</TD>
-<TD ALIGN=center>8</TD>
-</TR>
+<div class="container" style="margin-top:10px">
+<div class="title" style="margin-top:0px">
+ <form>
+  Your title:<br>
+  <input type="text" name="title">
+  <br>
+</form> 
+</div>
+</div>
 
-<TR>
-<TD ALIGN=center>9</TD>
-<TD ALIGN=center><A HREF="http://www.page.com">10</A></TD>
-<TD ALIGN=center><button onclick="getDay(2013,12,11);">11</button></TD>
-<TD ALIGN=center>12</TD>
-<TD ALIGN=center>13</TD>
-<TD ALIGN=center>14</TD>
-<TD ALIGN=center>15</TD>
-</TR>
+<div class="container" style="margin-top:10px">
+<div class="description" style="margin-top:0px">
+ <form>
+  Your description<br>
+  <input type="text" name="description">
+  <br>
+</form> 
+</div>
+</div>
 
-<TR>
-<TD ALIGN=center>16</TD>
-<TD ALIGN=center>17</TD>
-<TD ALIGN=center>18</TD>
-<TD ALIGN=center>19</TD>
-<TD ALIGN=center>20</TD>
-<TD ALIGN=center>21</TD>
-<TD ALIGN=center>22</TD>
-</TR>
-
-<TR>
-<TD ALIGN=center>23</TD>
-<TD ALIGN=center>24</TD>
-<TD ALIGN=center>25</TD>
-<TD ALIGN=center>26</TD>
-<TD ALIGN=center>27</TD>
-<TD ALIGN=center>28</TD>
-<TD ALIGN=center>29</TD>
-</TR>
-
-<TR>
-<TD ALIGN=center>30</TD>
-<TD ALIGN=center>31</TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-
-</TR>
-
-</TABLE> 
+<div class="container" style="margin-top:10px">
+    <button onclick="getExample();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Create Entry!</span></button>
+    <p id="getExampleOutput"></p>
 </div>
 
   <!-- import jQuery for AJAX calls (must) -->
