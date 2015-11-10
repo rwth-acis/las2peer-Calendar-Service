@@ -26,6 +26,7 @@ import i5.las2peer.restMapper.tools.XMLCheck;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.DatabaseManager;
+import i5.las2peer.services.calendar.database.Serialization;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -35,6 +36,7 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 
 /**
  * LAS2peer Service
@@ -114,7 +116,7 @@ public class MyCalendar extends Service {
 		result = setStart(id, year, month, day, sHour,sMinute).getResult();
 		result = setEnd(id, year, month, day, eHour, eMinute).getResult();
 	}
-
+	
 	// returns an entry within the calendar with an id
 	public Entry retrieveEntry(String id) {
 		for(Entry anEntry: this.getEntries()){
@@ -188,8 +190,11 @@ public class MyCalendar extends Service {
 			 env.addSignature(getAgent());
 			 env.store();
 			 env.close();
+			 
+			 JSONObject toString = Serialization.serializeEntry(newEntry);
+			 
 			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
-			 return new HttpResponse("entry with id:" + id +":was sucessfully stored", HttpURLConnection.HTTP_OK);
+			 return new HttpResponse(toString.toJSONString(), HttpURLConnection.HTTP_OK);
 		     } catch (Exception e) {
 				Context.logError(this, "Can't persist entries to network storage! " + e.getMessage());
 				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
@@ -664,8 +669,8 @@ public class MyCalendar extends Service {
 		}
 		 
 		catch(Exception e){
-			 Context.logMessage(this, "couldn't open the storage");
-			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+			 Context.logMessage(this, "couldn't open the storage" + e.getMessage());
+			 return new HttpResponse("entry could not be found" + e.getMessage(), HttpURLConnection.HTTP_BAD_REQUEST);
 		}
 		
 	}

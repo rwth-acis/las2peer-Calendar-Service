@@ -89,9 +89,9 @@ TemplateServiceClient.prototype.getDay = function(year, month, day, successCallb
 /**
  * A function to create an entry on a certain date
  */
-TemplateServiceClient.prototype.getDay = function(year, month, day, successCallback, errorCallback) {
+TemplateServiceClient.prototype.create = function(title, description, year, month, day, shour, sminute, ehour, eminute, successCallback, errorCallback) {
 	this.sendRequest("GET", 
-			"example/getDay/" + year + "/" + month + "/" + day,
+			"example/create/" + title + "/" + description,
 			"",
 			"application/json",
 			{},

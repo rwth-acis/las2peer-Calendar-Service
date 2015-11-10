@@ -16,6 +16,8 @@ import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.WebConnector;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 
 public class ServiceTest {
 
@@ -113,16 +115,19 @@ public class ServiceTest {
 			
             result = c.sendRequest("GET", mainPath + "create/imMonat/Dieser Eintrag ist im Monat drinnen", ""); //create another entry
 			
+            JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+            
 			String[] returnID = result.getResponse().split(":");
-			String entryID = returnID[1]; //get the id of the second entry
+			String entryID = (String) params.get("entry_id");
 			
 			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2005/5/4/15/12", "");
 			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2005/5/4/16/12", "");
 			
 			result = c.sendRequest("GET", mainPath + "create/outsideMonat/Dieser Eintrag ist nicht im Monat drinnen", "");
+			params = (JSONObject)parser.parse(result.getResponse());
 			
-			returnID = result.getResponse().split(":");
-			String wrongID = returnID[1]; //get the id of the second entry
+			String wrongID = (String) params.get("entry_id"); //get the id of the second entry
 			
 			result = c.sendRequest("POST", mainPath + "setStart/" + wrongID + "/2005/6/4/15/12", "");
 			result = c.sendRequest("POST", mainPath + "setEnd/" + wrongID + "/2005/7/4/16/12", "");
@@ -134,8 +139,8 @@ public class ServiceTest {
 			
 			result = c.sendRequest("GET", mainPath + "create/outsideMonat/Dieser Eintrag beginnt vor und endet nach Monat", "");
 		
-			returnID = result.getResponse().split(":");
-			String betweenID = returnID[1]; //get the id of the second entry
+			params = (JSONObject)parser.parse(result.getResponse());
+			String betweenID = (String) params.get("entry_id"); //get the id of the second entry
 			
 			result = c.sendRequest("POST", mainPath + "setStart/" + betweenID + "/2005/2/4/15/12", "");
 			result = c.sendRequest("POST", mainPath + "setEnd/" + betweenID + "/2005/8/4/16/12", "");
@@ -147,12 +152,6 @@ public class ServiceTest {
 			e.printStackTrace();
 			fail("Exception: " + e);
 		}		
-	}
-	
-	@Test
-	public void loadTEST()
-	{
-	
 	}
 	
 	@Test

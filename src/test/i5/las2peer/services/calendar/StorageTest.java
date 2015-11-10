@@ -16,6 +16,8 @@ import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.WebConnector;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 
 public class StorageTest {
 
@@ -117,17 +119,21 @@ public class StorageTest {
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
 			c2.setLogin(Long.toString(secondAgent.getId()), secondPass);
 			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); //assert there are no entries
+			
 			assertTrue(result.getResponse().contains("0")); 
 			assertEquals(400,result.getHttpCode());
+			
 		    result = c.sendRequest("GET", mainPath + "create/hello/test", ""); //create an entry
 			assertEquals(200,result.getHttpCode());
 			result = c.sendRequest("GET", mainPath + "getNumber", ""); // should return one 
+			
 			assertTrue(result.getResponse().contains("1"));
 			result = c.sendRequest("GET", mainPath + "create/neuereintrag/willkommen", ""); //create another entry
 			
-			String[] returnID = result.getResponse().split(":");
-			String deleteID = returnID[1]; //get the id of the second entry
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
 			
+			String deleteID = (String) params.get("entry_id"); //get the id of the second entry
 			result = c.sendRequest("GET", mainPath + "getNumber", "");
 			assertTrue(result.getResponse().contains("2"));
 			
@@ -141,8 +147,9 @@ public class StorageTest {
 			assertTrue(result.getResponse().contains("1"));
 			
 			result = c.sendRequest("GET", mainPath + "create/deletethis/iwanttobedeleted", "");
-			returnID = result.getResponse().split(":");
-			deleteID = returnID[1]; // get the id
+			params = (JSONObject)parser.parse(result.getResponse());
+			
+			deleteID = (String) params.get("entry_id"); // get the id
 			
 			result = c2.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); 
 			assertEquals(400,result.getHttpCode()); //shouldn't be able to delete this time
@@ -219,8 +226,9 @@ public class StorageTest {
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
 			ClientResponse result = c.sendRequest("GET", mainPath + "create/hello/test", ""); //create an entry
 		
-			String[] returnID = result.getResponse().split(":");
-			String dateID = returnID[1]; //get the id of the second entry
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+			String dateID = (String) params.get("entry_id"); //get the id of the second entry
 			
 			result = c.sendRequest("POST", mainPath + "setStart/" + dateID + "/2002/3/9/15/12", "");
 			result = c.sendRequest("POST", mainPath + "setEnd/" + dateID + "/2002/3/9/16/12", "");
