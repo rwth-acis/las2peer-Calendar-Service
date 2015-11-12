@@ -292,12 +292,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       client.create(document.getElementById('title').value, 
     		  document.getElementById('description').value,
     		  document.getElementById('year').value, 
-    		  "12", 
-    		  document.getElementById('day').value,
-    		  document.getElementById('shour').value,
-    		  document.getElementById('sminute').value, 
-    		  document.getElementById('ehour').value,
-    		  document.getElementById('eminute').value,
         function(data,type) {
           // this is the success callback
           data = JSON.parse(data)
@@ -316,7 +310,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       client.setStart(
     		  id,
     		  document.getElementById('year').value, 
-    		  "12",
+    		  getMonth(document.getElementById('creMon')),
     		  document.getElementById('day').value,
     		  document.getElementById('shour').value,
     		  document.getElementById('sminute').value, 

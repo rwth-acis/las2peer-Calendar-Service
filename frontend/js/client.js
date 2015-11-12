@@ -47,9 +47,11 @@ function renderDay(data) {
 	var html='<div class="dailyEntries">';
 	
 	for(var i = 0; i<data.length; i++){
-		html+='<div id="entry-'+data[i].entry_id+'" class="entry">';
-		html+=data[i].title + ": " + data[i].description; 
-		html+='</div>'
+		var b = i+1;
+		html+='<div id="entry-'+data[i].entry_id+'" class="entry" style="margin-left:80px;margin-top:10px">';
+		html+= "<b>" + b + ". Entry: " + "</b>" + data[i].title + " - " + data[i].description + ". Starts at  " + data[i].shour +
+			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute; 
+		html+='</div>';
 	}
 	
 	html+= "</div>";

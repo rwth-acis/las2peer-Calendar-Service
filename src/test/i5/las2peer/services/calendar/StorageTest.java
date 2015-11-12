@@ -143,7 +143,8 @@ public class StorageTest {
 			result = c.sendRequest("POST", mainPath + "setEnd/" + deleteID + "/2002/3/9/15/22", "");
 			
 			result = c.sendRequest("GET", mainPath + "getDay/2002/3/9", "");
-			result = c.sendRequest("GET", mainPath + "getDay/2002/3/10", "");
+			result = c.sendRequest("GET", mainPath + "getDay/2002/3/8", "");
+			assertFalse(result.getResponse().contains("willkommen"));
 			
 			result = c.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); //delete the second entry
 			assertEquals(200,result.getHttpCode());

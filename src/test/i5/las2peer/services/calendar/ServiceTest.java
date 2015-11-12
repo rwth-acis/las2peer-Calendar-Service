@@ -131,7 +131,7 @@ public class ServiceTest {
 			
 			result = c.sendRequest("POST", mainPath + "setStart/" + wrongID + "/2005/6/4/15/12", "");
 			result = c.sendRequest("POST", mainPath + "setEnd/" + wrongID + "/2005/7/4/16/12", "");
-			
+		
 			result = c.sendRequest("GET", mainPath + "getMonth/2005/5", "");
 			
 			assertTrue(result.getResponse().contains(entryID));

@@ -16,12 +16,16 @@ public class Serialization {
 		res.put("entry_id", a.getUniqueID());
 		res.put("title", a.getTitle());
 		res.put("description", a.getDescription());
-		if((a.getStart()!=null) && (a.getEnd()!=null)){
+		res.put("creator", a.getCreatorId());
+		if(a.getStart()!=null){
 		res.put("syear", a.getStart().get(Calendar.YEAR));
 		res.put("smonth", a.getStart().get(Calendar.MONTH));
 		res.put("sday", a.getStart().get(Calendar.DAY_OF_MONTH));
 		res.put("shour", a.getStart().get(Calendar.HOUR));
 		res.put("sminute", a.getStart().get(Calendar.MINUTE));
+		}
+		
+		if(a.getEnd()!=null){
 		res.put("eyear", a.getEnd().get(Calendar.YEAR));
 		res.put("emonth", a.getEnd().get(Calendar.MONTH));
 		res.put("eday", a.getEnd().get(Calendar.DAY_OF_MONTH));

@@ -23,6 +23,7 @@ import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.restMapper.tools.ValidationResult;
 import i5.las2peer.restMapper.tools.XMLCheck;
+import i5.las2peer.security.BasicAgentStorage;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.DatabaseManager;
@@ -228,7 +229,6 @@ public class MyCalendar extends Service {
 		}
 		return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 	}
-	
 	
 	/**
 	 * gets the entry by the id
@@ -464,7 +464,7 @@ public class MyCalendar extends Service {
 			
 			 env.open(getAgent());
 			 EntryBox stored = env.getContent(EntryBox.class);
-			 Entry updatedEntry = stored.returnEntry(id); //get the entry whose start date is supposed to be stored
+			 Entry updatedEntry = stored.returnEntry(id); //get the entry whose end date is supposed to be stored
 			 updatedEntry.setEnd(yearInt, monthInt, dayInt, hourInt, minuteInt);
 			 stored.delete(id);
 			 stored.addEntry(updatedEntry);
@@ -592,6 +592,8 @@ public class MyCalendar extends Service {
 		 }
 	}
 	
+	
+	
 	/**
 	 * get all the ids of the entries on a certain day
 	 * 
@@ -628,7 +630,7 @@ public class MyCalendar extends Service {
 		
 		for(Entry anEntry: entries){
 			if((anEntry.getEnd()!= null) && (anEntry.getStart() != null)) {
-			Calendar date = anEntry.getStart(); //wrong year returned
+			Calendar date = anEntry.getStart(); 
 			Calendar end = anEntry.getEnd();
 			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt) && (date.get(Calendar.DAY_OF_MONTH) == dayInt)){ // if entry starts on the day
 	

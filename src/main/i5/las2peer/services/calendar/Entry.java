@@ -9,9 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 import i5.las2peer.persistency.MalformedXMLException;
 import i5.las2peer.persistency.XmlAble;
 import i5.las2peer.services.calendar.MyCalendar;
+import i5.las2peer.services.calendar.database.Serialization;
 import i5.las2peer.services.calendar.security.IdGeneration;
 import i5.simpleXML.Element;
 import i5.simpleXML.Parser;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 
 /**
  * Class that represents a date created by the user. It will be used by the {@link MyCalendar} to organize dates.<br>
@@ -135,7 +138,7 @@ public class Entry implements XmlAble {
 	 * @return the start date
 	 */
 	public Calendar getStart() {
-		return this.start;
+	     return this.start;
 	}
 	
 	/**
@@ -155,7 +158,7 @@ public class Entry implements XmlAble {
 	 */
 	public boolean setStart(int year, int month, int dayOfMonth, int hour, int minute) {
 		
-		GregorianCalendar date = new GregorianCalendar(year-1, month, dayOfMonth, hour, minute);
+		GregorianCalendar date = new GregorianCalendar(year, month, dayOfMonth, hour, minute);
 		if(this.getEnd()!=null){ // if endDate has been set already and is before start date
 			if(this.getEnd().before(date)){
 				return false;
@@ -315,24 +318,8 @@ public class Entry implements XmlAble {
 	
 	@Override
 	public String toXmlString(){ //no date or comments at the moment
-		
-		String returnString = "";
-		
-		returnString += "<las2peer:entry id=\"" + this.uniqueID + "\" creator=\"" + this.creatorId 
-				+ "\" description=\"" + this.description + "\" start=\"" + dateToString(this.getStart()) + "\" end=\""  
-				+ dateToString(this.getEnd()) + "\" comment=\""; 
-		
-		
-		for(Comment aComment: this.comments){ // every comment to a string
-			returnString += "UID:" + aComment.getUniqueID() + ":" + aComment.getCreatorId() + ":" + aComment.getMessage() 
-			                + ":" + aComment.getTime().get(Calendar.YEAR) + ":" + aComment.getTime().get(Calendar.MONTH) + ":"
-			                + aComment.getTime().get(Calendar.DAY_OF_MONTH) + ":" + aComment.getTime().get(Calendar.HOUR_OF_DAY) + ":" + aComment.getTime().get(Calendar.MINUTE) 
-			                + ":";
-		}
-		
-	    returnString += "\">" + this.title +  "</las2peer:entry>\n";
 	    
-	    return returnString;
+	    return Serialization.serializeEntry(this).toJSONString();
 	
 	}
 	
@@ -340,46 +327,32 @@ public class Entry implements XmlAble {
 		
 		try{
 			
-			Element root = Parser.parse(xml, false);
-			Element child = root.getFirstChild();
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(xml);
 			
-			String uniqueID = root.getAttribute("id");
-			long creator = Long.parseLong(root.getAttribute("creator"));
-			String title = child.getText();
-			String description = root.getAttribute("description");
-			String comment = root.getAttribute("comment");
-			String startDate = root.getAttribute("start");
-			String endDate = root.getAttribute("end");
-			int occurance = StringUtils.countMatches(comment, "UID");
-			String[] commentArray = comment.split(":"); // split the different comments
+			Entry res = new Entry((String) params.get("entry_id"), (long) params.get("creator"), (String) params.get("title"), (String) params.get("description"), 10);
 			
-			Entry xmlEntry = new Entry(uniqueID, creator, title, description, 2); //create Entry
-
-			for(int i = 0; i < occurance; i++){ // go through the commentArray for one comment
-				int iter = i*9 + 1; 
-				String unique = commentArray[iter];
-				String creatorID = commentArray[iter+1];
-				long creatorLong = Long.parseLong(creatorID);
-				String message = commentArray[iter+2];
-				int year = Integer.parseInt(commentArray[iter+3]);
-				int month = Integer.parseInt(commentArray[iter+4]);
-				int day = Integer.parseInt(commentArray[iter+5]);
-				int hour = Integer.parseInt(commentArray[iter+6]);
-				int minute = Integer.parseInt(commentArray[iter+7]);
-				GregorianCalendar time = new GregorianCalendar(year, month, day, hour, minute);
-				Comment aComment = new Comment(unique, creatorLong, time, message);
-				xmlEntry.comments.add(aComment); //add the comment to the list of the entry
-			}
-		
-			if(!(startDate.equals(""))){
-			xmlEntry.start = stringToDate(startDate); //add the dates to the entry
+			try{
+				
+				res.setStart((int) params.get("syear"), (int) params.get("smonth"), (int) params.get("sday"), (int) params.get("shour"), (int) params.get("sminute"));
+				res.setEnd((int) params.get("eyear"), (int) params.get("emonth"), (int) params.get("eday"), (int) params.get("ehour"), (int) params.get("eminute"));
+				
+				return res;
 			}
 			
-			if(!(endDate.equals(""))){
-				xmlEntry.end = stringToDate(endDate); //add the dates to the entry
-			}
-			
-			return xmlEntry;
+			catch(Exception e){
+				
+				try{
+					
+					res.setEnd((int) params.get("eyear"), (int) params.get("emonth"), (int) params.get("eday"), (int) params.get("ehour"), (int) params.get("eminute"));
+					return res;
+					
+				}
+					
+					catch(Exception f){
+						return res;
+					}
+				}
 			
 		}
 		
