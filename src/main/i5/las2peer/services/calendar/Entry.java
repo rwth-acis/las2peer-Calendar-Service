@@ -155,7 +155,7 @@ public class Entry implements XmlAble {
 	 */
 	public boolean setStart(int year, int month, int dayOfMonth, int hour, int minute) {
 		
-		GregorianCalendar date = new GregorianCalendar(year, month, dayOfMonth, hour, minute);
+		GregorianCalendar date = new GregorianCalendar(year-1, month, dayOfMonth, hour, minute);
 		if(this.getEnd()!=null){ // if endDate has been set already and is before start date
 			if(this.getEnd().before(date)){
 				return false;

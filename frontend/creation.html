@@ -89,7 +89,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="year" style="margin-top:0px">
  <form>
   Year:<br>
-  <input type="text" name="year">
+  <input type="text" name="year" id="year">
   <br>
 </form> 
 </div>
@@ -97,7 +97,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container" style="margin-top:10px">
   <label for="month">Select month:</label>
-  <select class="form-control" id="sel1">
+  <select class="form-control" id="creMon">
     <option>Januar</option>
     <option>February</option>
     <option>March</option>
@@ -117,7 +117,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="day" style="margin-top:0px">
  <form>
   Day:<br>
-  <input type="text" name="day">
+  <input type="text" name="day" id ="day">
   <br>
 </form> 
 </div>
@@ -127,8 +127,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="sminute" style="margin-top:0px">
  <form>
   Start time: (use both boxes)<br>
-  <input type="text" name="sminute"> : 
-  <input type="text" name="ssecond"> 
+  <input type="text" name="shour" id ="shour"> : 
+  <input type="text" name="sminute" id ="sminute"> 
   <br>
 </form> 
 </div>
@@ -138,8 +138,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="sminute" style="margin-top:0px">
  <form>
   End time: (use both boxes)<br>
-  <input type="text" name="eminute"> : 
-  <input type="text" name="esecond"> 
+  <input type="text" name="ehour" id ="ehour"> : 
+  <input type="text" name="eminute" id ="eminute"> 
   <br>
 </form> 
 </div>
@@ -149,7 +149,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="title" style="margin-top:0px">
  <form>
   Your title:<br>
-  <input type="text" name="title">
+  <input type="text" name="title" id ="title">
   <br>
 </form> 
 </div>
@@ -159,14 +159,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="description" style="margin-top:0px">
  <form>
   Your description<br>
-  <input type="text" name="description">
+  <input type="text" name="description" id ="description">
   <br>
 </form> 
 </div>
 </div>
 
 <div class="container" style="margin-top:10px">
-    <button onclick="getExample();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Create Entry!</span></button>
+    <button onclick="createEntry();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Create Entry!</span></button>
+    <p id="getExampleOutput"></p>
+</div>
+
+<div class="container" style="margin-top:10px">
+    <button onclick="set();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Add start date</span></button>
+    <p id="getExampleOutput"></p>
+</div>
+
+<div class="container" style="margin-top:10px">
+    <button onclick="setEnd();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Add end date</span></button>
     <p id="getExampleOutput"></p>
 </div>
 
@@ -226,6 +236,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript">
     // create new instance of TemplateServiceClient, given its endpoint URL
     var client = new TemplateServiceClient("http://localhost:8080/");
+    
+    var id = 0;
 
     // function defined as response to a click on the first button (see below)
     function getExample() {
@@ -268,14 +280,82 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           $("#postExampleOutput").html(data);
          },
          function(error) {
-           // this is the error callback
+            // this is the error callback
            console.log(error);
            $("#postExampleOutput").html(error);
           }
         );
       }
-   
-
+    
+    //function definied as a resposne to a button to create entries
+      function createEntry(input) {
+      client.create(document.getElementById('title').value, 
+    		  document.getElementById('description').value,
+    		  document.getElementById('year').value, 
+    		  "12", 
+    		  document.getElementById('day').value,
+    		  document.getElementById('shour').value,
+    		  document.getElementById('sminute').value, 
+    		  document.getElementById('ehour').value,
+    		  document.getElementById('eminute').value,
+        function(data,type) {
+          // this is the success callback
+          data = JSON.parse(data)
+          id = data.entry_id;
+          console.log(data);
+          $("#postExampleOutput").html(data);
+        },
+        function(error) {
+          // this is the error callback
+          console.log(error);
+          $("#postExampleOutput").html(error);
+        }
+      );
+    }
+      function set(input) {
+      client.setStart(
+    		  id,
+    		  document.getElementById('year').value, 
+    		  "12",
+    		  document.getElementById('day').value,
+    		  document.getElementById('shour').value,
+    		  document.getElementById('sminute').value, 
+    		  
+		        function(data,type) {
+		          // this is the success callback
+		          console.log(data);
+		          $("#postExampleOutput").html(data);
+		        },
+		        function(error) {
+		          // this is the error callback
+		          console.log(error);
+		          $("#postExampleOutput").html(error);
+		        }
+		      );
+      }
+      
+      function setEnd(input) {
+          client.setEnd(
+        		  id,
+        		  document.getElementById('year').value, 
+        		  getMonth(document.getElementById('creMon')),
+        		  document.getElementById('day').value,
+        		  document.getElementById('ehour').value,
+        		  document.getElementById('eminute').value, 
+        		  
+    		        function(data,type) {
+    		          // this is the success callback
+    		          console.log(data);
+    		          $("#postExampleOutput").html(data);
+    		        },
+    		        function(error) {
+    		          // this is the error callback
+    		          console.log(error);
+    		          $("#postExampleOutput").html(error);
+    		        }
+    		      );
+          }
+      
   </script>
 </body>
 </html>

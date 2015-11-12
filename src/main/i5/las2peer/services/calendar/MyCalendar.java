@@ -208,6 +208,7 @@ public class MyCalendar extends Service {
 	@GET
 	@Path("/get")
 	public HttpResponse get(){
+		
 		try{
 
 			Envelope env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
@@ -228,35 +229,26 @@ public class MyCalendar extends Service {
 		return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 	}
 	
-	/**
-	 * Creates a new entry inside the calendar
-	 * 
-	 * @param title
-	 * 			  the title of the entry
-	 * @param description
-	 * 			  the description of the entry
-	 * @return success or error message
-	 */
-	@GET
-	@Path("/createEntry/{title}/{description}")
-	public HttpResponse createEntry( @PathParam("title") String title, @PathParam("description") String description) {
-		Entry newEntry = new Entry(getActiveAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
-		String id = newEntry.getUniqueID();
-		this.entries.add(newEntry);
-			
-		String returnString = "";
-		returnString += ((UserAgent) getActiveAgent()).getLoginName() + " created an entry with the id:" + id +": and the title:" + title;
-		return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
-	}
 	
+	/**
+	 * gets the entry by the id
+	 */
 	@GET
 	@Path("/getEntry/{id}")
 	public HttpResponse getEntry( @PathParam("id") String id){
-		Entry test = new Entry(MAXIMUM_COMMENT_AMOUNT, "dd", "ddd", 2);
+	
 		try{
-		Envelope env = Envelope.fetchClassIdEnvelope(test.getClass(), id);
-		String returnString = env.getContentAsString();
-		return new HttpResponse(returnString, HttpURLConnection.HTTP_ACCEPTED);
+
+			Envelope env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			env.open(getAgent());
+			EntryBox stored = env.getContent(EntryBox.class);
+			Entry returnEntry = stored.returnEntry(id);
+			JSONObject res = Serialization.serializeEntry(returnEntry);
+			String returnString = res.toJSONString();
+			env.close();
+			
+			return new HttpResponse(returnString, HttpURLConnection.HTTP_ACCEPTED);
+		
 		}
 		catch(Exception e){
 			return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
@@ -636,7 +628,7 @@ public class MyCalendar extends Service {
 		
 		for(Entry anEntry: entries){
 			if((anEntry.getEnd()!= null) && (anEntry.getStart() != null)) {
-			Calendar date = anEntry.getStart();
+			Calendar date = anEntry.getStart(); //wrong year returned
 			Calendar end = anEntry.getEnd();
 			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt) && (date.get(Calendar.DAY_OF_MONTH) == dayInt)){ // if entry starts on the day
 	
@@ -659,10 +651,7 @@ public class MyCalendar extends Service {
 		}
 	
 		
-		String returnString = "The following entries were found:";
-		for(Entry anEntry: entryList){
-			returnString += anEntry.getUniqueID() + ","; 
-		}
+		String returnString = Serialization.serializeEntries(entryList).toJSONString();
 		
 		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
 		

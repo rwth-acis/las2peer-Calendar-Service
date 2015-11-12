@@ -140,6 +140,11 @@ public class StorageTest {
 			result = c.sendRequest("POST", mainPath + "setStart/" + deleteID + "/2002/3/9/15/12", "");
 			assertEquals(200,result.getHttpCode());
 			 
+			result = c.sendRequest("POST", mainPath + "setEnd/" + deleteID + "/2002/3/9/15/22", "");
+			
+			result = c.sendRequest("GET", mainPath + "getDay/2002/3/9", "");
+			result = c.sendRequest("GET", mainPath + "getDay/2002/3/10", "");
+			
 			result = c.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); //delete the second entry
 			assertEquals(200,result.getHttpCode());
 			
@@ -230,13 +235,13 @@ public class StorageTest {
 			JSONObject params = (JSONObject)parser.parse(result.getResponse());
 			String dateID = (String) params.get("entry_id"); //get the id of the second entry
 			
-			result = c.sendRequest("POST", mainPath + "setStart/" + dateID + "/2002/3/9/15/12", "");
-			result = c.sendRequest("POST", mainPath + "setEnd/" + dateID + "/2002/3/9/16/12", "");
+			result = c.sendRequest("POST", mainPath + "setStart/" + dateID + "/2013/12/11/15/12", "");
+			result = c.sendRequest("POST", mainPath + "setEnd/" + dateID + "/2013/12/12/16/12", "");
 			assertEquals(200,result.getHttpCode());
 			
-			result = c.sendRequest("GET", mainPath + "getDay/2002/3/9", "");
-			assertTrue(result.getResponse().contains(dateID));
-			
+			result = c.sendRequest("GET", mainPath + "getDay/2013/12/11", "");
+			assertEquals(200,result.getHttpCode());
+
 			
 			
 		} catch(Exception e) {

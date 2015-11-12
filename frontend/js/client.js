@@ -33,8 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Instantiates a new TemplateServiceClient, given its endpoint URL.
 */
 
-var id = 0;
-
 function TemplateServiceClient(endpointUrl) {
 	// care for trailing slash in endpoint URL
 	if(endpointUrl.endsWith("/")) {
@@ -43,6 +41,21 @@ function TemplateServiceClient(endpointUrl) {
 		this._serviceEndpoint = endpointUrl;
 	}
 };
+
+function renderDay(data) {
+	data = JSON.parse(data);
+	var html='<div class="dailyEntries">';
+	
+	for(var i = 0; i<data.length; i++){
+		html+='<div id="entry-'+data[i].entry_id+'" class="entry">';
+		html+=data[i].title + ": " + data[i].description; 
+		html+='</div>'
+	}
+	
+	html+= "</div>";
+
+	document.getElementById('daily').innerHTML = html;
+}
 
 /**
 * An example function demonstrating a GET request on resource <endpointUrl>/example/validate
@@ -53,7 +66,7 @@ TemplateServiceClient.prototype.getMethod = function(successCallback, errorCallb
 		"",
 		"application/json",
 		{},
-		successCallback,
+		alert("hello"),
 		errorCallback
 	);
 };
@@ -81,7 +94,9 @@ TemplateServiceClient.prototype.getDay = function(year, month, day, successCallb
 			"",
 			"application/json",
 			{},
-			successCallback,
+			function(data){
+				renderDay(data);
+			},
 			errorCallback
 	);
 }
@@ -95,10 +110,41 @@ TemplateServiceClient.prototype.create = function(title, description, year, mont
 			"",
 			"application/json",
 			{},
-			successCallback,
+			function(data){
+				data = JSON.parse(data);
+				id = data.entry_id;
+				alert(id);
+			},
 			errorCallback
 	);
 }
+
+TemplateServiceClient.prototype.setStart = function(id, year, month, day, shour, sminute, successCallback, errorCallback) {
+	this.sendRequest("post", 
+			"example/setStart/" + id + "/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute,
+			"",
+			"application/json",
+			{},
+			function(data){
+			alert(data);
+			},
+			errorCallback
+	);
+}
+
+TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, eminute, successCallback, errorCallback) {
+	this.sendRequest("post", 
+			"example/setEnd/" + id + "/" + year + "/" + month + "/" + day + "/" + ehour + "/" + eminute,
+			"",
+			"application/json",
+			{},
+			function(data){
+			alert(data);
+			},
+			errorCallback
+	);
+}
+
 
 
 /**
@@ -178,3 +224,12 @@ TemplateServiceClient.prototype.isAnonymous = function(){
 String.prototype.endsWith = function(suffix) {
 	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
+
+// function to get month as a number
+function getMonth(month) {
+
+	var i = month.options.selectedIndex;
+	i++;
+	
+	return i;
+}

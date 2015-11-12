@@ -84,25 +84,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
   <!-- Container for actual page content -->
-  <div class="container" style="margin-top:60px">
-    <h2 class="authenticated hidden">Hello, <span id="uname"></span>!</h2>
-    <button onclick="getExample();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Click me!</span></button>
-    <p id="getExampleOutput"></p>
-    <button onclick="postExample('Yeeehaaaa!');" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Click me, too!</span></button>
-    <p id="postExampleOutput"></p>
-  </div>
   
-<div class="container" style="margin-top:0px">
-<div class="year" style="margin-top:20px">
+<div class="container" style="margin-top:20x">
+<div class="year" style="margin-top:70px">
  <form>
   Year:<br>
-  <input type="text" name="year">
+  <input type="text" name="year" id="iyear">
   <br>
 </form> 
 </div>
 </div>
 
-<div class="container" style="margin-top:60px">
+<div class="container" style="margin-top:10px">
   <label for="month">Select month:</label>
   <select class="form-control" id="sel1">
     <option>Januar</option>
@@ -120,7 +113,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </select>
 </div>
 
-<div class="container" style="margin-top:60px">
+<div class="container" style="margin-top:20px">
 <TABLE BORDER=3 CELLSPACING=3 CELLPADDING=3>
 <TR>
 <TD COLSPAN="7" ALIGN=center><B>December 2001</B></TD>
@@ -153,10 +146,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <TR>
 <TD ALIGN=center>9</TD>
 <TD ALIGN=center><A HREF="http://www.page.com">10</A></TD>
-<TD ALIGN=center><button onclick="getDay(2013,12,11);">11</button></TD>
-<TD ALIGN=center>12</TD>
-<TD ALIGN=center>13</TD>
-<TD ALIGN=center>14</TD>
+<TD ALIGN=center><button onclick="getDay(11);">11</button></TD>
+<TD ALIGN=center><button onclick="getDay(12);">12</button></TD>
+<TD ALIGN=center><button onclick="getDay(13);">13</button></TD>
+<TD ALIGN=center><button onclick="getDay(14);">14</button></TD>
 <TD ALIGN=center>15</TD>
 </TR>
 
@@ -284,7 +277,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
     
     //function defined as a response to a click on a day in the calendar
-    function getDay(year, month, day) {
+    function getDay(day) {
+    	var year = document.getElementById('iyear').value;
+    	var month = getMonth(document.getElementById('sel1'));
     	client.getDay(year, month, day,
     	function(data,type) {
           // this is the success callback
@@ -298,8 +293,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           }
         );
       }
-   
+    
+  
 
   </script>
+
+<div id = "daily" style="margin-bottom:30px" style="margin-left:20px">
+ 
+</div> 
+  
 </body>
 </html>
