@@ -147,6 +147,20 @@ TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, e
 	);
 }
 
+TemplateServiceClient.prototype.createWeekly = function(title, description, year, month, day, weeks, shour, sminute, ehour, eminute, successCallback, errorCallback) {
+	this.sendRequest("post", 
+			"example/createWeekly/" + year + "/" + month + "/" + day + "/" + weeks + "/" + shour + "/" + sminute + "/" + ehour + "/" + eminute + "/" +title + "/" + description,
+			"",
+			"application/json",
+			{},
+			function(data){
+			alert(data);
+			},
+			errorCallback
+	);
+}
+
+
 
 
 /**

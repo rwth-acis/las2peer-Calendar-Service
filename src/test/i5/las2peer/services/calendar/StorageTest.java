@@ -184,6 +184,9 @@ public class StorageTest {
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
 			result = c.sendRequest("POST", mainPath + "createWeekly/2012/2/3/2/14/22/15/24/wocheneintrag/jedewoche", ""); //create two entries
 			assertEquals(200, result.getHttpCode());
+		
+			result = c.sendRequest("GET", mainPath + "getDay/2012/2/10", "");
+			assertEquals(200, result.getHttpCode());
 			
 			result = c.sendRequest("GET", mainPath + "getNumber", "");
 			assertTrue(result.getResponse().contains("3")); //check if they have been created

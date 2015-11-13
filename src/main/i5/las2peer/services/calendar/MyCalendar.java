@@ -112,10 +112,17 @@ public class MyCalendar extends Service {
 	public void createEntry(String title, String description, String year, String month, String day, 
 							String sHour, String sMinute, String eHour, String eMinute){
 		String result = create(title, description).getResult();
-		String[] resultArray = result.split(":");
-		String id = resultArray[1];
+		JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+		
+		try{
+		JSONObject params = (JSONObject)parser.parse(result);
+		String id = (String) params.get("entry_id");
+		
 		result = setStart(id, year, month, day, sHour,sMinute).getResult();
 		result = setEnd(id, year, month, day, eHour, eMinute).getResult();
+		} catch (Exception e){
+			return;
+		}
 	}
 	
 	// returns an entry within the calendar with an id
