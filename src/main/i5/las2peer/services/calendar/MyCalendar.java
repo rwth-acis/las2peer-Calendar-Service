@@ -40,10 +40,10 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
 /**
- * LAS2peer Service
+ * LAS2peer Calendaqr Service
  * 
- * This is a template for a very basic LAS2peer service
- * that uses the LAS2peer Web-Connector for RESTful access to it.
+ * This is a simple calendar service to store 
+ * entries inside.
  * 
  * Note:
  * If you plan on using Swagger you should adapt the information below
@@ -175,7 +175,6 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 Entry newEntry = new Entry(getActiveAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
-		 String id = newEntry.getUniqueID();
 		 
 		 // save entry using envelopes
 		 try{
