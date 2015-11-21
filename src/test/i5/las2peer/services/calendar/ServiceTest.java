@@ -113,7 +113,7 @@ public class ServiceTest {
 			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); 
 			assertTrue(result.getResponse().contains("0"));
 			
-            result = c.sendRequest("GET", mainPath + "create/imMonat/Dieser Eintrag ist im Monat drinnen", ""); //create another entry
+            result = c.sendRequest("POST", mainPath + "create/imMonat/Dieser Eintrag ist im Monat drinnen", ""); //create another entry
 			
             JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			JSONObject params = (JSONObject)parser.parse(result.getResponse());
@@ -121,29 +121,29 @@ public class ServiceTest {
 			String[] returnID = result.getResponse().split(":");
 			String entryID = (String) params.get("entry_id");
 			
-			result = c.sendRequest("POST", mainPath + "setStart/" + entryID + "/2005/5/4/15/12", "");
-			result = c.sendRequest("POST", mainPath + "setEnd/" + entryID + "/2005/5/4/16/12", "");
+			result = c.sendRequest("PUT", mainPath + "setStart/" + entryID + "/2005/5/4/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + entryID + "/2005/5/4/16/12", "");
 			
-			result = c.sendRequest("GET", mainPath + "create/outsideMonat/Dieser Eintrag ist nicht im Monat drinnen", "");
+			result = c.sendRequest("POST", mainPath + "create/outsideMonat/Dieser Eintrag ist nicht im Monat drinnen", "");
 			params = (JSONObject)parser.parse(result.getResponse());
 			
 			String wrongID = (String) params.get("entry_id"); //get the id of the second entry
 			
-			result = c.sendRequest("POST", mainPath + "setStart/" + wrongID + "/2005/6/4/15/12", "");
-			result = c.sendRequest("POST", mainPath + "setEnd/" + wrongID + "/2005/7/4/16/12", "");
+			result = c.sendRequest("PUT", mainPath + "setStart/" + wrongID + "/2005/6/4/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + wrongID + "/2005/7/4/16/12", "");
 		
 			result = c.sendRequest("GET", mainPath + "getMonth/2005/5", "");
 			
 			assertTrue(result.getResponse().contains(entryID));
 			assertFalse(result.getResponse().contains(wrongID));
 			
-			result = c.sendRequest("GET", mainPath + "create/outsideMonat/Dieser Eintrag beginnt vor und endet nach Monat", "");
+			result = c.sendRequest("POST", mainPath + "create/outsideMonat/Dieser Eintrag beginnt vor und endet nach Monat", "");
 		
 			params = (JSONObject)parser.parse(result.getResponse());
 			String betweenID = (String) params.get("entry_id"); //get the id of the second entry
 			
-			result = c.sendRequest("POST", mainPath + "setStart/" + betweenID + "/2005/2/4/15/12", "");
-			result = c.sendRequest("POST", mainPath + "setEnd/" + betweenID + "/2005/8/4/16/12", "");
+			result = c.sendRequest("PUT", mainPath + "setStart/" + betweenID + "/2005/2/4/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + betweenID + "/2005/8/4/16/12", "");
 			
 			result = c.sendRequest("GET", mainPath + "getMonth/2005/5", "");
 			assertTrue(result.getResponse().contains(betweenID));

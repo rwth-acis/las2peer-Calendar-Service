@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -166,8 +168,16 @@ public class MyCalendar extends Service {
 	 * @return
 	 * 		   whether or not creation was successful
 	 */
-	@GET
+		
+	@POST
 	@Path("/create/{title}/{description}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
+	@ApiOperation(value = "create",
+			notes = "Create an entry inside a Calendar")
 	public HttpResponse create( @PathParam("title") String title, @PathParam ("description") String description){
 		 
 		 if((title.equals("")) || (description.equals(""))){
@@ -208,39 +218,20 @@ public class MyCalendar extends Service {
 		     }
 	}
 		
-	/**
-	 * returns all entries of the storage
-	 */
-	
-	@GET
-	@Path("/get")
-	public HttpResponse get(){
-		
-		try{
-
-			Envelope env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
-			env.open(getAgent());
-			EntryBox stored = env.getContent(EntryBox.class);
-			Context.logMessage(this, "Loaded " + stored.size() + "entries from the storage");
-			Entry[] result = stored.getEntries();
-			env.close();
-			String res = "";
-			for (Entry a : result){
-				res += a.getTitle();
-			}
-			return new HttpResponse(res, HttpURLConnection.HTTP_ACCEPTED);
-		}
-		catch (Exception e){
-			Context.logError(this, "Can't read messages from storage");
-		}
-		return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
-	}
 	
 	/**
 	 * gets the entry by the id
 	 */
 	@GET
 	@Path("/getEntry/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Entry not found"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
+	@ApiOperation(value = "getEntry",
+	notes = "finds an Entry by an id")
 	public HttpResponse getEntry( @PathParam("id") String id){
 	
 		try{
@@ -249,11 +240,15 @@ public class MyCalendar extends Service {
 			env.open(getAgent());
 			EntryBox stored = env.getContent(EntryBox.class);
 			Entry returnEntry = stored.returnEntry(id);
+			if(returnEntry == null){
+				return new HttpResponse("Couldn't find entry with id: " + id, HttpURLConnection.HTTP_NOT_FOUND);
+			}
+			
 			JSONObject res = Serialization.serializeEntry(returnEntry);
 			String returnString = res.toJSONString();
 			env.close();
 			
-			return new HttpResponse(returnString, HttpURLConnection.HTTP_ACCEPTED);
+			return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
 		
 		}
 		catch(Exception e){
@@ -268,8 +263,17 @@ public class MyCalendar extends Service {
 	 * 			  the id of the entry
 	 * @return success or error message
 	 */
-	@GET
+	@DELETE
 	@Path("/deleteEntry/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry"),
+			@ApiResponse(code = HttpURLConnection.HTTP_FORBIDDEN, message = "Deletion forbidden"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Entry not found"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
+	@ApiOperation(value = "deleteEntry",
+	notes = "deletes an entry")
 	public HttpResponse deleteEntry( @PathParam("id") String id) {
 		
 		try{
@@ -290,7 +294,7 @@ public class MyCalendar extends Service {
 			 Entry toDelete = stored.returnEntry(id);
 			 if(toDelete.getCreatorId()!=getActiveAgent().getId()){
 				 Context.logMessage(this, "cannot delete this entry by another user");
-				 return new HttpResponse("entry couldn't be deleted", HttpURLConnection.HTTP_BAD_REQUEST);
+				 return new HttpResponse("entry couldn't be deleted", HttpURLConnection.HTTP_FORBIDDEN);
 			 }
 			 boolean result = stored.delete(id);
 			 env.updateContent(stored);
@@ -300,12 +304,12 @@ public class MyCalendar extends Service {
 			 
 			 if(result==true){
 			 Context.logMessage(this, "deleted" + stored.size() + " entries in network storage");
-			 return new HttpResponse("entry was sucessfully deleted", HttpURLConnection.HTTP_OK);
+			 return new HttpResponse(Serialization.serializeEntry(toDelete).toJSONString(), HttpURLConnection.HTTP_OK);
 			 }
 			 
 			 else{
 				 
-				 return new HttpResponse("entry wansn't found", HttpURLConnection.HTTP_OK);
+				 return new HttpResponse("entry with id: " + id +" wasn't found", HttpURLConnection.HTTP_NOT_FOUND);
 				 
 			 }
 			 
@@ -373,7 +377,7 @@ public class MyCalendar extends Service {
 	 * @return success or error message
 	 */
 	
-	@POST
+	@PUT
 	@Path("/setStart/{id}/{year}/{month}/{day}/{hour}/{minute}")
 	public HttpResponse setStart( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
 			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
@@ -441,7 +445,7 @@ public class MyCalendar extends Service {
 	 * @return success or error message
 	 */
 	
-	@POST
+	@PUT
 	@Path("/setEnd/{id}/{year}/{month}/{day}/{hour}/{minute}")
 	public HttpResponse setEnd( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
 			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
@@ -545,7 +549,7 @@ public class MyCalendar extends Service {
 	 * 			  the id of the comment that shall be deleted
 	 * @return success or error message
 	 */
-	@POST
+	@DELETE
 	@Path("/deleteComment/{id}")
 	public HttpResponse deleteComment( @PathParam("id") String id) {
 		

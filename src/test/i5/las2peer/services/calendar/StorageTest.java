@@ -123,12 +123,12 @@ public class StorageTest {
 			assertTrue(result.getResponse().contains("0")); 
 			assertEquals(400,result.getHttpCode());
 			
-		    result = c.sendRequest("GET", mainPath + "create/hello/test", ""); //create an entry
+		    result = c.sendRequest("POST", mainPath + "create/hello/test", ""); //create an entry
 			assertEquals(200,result.getHttpCode());
 			result = c.sendRequest("GET", mainPath + "getNumber", ""); // should return one 
 			
 			assertTrue(result.getResponse().contains("1"));
-			result = c.sendRequest("GET", mainPath + "create/neuereintrag/willkommen", ""); //create another entry
+			result = c.sendRequest("POST", mainPath + "create/neuereintrag/willkommen", ""); //create another entry
 			
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			JSONObject params = (JSONObject)parser.parse(result.getResponse());
@@ -137,30 +137,30 @@ public class StorageTest {
 			result = c.sendRequest("GET", mainPath + "getNumber", "");
 			assertTrue(result.getResponse().contains("2"));
 			
-			result = c.sendRequest("POST", mainPath + "setStart/" + deleteID + "/2002/3/9/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setStart/" + deleteID + "/2002/3/9/15/12", "");
 			assertEquals(200,result.getHttpCode());
 			 
-			result = c.sendRequest("POST", mainPath + "setEnd/" + deleteID + "/2002/3/9/15/22", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + deleteID + "/2002/3/9/15/22", "");
 			
 			result = c.sendRequest("GET", mainPath + "getDay/2002/3/9", "");
 			result = c.sendRequest("GET", mainPath + "getDay/2002/3/8", "");
 			assertFalse(result.getResponse().contains("willkommen"));
 			
-			result = c.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); //delete the second entry
+			result = c.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); //delete the second entry
 			assertEquals(200,result.getHttpCode());
 			
 			result = c.sendRequest("GET", mainPath + "getNumber", ""); //check if it really
 			assertTrue(result.getResponse().contains("1"));
 			
-			result = c.sendRequest("GET", mainPath + "create/deletethis/iwanttobedeleted", "");
+			result = c.sendRequest("POST", mainPath + "create/deletethis/iwanttobedeleted", "");
 			params = (JSONObject)parser.parse(result.getResponse());
 			
 			deleteID = (String) params.get("entry_id"); // get the id
 			
-			result = c2.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); 
+			result = c2.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); 
 			assertEquals(400,result.getHttpCode()); //shouldn't be able to delete this time
 			
-			result = c.sendRequest("GET", mainPath + "deleteEntry/" + deleteID, ""); //should be able to delete
+			result = c.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); //should be able to delete
 			assertEquals(200,result.getHttpCode());
 			
 		} catch(Exception e) {
@@ -233,14 +233,14 @@ public class StorageTest {
 		try{
 			
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("GET", mainPath + "create/hello/test", ""); //create an entry
+			ClientResponse result = c.sendRequest("POST", mainPath + "create/hello/test", ""); //create an entry
 		
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			JSONObject params = (JSONObject)parser.parse(result.getResponse());
 			String dateID = (String) params.get("entry_id"); //get the id of the second entry
 			
-			result = c.sendRequest("POST", mainPath + "setStart/" + dateID + "/2013/12/11/15/12", "");
-			result = c.sendRequest("POST", mainPath + "setEnd/" + dateID + "/2013/12/12/16/12", "");
+			result = c.sendRequest("PUT", mainPath + "setStart/" + dateID + "/2013/12/11/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + dateID + "/2013/12/12/16/12", "");
 			assertEquals(200,result.getHttpCode());
 			
 			result = c.sendRequest("GET", mainPath + "getDay/2013/12/11", "");
