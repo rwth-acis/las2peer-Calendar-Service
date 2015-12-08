@@ -158,7 +158,7 @@ public class StorageTest {
 			deleteID = (String) params.get("entry_id"); // get the id
 			
 			result = c2.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); 
-			assertEquals(400,result.getHttpCode()); //shouldn't be able to delete this time
+			assertEquals(403,result.getHttpCode()); //shouldn't be able to delete this time
 			
 			result = c.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); //should be able to delete
 			assertEquals(200,result.getHttpCode());
@@ -182,7 +182,7 @@ public class StorageTest {
 			assertTrue(result.getResponse().contains("1"));
 			
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			result = c.sendRequest("POST", mainPath + "createWeekly/2012/2/3/2/14/22/15/24/wocheneintrag/jedewoche", ""); //create two entries
+			result = c.sendRequest("POST", mainPath + "createRegular/2012/2/3/14/22/15/24/wocheneintrag/jedewoche/week/2", ""); //create two entries
 			assertEquals(200, result.getHttpCode());
 		
 			result = c.sendRequest("GET", mainPath + "getDay/2012/2/10", "");
@@ -193,7 +193,7 @@ public class StorageTest {
 			
 			result = c.sendRequest("GET", mainPath + "getDay/2042/2/3", ""); 
 			
-			result = c.sendRequest("POST", mainPath + "createMonthly/2002/5/10/4/12/12/17/34/monatseintrag/jedermonat", ""); //create 4 entries
+			result = c.sendRequest("POST", mainPath + "createRegular/2002/5/10/12/12/17/34/monatseintrag/jedermonat/month/4", ""); //create 4 entries
 			assertEquals(200, result.getHttpCode());
 			
 			result = c.sendRequest("GET", mainPath + "getNumber", "");
@@ -206,23 +206,6 @@ public class StorageTest {
 		}		
 	}
 	
-	@Test
-	public void loadTEST()
-	{
-		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
-		
-		try{
-			
-			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse result = c.sendRequest("GET", mainPath + "get", "");
-			assertTrue(result.getResponse().trim().contains("hello"));
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-	}
 	
 	@Test
 	public void dateTEST()

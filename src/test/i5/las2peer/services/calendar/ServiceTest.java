@@ -31,7 +31,7 @@ public class ServiceTest {
 
 	private static UserAgent testAgent;
 	private static final String testPass = "adamspass";
-
+	
 	private static final String testTemplateService = MyCalendar.class.getCanonicalName();
 
 	private static final String mainPath = "example/";
@@ -117,8 +117,7 @@ public class ServiceTest {
 			
             JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			JSONObject params = (JSONObject)parser.parse(result.getResponse());
-            
-			String[] returnID = result.getResponse().split(":");
+
 			String entryID = (String) params.get("entry_id");
 			
 			result = c.sendRequest("PUT", mainPath + "setStart/" + entryID + "/2005/5/4/15/12", "");

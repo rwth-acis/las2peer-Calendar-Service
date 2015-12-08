@@ -11,8 +11,6 @@ import i5.las2peer.persistency.XmlAble;
 import i5.las2peer.services.calendar.MyCalendar;
 import i5.las2peer.services.calendar.database.Serialization;
 import i5.las2peer.services.calendar.security.IdGeneration;
-import i5.simpleXML.Element;
-import i5.simpleXML.Parser;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 

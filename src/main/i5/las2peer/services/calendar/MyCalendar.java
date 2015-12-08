@@ -2,9 +2,6 @@ package i5.las2peer.services.calendar;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -25,7 +22,6 @@ import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.restMapper.tools.ValidationResult;
 import i5.las2peer.restMapper.tools.XMLCheck;
-import i5.las2peer.security.BasicAgentStorage;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.DatabaseManager;
@@ -675,9 +671,10 @@ public class MyCalendar extends Service {
 		}
 		
 	}
-
+	
+	
 	/**
-	 * method to create entries on a weekly basis
+	 * method to create entries on a regular basis
 	 * 
 	 * @param year
 	 * 			the year in which the dates should start
@@ -699,24 +696,41 @@ public class MyCalendar extends Service {
 	 * 			the title of the entries
 	 * @param description
 	 * 			the description of the entries
-	 * @return
+	 * @param interval	
+	 * 			the interval between the dates
 	 */
 	@POST
-	@Path("/createWeekly/{year}/{month}/{day}/{weeks}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}")
-	public HttpResponse createWeekly ( @PathParam("year") String year, @PathParam("month") String sMonth, 
+	@Path("/createRegular/{year}/{month}/{day}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}/{interval}/{number}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entries created"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
+	@ApiOperation(value = "create regular entries",
+	notes = "creates entries on a regular basis")
+	public HttpResponse createRegular ( @PathParam("year") String year, @PathParam("month") String sMonth, 
 									   @PathParam("day") String day, 
-									   @PathParam ("weeks") String lengthWeek, @PathParam ("startHour") String sHour,
+									   @PathParam ("startHour") String sHour,
 									   @PathParam("startMinute") String sMinute, @PathParam("endHour") String eHour, 
-									   @PathParam("endMinute") String eMinute, @PathParam("title") String title, @PathParam("description") String description){
+									   @PathParam("endMinute") String eMinute, @PathParam("title") String title, @PathParam("description") String description,
+									   @PathParam("interval") String interval, @PathParam("number") String number){
+
+		//parse Strings to integers
+		int startYear, month,  startDay, startHour, startMinute, endHour, endMinute, numbers;
 		
-		int startYear = Integer.parseInt(year);
-		int month = Integer.parseInt(sMonth);
-		int weeks = Integer.parseInt(lengthWeek);
-		int startDay = Integer.parseInt(day);
-		int startHour = Integer.parseInt(sHour);
-		int startMinute = Integer.parseInt(sMinute);
-		int endHour = Integer.parseInt(eHour);
-		int endMinute = Integer.parseInt(eMinute);
+		try{
+		startYear = Integer.parseInt(year);
+		month = Integer.parseInt(sMonth);
+		numbers = Integer.parseInt(number);
+		startDay = Integer.parseInt(day);
+		startHour = Integer.parseInt(sHour);
+		startMinute = Integer.parseInt(sMinute);
+		endHour = Integer.parseInt(eHour);
+		endMinute = Integer.parseInt(eMinute);
+		} catch (NumberFormatException e){
+			String error = "strings invalid";
+			return new HttpResponse(error, HttpURLConnection.HTTP_BAD_REQUEST);
+		}
 		
 		GregorianCalendar start = new GregorianCalendar(startYear, month, startDay, startHour, startMinute);
 		GregorianCalendar end = new GregorianCalendar(startYear, month, startDay, endHour, endMinute);
@@ -724,60 +738,107 @@ public class MyCalendar extends Service {
 		if(start.after(end)){
 			return new HttpResponse("start was after end", HttpURLConnection.HTTP_BAD_REQUEST);
 		}
+
 		
+		switch (interval) {
+		case "week": 
+			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			numbers--;
+			
+			while(numbers>(0)){
+				start.add(Calendar.DATE, 7);
+				year = Integer.toString(start.get(Calendar.YEAR));
+				sMonth = Integer.toString(start.get(Calendar.MONTH));
+				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				numbers--;
+			}
+			
+			break;
+			
+			
+		case "month":
+			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			numbers--;
+			
+			while(numbers>(0)){
+				start.add(Calendar.MONTH, 1);
+				year = Integer.toString(start.get(Calendar.YEAR));
+				sMonth = Integer.toString(start.get(Calendar.MONTH));
+				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				numbers--;
+			}
+			
+			break;
+		
+		case "year":
+			
+			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			numbers--;
+			
+			while(numbers>(0)){
+				start.add(Calendar.YEAR, 1);
+				year = Integer.toString(start.get(Calendar.YEAR));
+				sMonth = Integer.toString(start.get(Calendar.MONTH));
+				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				numbers--;
+			}
+			
+			break;
+		case "biweek": 
+
+			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			numbers--;
+			
+			while(numbers>(0)){
+				start.add(Calendar.DATE, 14);
+				year = Integer.toString(start.get(Calendar.YEAR));
+				sMonth = Integer.toString(start.get(Calendar.MONTH));
+				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				numbers--;
+			}
+			
+			break;
+		
+		case "bimonth": 
 		createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
-		weeks--;
+		numbers--;
 		
-		while(weeks>(0)){
-			start.add(Calendar.DATE, 7);
+		while(numbers>(0)){
+			start.add(Calendar.MONTH, 2);
 			year = Integer.toString(start.get(Calendar.YEAR));
 			sMonth = Integer.toString(start.get(Calendar.MONTH));
 			day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
 			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
-			weeks--;
+			numbers--;
 		}
 		
-		return new HttpResponse("dates were created", HttpURLConnection.HTTP_OK);
-		
-	}
-	
-	@POST
-	@Path("/createMonthly/{year}/{month}/{day}/{months}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}")
-	public HttpResponse createMonthly ( @PathParam("year") String year, @PathParam("month") String sMonth, 
-									   @PathParam("day") String day, 
-									   @PathParam ("months") String lengthMonths, @PathParam ("startHour") String sHour,
-									   @PathParam("startMinute") String sMinute, @PathParam("endHour") String eHour, 
-									   @PathParam("endMinute") String eMinute, @PathParam("title") String title, @PathParam("description") String description){
-		
-		int startYear = Integer.parseInt(year);
-		int month = Integer.parseInt(sMonth);
-		int months = Integer.parseInt(lengthMonths);
-		int startDay = Integer.parseInt(day);
-		int startHour = Integer.parseInt(sHour);
-		int startMinute = Integer.parseInt(sMinute);
-		int endHour = Integer.parseInt(eHour);
-		int endMinute = Integer.parseInt(eMinute);
-		
-		GregorianCalendar start = new GregorianCalendar(startYear, month, startDay, startHour, startMinute);
-		GregorianCalendar end = new GregorianCalendar(startYear, month, startDay, endHour, endMinute);
-		
-		if(start.after(end)){
-			return new HttpResponse("start was after end", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
-		
-		createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
-		months--;
-		
-		while(months>(0)){
-			start.add(Calendar.MONTH, 1);
-			year = Integer.toString(start.get(Calendar.YEAR));
-			sMonth = Integer.toString(start.get(Calendar.MONTH));
-			day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+		break;		
+		case "quarter":
+			
 			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
-			months--;
+			numbers--;
+			
+			while(numbers>(0)){
+				start.add(Calendar.MONTH, 3);
+				year = Integer.toString(start.get(Calendar.YEAR));
+				sMonth = Integer.toString(start.get(Calendar.MONTH));
+				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				numbers--;
+			}
+			
+			break;
+			
+		default: String error = "invalid interval";
+				 return new HttpResponse(error, HttpURLConnection.HTTP_BAD_REQUEST);
 		}
 		
-		return new HttpResponse("dates were created", HttpURLConnection.HTTP_OK);
+		String error = "entries successfully created";
+		return new HttpResponse(error, HttpURLConnection.HTTP_OK);
 		
 	}
 	
