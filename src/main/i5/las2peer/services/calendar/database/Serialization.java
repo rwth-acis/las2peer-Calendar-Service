@@ -17,6 +17,9 @@ public class Serialization {
 		res.put("title", a.getTitle());
 		res.put("description", a.getDescription());
 		res.put("creator", a.getCreatorId());
+		if(a.getComments()!=null){
+		res.put("comments", a.getComments());
+		}
 		if(a.getStart()!=null){
 		res.put("syear", a.getStart().get(Calendar.YEAR));
 		res.put("smonth", a.getStart().get(Calendar.MONTH));

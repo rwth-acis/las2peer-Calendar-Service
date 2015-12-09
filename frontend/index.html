@@ -114,6 +114,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </select>
 </div>
 
+<div class="modal fade" id="comments" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <form onsubmit="return addComment(this);">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Add comment</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="input-group">
+                      <span class="input-group-addon" id="basic-addon2">Your comment</span>
+                      <input type="text" class="form-control" aria-describedby="basic-addon2" placeholder="comment" name="comment" />
+                      <div  class="list-group" id="comment-list">
+                     </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save comment</button>
+                  </div>
+           </form>
+         </div>
+       </div>
+</div>
+
 <div class="container" style="margin-top:20px">
 <TABLE BORDER=3 CELLSPACING=3 CELLPADDING=3>
 <TR>
@@ -244,6 +269,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript">
     // create new instance of TemplateServiceClient, given its endpoint URL
     var client = new TemplateServiceClient("http://localhost:8080/");
+    var local = 0;
+
 
     // function defined as response to a click on the first button (see below)
     function getExample() {
@@ -294,6 +321,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           }
         );
       }
+    
+    //function to add comments inside the calendar
+    function addComment(id, comment){
+    	var newcomment = form.elements["comment"].value;
+    	var newid = form.elements["id"].value;
+    	client.createComment(local, newcomment, 
+    			function(error) {
+    		//this is the error callback
+    		console.log(error);
+    		$("#postExampleOutput").html(error);
+    	});
+    }
+    
+    function update(id){
+    	local = id;
+    }
     
   
 

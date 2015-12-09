@@ -45,47 +45,31 @@ function TemplateServiceClient(endpointUrl) {
 function renderDay(data) {
 	data = JSON.parse(data);
 	var html='<div class="dailyEntries">';
+	$('#comment-list').html("");
 	
 	for(var i = 0; i<data.length; i++){
 		var b = i+1;
 		html+='<div id="entry-'+data[i].entry_id+'" class="entry" style="margin-left:80px;margin-top:10px">';
 		html+= "<b>" + b + ". Entry: " + "</b>" + data[i].title + " - " + data[i].description + ". Starts at  " + data[i].shour +
 			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute; 
+	
+		html+='<button class="btn btn-default" data-toggle="modal" onclick="update(' + data[i].entry_id + ')" data-target="#comments"><span class="glyphicon glyphicon-plus"></span> Comments</button>';
+		
 		html+='</div>';
+		
+		//add comments to window
+		for(var j = 0; j<data[i].comments.length; j++){
+			$('<div class="list-group-item ach-'+data[i].comments[j].id +'"> '+data[i].comments[j].message +' ' +
+		              '</div>').appendTo('#comment-list');
+		}
 	}
+	
 	
 	html+= "</div>";
 
 	document.getElementById('daily').innerHTML = html;
 }
 
-/**
-* An example function demonstrating a GET request on resource <endpointUrl>/example/validate
-*/
-TemplateServiceClient.prototype.getMethod = function(successCallback, errorCallback) {
-	this.sendRequest("GET",
-		"example/create/test/hallo",
-		"",
-		"application/json",
-		{},
-		alert("hello"),
-		errorCallback
-	);
-};
-
-/**
-* An example function demonstrating a POST request on resource <endpointUrl>/example/myMethodPath/<input>
-*/
-TemplateServiceClient.prototype.postMethod = function(input, successCallback, errorCallback) {
-	this.sendRequest("POST",
-		"example/myMethodPath/" + input,
-		"",
-		"application/json",
-		{},
-		successCallback,
-		errorCallback
-	);
-};
 
 /**
  * A function to retrieve the calendar entries on that given day 
@@ -106,14 +90,14 @@ TemplateServiceClient.prototype.getDay = function(year, month, day, successCallb
 /**
  * A function to create an entry on a certain date
  */
-TemplateServiceClient.prototype.create = function(title, description, year, month, day, shour, sminute, ehour, eminute, successCallback, errorCallback) {
-	this.sendRequest("GET", 
+TemplateServiceClient.prototype.create = function(title, description, year, month, day, successCallback, errorCallback) {
+	this.sendRequest("POST", 
 			"example/create/" + title + "/" + description,
 			"",
 			"application/json",
 			{},
 			function(data){
-				data = JSON.parse(data);
+				
 				id = data.entry_id;
 				alert(id);
 			},
@@ -122,7 +106,7 @@ TemplateServiceClient.prototype.create = function(title, description, year, mont
 }
 
 TemplateServiceClient.prototype.setStart = function(id, year, month, day, shour, sminute, successCallback, errorCallback) {
-	this.sendRequest("post", 
+	this.sendRequest("put", 
 			"example/setStart/" + id + "/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute,
 			"",
 			"application/json",
@@ -135,7 +119,7 @@ TemplateServiceClient.prototype.setStart = function(id, year, month, day, shour,
 }
 
 TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, eminute, successCallback, errorCallback) {
-	this.sendRequest("post", 
+	this.sendRequest("put", 
 			"example/setEnd/" + id + "/" + year + "/" + month + "/" + day + "/" + ehour + "/" + eminute,
 			"",
 			"application/json",
@@ -158,6 +142,19 @@ TemplateServiceClient.prototype.createWeekly = function(title, description, year
 			},
 			errorCallback
 	);
+}
+
+TemplateServiceClient.prototype.createComment = function(id, comment, errorCallback){
+	this.sendRequest("post", 
+			"example/createComment/" + id + "/" + comment,
+			"",
+			"application/json",
+			{},
+			function(data){
+			alert(data);
+			},
+			errorCallback
+	);	
 }
 
 
@@ -248,4 +245,8 @@ function getMonth(month) {
 	i++;
 	
 	return i;
+}
+
+function update(id){
+	local = id;
 }
