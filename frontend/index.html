@@ -123,11 +123,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     <h4 class="modal-title" id="myModalLabel">Add comment</h4>
                   </div>
                   <div class="modal-body">
+                    <div  class="list-group" id="comment-list">
+                    </div>
                     <div class="input-group">
                       <span class="input-group-addon" id="basic-addon2">Your comment</span>
                       <input type="text" class="form-control" aria-describedby="basic-addon2" placeholder="comment" name="comment" />
-                      <div  class="list-group" id="comment-list">
-                     </div>
                     </div>
                   </div>
                   <div class="modal-footer">
@@ -323,9 +323,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       }
     
     //function to add comments inside the calendar
-    function addComment(id, comment){
+    function addComment(form){
     	var newcomment = form.elements["comment"].value;
-    	var newid = form.elements["id"].value;
+  
     	client.createComment(local, newcomment, 
     			function(error) {
     		//this is the error callback

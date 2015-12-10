@@ -51,9 +51,11 @@ function renderDay(data) {
 		var b = i+1;
 		html+='<div id="entry-'+data[i].entry_id+'" class="entry" style="margin-left:80px;margin-top:10px">';
 		html+= "<b>" + b + ". Entry: " + "</b>" + data[i].title + " - " + data[i].description + ". Starts at  " + data[i].shour +
-			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute; 
+			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute + ". Created by: " + data[i].creator; 
 	
-		html+='<button class="btn btn-default" data-toggle="modal" onclick="update(' + data[i].entry_id + ')" data-target="#comments"><span class="glyphicon glyphicon-plus"></span> Comments</button>';
+		
+		
+		html+= "<button class=\"btn btn-default\" data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-th-list\"></span> Comments</button>";
 		
 		html+='</div>';
 		
@@ -68,6 +70,8 @@ function renderDay(data) {
 	html+= "</div>";
 
 	document.getElementById('daily').innerHTML = html;
+	
+	
 }
 
 
@@ -247,6 +251,3 @@ function getMonth(month) {
 	return i;
 }
 
-function update(id){
-	local = id;
-}
