@@ -55,7 +55,7 @@ function renderDay(data) {
 	
 		
 		
-		html+= "<button class=\"btn btn-default\" data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-th-list\"></span> Comments</button>";
+		html+= "<button class=\"btn btn-default\" onClick=update('" + data[i].entry_id + "') data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-th-list\"></span> Comments</button>";
 		
 		html+='</div>';
 		
