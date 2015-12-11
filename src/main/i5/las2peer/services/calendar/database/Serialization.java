@@ -17,7 +17,7 @@ public class Serialization {
 		res.put("title", a.getTitle());
 		res.put("description", a.getDescription());
 		res.put("creator", a.getCreatorId());
-		if(a.getComments()!=null){
+		if(a.getComments().isEmpty()==false){
 		res.put("comments", a.getComments());
 		}
 		if(a.getStart()!=null){
@@ -50,4 +50,6 @@ public class Serialization {
 		return res;
 		
 	}
+	
+	
 }

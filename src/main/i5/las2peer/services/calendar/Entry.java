@@ -11,7 +11,7 @@ import i5.las2peer.persistency.XmlAble;
 import i5.las2peer.services.calendar.MyCalendar;
 import i5.las2peer.services.calendar.database.Serialization;
 import i5.las2peer.services.calendar.security.IdGeneration;
-import net.minidev.json.JSONObject;
+import net.minidev.json.*;
 import net.minidev.json.parser.JSONParser;
 
 /**
@@ -34,7 +34,7 @@ public class Entry implements XmlAble {
 	/** description of the entry**/
 	private String description;
 	/** list with comments of the calendar entry**/
-	private final ArrayList<Comment> comments;
+	private ArrayList<Comment> comments;
 	
 	public int commentAmount;
 	
@@ -327,13 +327,20 @@ public class Entry implements XmlAble {
 			
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			JSONObject params = (JSONObject)parser.parse(xml);
+			JSONArray comment = (JSONArray) params.get("comments");
 			
 			Entry res = new Entry((String) params.get("entry_id"), (long) params.get("creator"), (String) params.get("title"), (String) params.get("description"), 10);
 			
 			try{
 				
+				for(int i = 0; i<comment.size(); i++){
+					JSONObject obj = (JSONObject) comment.get(i);
+					Comment a = new Comment((String) obj.get("uniqueID"), 523, null, (String) obj.get("message"));
+					res.comments.add(a);				}
+				
 				res.setStart((int) params.get("syear"), (int) params.get("smonth"), (int) params.get("sday"), (int) params.get("shour"), (int) params.get("sminute"));
 				res.setEnd((int) params.get("eyear"), (int) params.get("emonth"), (int) params.get("eday"), (int) params.get("ehour"), (int) params.get("eminute"));
+				
 				
 				return res;
 			}

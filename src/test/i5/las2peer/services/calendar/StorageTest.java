@@ -238,6 +238,43 @@ public class StorageTest {
 	}
 	
 	@Test
+	public void commentTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("POST", mainPath + "create/firstEntry/myentry/", "");
+			assertEquals(200, result.getHttpCode());
+			
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+			String ID = (String) params.get("entry_id"); //get the id of the second entry
+			
+			result = c.sendRequest("POST", mainPath + "createComment/" + ID + "/firstComment", "");
+			assertEquals(200, result.getHttpCode());
+			
+			result = c.sendRequest("PUT", mainPath + "setStart/" + ID + "/2013/12/11/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + ID + "/2013/12/12/16/12", "");
+			
+			result = c.sendRequest("GET", mainPath + "getEntry/" + ID, "");
+			assertEquals(200, result.getHttpCode());
+		
+			assertTrue(result.getResponse().contains("firstComment"));
+		
+			result = c.sendRequest("GET", mainPath + "getDay/2013/12/11", "");
+			assertTrue(result.getResponse().contains("firstComment"));
+
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}		
+	}
+	
+	@Test
 	public void testDebugMapping()
 	{
 		MyCalendar cl = new MyCalendar();
