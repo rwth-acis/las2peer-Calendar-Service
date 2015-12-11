@@ -256,15 +256,15 @@ public class StorageTest {
 			result = c.sendRequest("POST", mainPath + "createComment/" + ID + "/firstComment", "");
 			assertEquals(200, result.getHttpCode());
 			
-			result = c.sendRequest("PUT", mainPath + "setStart/" + ID + "/2013/12/11/15/12", "");
-			result = c.sendRequest("PUT", mainPath + "setEnd/" + ID + "/2013/12/12/16/12", "");
+			result = c.sendRequest("PUT", mainPath + "setStart/" + ID + "/2013/3/11/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + ID + "/2013/3/12/16/12", "");
 			
 			result = c.sendRequest("GET", mainPath + "getEntry/" + ID, "");
 			assertEquals(200, result.getHttpCode());
 		
 			assertTrue(result.getResponse().contains("firstComment"));
 		
-			result = c.sendRequest("GET", mainPath + "getDay/2013/12/11", "");
+			result = c.sendRequest("GET", mainPath + "getDay/2013/3/11", "");
 			assertTrue(result.getResponse().contains("firstComment"));
 
 			

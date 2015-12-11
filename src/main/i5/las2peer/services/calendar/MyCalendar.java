@@ -381,6 +381,7 @@ public class MyCalendar extends Service {
 		
 			int yearInt   = Integer.parseInt(year);
 			int monthInt  = Integer.parseInt(month);
+			monthInt--; //Calender month start at 0 so reduce
 			int dayInt    = Integer.parseInt(day);
 			int hourInt   = Integer.parseInt(hour);
 			int minuteInt = Integer.parseInt(minute);
@@ -406,14 +407,15 @@ public class MyCalendar extends Service {
 			 updatedEntry.setStart(yearInt, monthInt, dayInt, hourInt, minuteInt);
 			 stored.delete(id);
 			 stored.addEntry(updatedEntry);
-			 
+			 JSONObject entry = Serialization.serializeEntry(updatedEntry);
+			 String rest = entry.toJSONString();
 			 env.updateContent(stored);
 			 env.addSignature(getAgent());
 			 env.store();
 			 env.close();
 			 
 			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
-			 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+			 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 			 } 
 			 catch(Exception e){
 				 Context.logMessage(this, "couldn't open the storage");
@@ -449,6 +451,7 @@ public class MyCalendar extends Service {
 		
 			int yearInt   = Integer.parseInt(year);
 			int monthInt  = Integer.parseInt(month);
+			monthInt--;  //Calendar starts from 0 so reduce
 			int dayInt    = Integer.parseInt(day);
 			int hourInt   = Integer.parseInt(hour);
 			int minuteInt = Integer.parseInt(minute);
@@ -472,6 +475,8 @@ public class MyCalendar extends Service {
 			 EntryBox stored = env.getContent(EntryBox.class);
 			 Entry updatedEntry = stored.returnEntry(id); //get the entry whose end date is supposed to be stored
 			 updatedEntry.setEnd(yearInt, monthInt, dayInt, hourInt, minuteInt);
+			 JSONObject entry = Serialization.serializeEntry(updatedEntry);
+			 String rest = entry.toJSONString();
 			 stored.delete(id);
 			 stored.addEntry(updatedEntry);
 			 
@@ -481,7 +486,7 @@ public class MyCalendar extends Service {
 			 env.close();
 			 
 			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
-			 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+			 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 			 }
 			 catch(Exception e){
 				 Context.logMessage(this, "couldn't open the storage");
@@ -520,17 +525,22 @@ public class MyCalendar extends Service {
 		 env.open(getAgent());
 		 EntryBox stored = env.getContent(EntryBox.class);
 		 Entry updatedEntry = stored.returnEntry(id); //get the entry where a comment shall be written to
+		 if(updatedEntry==null){
+			 return new HttpResponse("Could not find entry to comment on ", HttpURLConnection.HTTP_NOT_FOUND);
+		 }
 		 updatedEntry.createComment(getActiveAgent().getId(), comment); //add the comment
 		 stored.delete(id); //delete the former entry
 		 stored.addEntry(updatedEntry); //upload the new entry
-		 
+		 JSONObject entry = Serialization.serializeEntry(updatedEntry);
+		 String rest = entry.toJSONString();
+
 		 env.updateContent(stored);
 		 env.addSignature(getAgent());
 		 env.store();
 		 env.close();
 		 
 		 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
-		 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
+		 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 		 } 
 		 catch(Exception e){
 			 Context.logMessage(this, "couldn't open the storage");
@@ -630,6 +640,7 @@ public class MyCalendar extends Service {
 			 Entry[] entries = stored.getEntries();
 			 int yearInt = Integer.parseInt(year);
 			 int monthInt = Integer.parseInt(month);
+			 monthInt--;
 			 int dayInt = Integer.parseInt(day);
 			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, dayInt);
 			 
@@ -842,79 +853,80 @@ public class MyCalendar extends Service {
 		
 	}
 	
-	/**
-	 * get all the ids of the entries of a certain month
-	 * 
-	 */
-	@GET
-	@Path("/getMonth/{year}/{month}")
-	public HttpResponse getMonth ( @PathParam("year") String year, @PathParam ("month") String month){
-		
-		Envelope env = null;
-		
-		 try{
-			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
-		 }
-		 
-		 catch (Exception e){
-			 Context.logMessage(this, "there is not storage yet");
-			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
-		 }
-		 
-		 try{
-			 
-			 ArrayList<Entry> entryList = new ArrayList<>();
-			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
-			
-			 env.open(getAgent());
-			 EntryBox stored = env.getContent(EntryBox.class);
-			 
-			 Entry[] entries = stored.getEntries();
-			 int yearInt = Integer.parseInt(year);
-			 int monthInt = Integer.parseInt(month);
-			 
-			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, 15);
-			 
-		
-		for(Entry anEntry: entries){
-			if((anEntry.getStart() != null) && (anEntry.getEnd() != null)) {
-			Calendar date = anEntry.getStart();
-			Calendar end = anEntry.getEnd();
-			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt)){ // if entry starts in that month
-
-						entryList.add(anEntry);
-
-			}
-			else if((end.get(Calendar.YEAR) == yearInt) && (end.get(Calendar.MONTH) == monthInt) ){ // if entry ends in that month
-				  
-						entryList.add(anEntry);
-
-			}
-			
-			else{  //if entry starts before and ends after the month
-				if(date.before(dayDate) && end.after(dayDate)){
-					entryList.add(anEntry);
-				}
-			}
-		  }
-		}
-	
-		
-		String returnString = "The following entries were found:";
-		for(Entry anEntry: entryList){
-			returnString += anEntry.getUniqueID() + ","; 
-		}
-		
-		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
-		
-		}
-		catch(Exception e){
-			 Context.logMessage(this, "couldn't open the storage");
-			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
-		}
-		
-	}
-	
+//	/**
+//	 * get all the ids of the entries of a certain month
+//	 * 
+//	 */
+//	@GET
+//	@Path("/getMonth/{year}/{month}")
+//	public HttpResponse getMonth ( @PathParam("year") String year, @PathParam ("month") String month){
+//		
+//		Envelope env = null;
+//		
+//		 try{
+//			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+//		 }
+//		 
+//		 catch (Exception e){
+//			 Context.logMessage(this, "there is not storage yet");
+//			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+//		 }
+//		 
+//		 try{
+//			 
+//			 ArrayList<Entry> entryList = new ArrayList<>();
+//			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+//			
+//			 env.open(getAgent());
+//			 EntryBox stored = env.getContent(EntryBox.class);
+//			 
+//			 Entry[] entries = stored.getEntries();
+//			 int yearInt = Integer.parseInt(year);
+//			 int monthInt = Integer.parseInt(month);
+//			 monthInt--;
+//			 
+//			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, 15);
+//			 
+//		
+//		for(Entry anEntry: entries){
+//			if((anEntry.getStart() != null) && (anEntry.getEnd() != null)) {
+//			Calendar date = anEntry.getStart();
+//			Calendar end = anEntry.getEnd();
+//			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt)){ // if entry starts in that month
+//
+//						entryList.add(anEntry);
+//
+//			}
+//			else if((end.get(Calendar.YEAR) == yearInt) && (end.get(Calendar.MONTH) == monthInt) ){ // if entry ends in that month
+//				  
+//						entryList.add(anEntry);
+//
+//			}
+//			
+//			else{  //if entry starts before and ends after the month
+//				if(date.before(dayDate) && end.after(dayDate)){
+//					entryList.add(anEntry);
+//				}
+//			}
+//		  }
+//		}
+//	
+//		
+//		String returnString = "The following entries were found:";
+//		for(Entry anEntry: entryList){
+//			returnString += anEntry.getUniqueID() + ","; 
+//		}
+//		
+//		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
+//		
+//		}
+//		catch(Exception e){
+//			 Context.logMessage(this, "couldn't open the storage");
+//			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+//		}
+//		
+//	}
+//	
 	
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Methods required by the LAS2peer framework.
