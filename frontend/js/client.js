@@ -52,8 +52,6 @@ function renderDay(data) {
 		html+='<div id="entry-'+data[i].entry_id+'" class="entry" style="margin-left:80px;margin-top:10px">';
 		html+= "<b>" + b + ". Entry: " + "</b>" + data[i].title + " - " + data[i].description + ". Starts at  " + data[i].shour +
 			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute + ". Created by: " + data[i].creator; 
-	
-		
 		
 		html+= "<button class=\"btn btn-default\" onClick=update('" + data[i].entry_id + "') data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-th-list\"></span> Comments</button>";
 		
@@ -61,8 +59,10 @@ function renderDay(data) {
 		
 		//add comments to window
 		for(var j = 0; j<data[i].comments.length; j++){
+		
+			client.getName(data[i].comments[j].creatorId);
 			$('<div class="list-group-item ach-'+data[i].comments[j].id +'"> <strong>'+data[i].comments[j].message +'</strong> created by ' +
-					+ data[i].comments[j].creator + 
+					+ name + 
 		              ' </div>').appendTo('#comment-list');
 		}
 	}
@@ -159,6 +159,34 @@ TemplateServiceClient.prototype.createComment = function(id, comment, errorCallb
 			alert(data);
 			},
 			errorCallback
+	);	
+}
+
+TemplateServiceClient.prototype.deleteComment = function(id. errorCallback){
+	this.sendRequest("delete", 
+			"example/deleteComment/" + id,
+			"",
+			"application/json",
+			{},
+			function(data){
+			alert(data);
+			},
+			errorCallback
+	);	
+}
+
+TemplateServiceClient.prototype.getName = function(id){
+	this.sendRequest("get", 
+			"example/getName/" + id,
+			"",
+			"application/json",
+			{},
+			function(data){
+			name = data;
+			},
+			function(){
+				
+			}
 	);	
 }
 

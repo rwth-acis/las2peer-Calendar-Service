@@ -15,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import i5.las2peer.api.Service;
+import i5.las2peer.p2p.AgentNotKnownException;
 import i5.las2peer.persistency.Envelope;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
@@ -37,7 +38,6 @@ import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import i5.las2peer.security.UserAgent;
-import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
@@ -45,6 +45,8 @@ import i5.las2peer.restMapper.annotations.ContentParam;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.restMapper.tools.ValidationResult;
 import i5.las2peer.restMapper.tools.XMLCheck;
+import i5.las2peer.api.Service;
+
 
 /**
  * LAS2peer Calendaqr Service
@@ -328,11 +330,16 @@ public class MyCalendar extends Service {
 	/**
 	 * gets the number of entries in the calendar
 	 * 
-	 * 
 	 * @return success or error message
 	 */
 	@GET
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry number"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
 	@Path("/getNumber")
+	@ApiOperation(value = "getNumber",
+	notes = "get Number of entries")
 	public HttpResponse getNumberOfEntries(){
 		
 		Envelope env = null;
@@ -384,6 +391,13 @@ public class MyCalendar extends Service {
 	
 	@PUT
 	@Path("/setStart/{id}/{year}/{month}/{day}/{hour}/{minute}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "start date set"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Entry not found")
+	})
+	@ApiOperation(value = "setStart",
+	notes = "set startdate of entry")
 	public HttpResponse setStart( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
 			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
 	{
@@ -402,8 +416,8 @@ public class MyCalendar extends Service {
 			 }
 			 
 			 catch (Exception e){
-				 Context.logMessage(this, "there is not storage yet");
-				 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+				 Context.logMessage(this, "there is not a storage yet");
+				 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 			 }
 			
 			 try{
@@ -428,7 +442,7 @@ public class MyCalendar extends Service {
 			 } 
 			 catch(Exception e){
 				 Context.logMessage(this, "couldn't open the storage");
-				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
 			 }
 	}
 	
@@ -454,6 +468,13 @@ public class MyCalendar extends Service {
 	
 	@PUT
 	@Path("/setEnd/{id}/{year}/{month}/{day}/{hour}/{minute}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "end date set"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Entry not found")
+	})
+	@ApiOperation(value = "setEnd",
+	notes = "set end date of entry")
 	public HttpResponse setEnd( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
 			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
 	{
@@ -473,7 +494,7 @@ public class MyCalendar extends Service {
 			 
 			 catch (Exception e){
 				 Context.logMessage(this, "there is not storage yet");
-				 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+				 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 			 }
 			
 			 try{
@@ -499,7 +520,7 @@ public class MyCalendar extends Service {
 			 }
 			 catch(Exception e){
 				 Context.logMessage(this, "couldn't open the storage");
-				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
 			 }
 	}
 	
@@ -514,6 +535,13 @@ public class MyCalendar extends Service {
 	 */
 	@POST
 	@Path("/createComment/{id}/{comment}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry number"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Entry not found")
+	})
+	@ApiOperation(value = "createComment",
+	notes = "add comment to entry")
 	public HttpResponse createComment( @PathParam("id") String id, @PathParam("comment") String comment) {
 		
 		Envelope env = null;
@@ -524,7 +552,7 @@ public class MyCalendar extends Service {
 		 
 		 catch (Exception e){
 			 Context.logMessage(this, "there is not storage yet");
-			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		
 		 try{
@@ -553,7 +581,7 @@ public class MyCalendar extends Service {
 		 } 
 		 catch(Exception e){
 			 Context.logMessage(this, "couldn't open the storage");
-			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
+			 return new HttpResponse("could not use storage", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 	}
 	
@@ -566,6 +594,14 @@ public class MyCalendar extends Service {
 	 */
 	@DELETE
 	@Path("/deleteComment/{id}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry number"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Entry not found"),
+			@ApiResponse(code = HttpURLConnection.HTTP_FORBIDDEN, message = "not allowed")
+	})
+	@ApiOperation(value = "deleteComment",
+	notes = "delete comment of entry")
 	public HttpResponse deleteComment( @PathParam("id") String id) {
 		
 		Envelope env = null;
@@ -576,7 +612,7 @@ public class MyCalendar extends Service {
 		 
 		 catch (Exception e){
 			 Context.logMessage(this, "there is not storage yet");
-			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		
 		 try{
@@ -588,7 +624,7 @@ public class MyCalendar extends Service {
 		 String entryID = stored.findComment(id);
 		 if(entryID.equals("")){
 			 Context.logMessage(this, "Comment was not found");
-			 return new HttpResponse("Comment was not found", HttpURLConnection.HTTP_ACCEPTED);
+			 return new HttpResponse("Comment was not found", HttpURLConnection.HTTP_NOT_FOUND);
 		 }
 		 
 		 Entry newEntry = stored.returnEntry(entryID);
@@ -596,7 +632,7 @@ public class MyCalendar extends Service {
 		 if((deleteComment.getCreatorId()!=getActiveAgent().getId()) && (newEntry.getCreatorId()!=getActiveAgent().getId())){
 			 
 				 Context.logMessage(this, "cannot delete this comment by another user");
-				 return new HttpResponse("comment couldn't be deleted", HttpURLConnection.HTTP_BAD_REQUEST);
+				 return new HttpResponse("comment couldn't be deleted", HttpURLConnection.HTTP_FORBIDDEN);
 				 
 		 }
 		 newEntry.deleteComment(id);
@@ -625,6 +661,12 @@ public class MyCalendar extends Service {
 	 */
 	@GET
 	@Path("/getDay/{year}/{month}/{day}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry number"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
+	@ApiOperation(value = "getDay",
+	notes = "get all entries of a day")
 	public HttpResponse getDay ( @PathParam("year") String year, @PathParam ("month") String month, @PathParam("day") String day){
 		
 		Envelope env = null;
@@ -635,7 +677,7 @@ public class MyCalendar extends Service {
 		 
 		 catch (Exception e){
 			 Context.logMessage(this, "there is not storage yet");
-			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		 
 		 try{
@@ -862,20 +904,41 @@ public class MyCalendar extends Service {
 		
 	}
 	
-//	@POST
-//	@Path("/name/{id}")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@ApiResponses(value = {
-//			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Name"),
-//			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not Foudn"),
-//	})
-//	@ApiOperation(value = "name",
-//			notes = "get the name of an agent")
-//	public HttpResponse name( @PathParam("title") String id){
-//		 
-//		long agentid = Long.parseLong(id);
-//		
-//	}
+	
+	/**
+	 * function to get the login name of an agent
+	 * 
+	 * @param id
+	 * 		the id of the agent 
+	 * @return
+	 *		the login name
+	 */
+	@GET
+	@Path("/name/{id}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Name"),
+			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not Found"),
+			@ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal error")
+	})
+	@ApiOperation(value = "name",
+			notes = "get the name of an agent")
+	public HttpResponse getName( @PathParam("id") String id){
+		 
+		long agentid = Long.parseLong(id);
+	    try{
+	    	UserAgent fred = (UserAgent) getContext().getAgent(agentid);
+	    	String name = fred.getLoginName();
+	    	return new HttpResponse(name, HttpURLConnection.HTTP_OK);
+	    }
+	    catch(AgentNotKnownException e){
+	    	String error = "Agent not found";
+	    	return new HttpResponse(error, HttpURLConnection.HTTP_NOT_FOUND);
+	    }
+	    catch(Exception e){
+	    	String error = "Internal error";
+	    	return new HttpResponse(error, HttpURLConnection.HTTP_INTERNAL_ERROR);
+	    }
+	}
 	
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Methods required by the LAS2peer framework.

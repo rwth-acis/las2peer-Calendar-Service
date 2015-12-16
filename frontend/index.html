@@ -270,6 +270,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     // create new instance of TemplateServiceClient, given its endpoint URL
     var client = new TemplateServiceClient("http://localhost:8080/");
     var local = 0;
+    var name;
 
 
     // function defined as response to a click on the first button (see below)
@@ -334,9 +335,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     	});
     }
     
+    function deleteComment(id){
+    	client.deleteComment(id, 
+    			function(error){
+    		//this is the error callback
+    		console.log(error);
+    	});
+    }
+    
     function update(id){
     	local = id;
     }
+    
+    
     
   
 
