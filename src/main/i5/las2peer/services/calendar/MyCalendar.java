@@ -36,6 +36,15 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.api.Service;
+import i5.las2peer.restMapper.HttpResponse;
+import i5.las2peer.restMapper.MediaType;
+import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.ContentParam;
+import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.restMapper.tools.ValidationResult;
+import i5.las2peer.restMapper.tools.XMLCheck;
 
 /**
  * LAS2peer Calendaqr Service
@@ -853,80 +862,20 @@ public class MyCalendar extends Service {
 		
 	}
 	
-//	/**
-//	 * get all the ids of the entries of a certain month
-//	 * 
-//	 */
-//	@GET
-//	@Path("/getMonth/{year}/{month}")
-//	public HttpResponse getMonth ( @PathParam("year") String year, @PathParam ("month") String month){
-//		
-//		Envelope env = null;
-//		
-//		 try{
-//			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
-//		 }
+//	@POST
+//	@Path("/name/{id}")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@ApiResponses(value = {
+//			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Name"),
+//			@ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not Foudn"),
+//	})
+//	@ApiOperation(value = "name",
+//			notes = "get the name of an agent")
+//	public HttpResponse name( @PathParam("title") String id){
 //		 
-//		 catch (Exception e){
-//			 Context.logMessage(this, "there is not storage yet");
-//			 return new HttpResponse("fail", HttpURLConnection.HTTP_ACCEPTED);
-//		 }
-//		 
-//		 try{
-//			 
-//			 ArrayList<Entry> entryList = new ArrayList<>();
-//			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
-//			
-//			 env.open(getAgent());
-//			 EntryBox stored = env.getContent(EntryBox.class);
-//			 
-//			 Entry[] entries = stored.getEntries();
-//			 int yearInt = Integer.parseInt(year);
-//			 int monthInt = Integer.parseInt(month);
-//			 monthInt--;
-//			 
-//			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, 15);
-//			 
-//		
-//		for(Entry anEntry: entries){
-//			if((anEntry.getStart() != null) && (anEntry.getEnd() != null)) {
-//			Calendar date = anEntry.getStart();
-//			Calendar end = anEntry.getEnd();
-//			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt)){ // if entry starts in that month
-//
-//						entryList.add(anEntry);
-//
-//			}
-//			else if((end.get(Calendar.YEAR) == yearInt) && (end.get(Calendar.MONTH) == monthInt) ){ // if entry ends in that month
-//				  
-//						entryList.add(anEntry);
-//
-//			}
-//			
-//			else{  //if entry starts before and ends after the month
-//				if(date.before(dayDate) && end.after(dayDate)){
-//					entryList.add(anEntry);
-//				}
-//			}
-//		  }
-//		}
-//	
-//		
-//		String returnString = "The following entries were found:";
-//		for(Entry anEntry: entryList){
-//			returnString += anEntry.getUniqueID() + ","; 
-//		}
-//		
-//		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
-//		
-//		}
-//		catch(Exception e){
-//			 Context.logMessage(this, "couldn't open the storage");
-//			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
-//		}
+//		long agentid = Long.parseLong(id);
 //		
 //	}
-//	
 	
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Methods required by the LAS2peer framework.

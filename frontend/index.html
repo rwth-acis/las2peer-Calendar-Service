@@ -127,12 +127,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     </div>
                     <div class="input-group">
                       <span class="input-group-addon" id="basic-addon2">Your comment</span>
-                      <input type="text" class="form-control" aria-describedby="basic-addon2" placeholder="comment" name="comment" />
+                      <input type="text" id="inputcomment" class="form-control" aria-describedby="basic-addon2" placeholder="comment" name="comment" />
                     </div>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save comment</button>
+                    <button type="button" onClick="addComment(document.getElementById('inputcomment').value);" class="btn btn-default" data-dismiss="modal">Add your comment</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                   </div>
            </form>
          </div>
@@ -323,8 +323,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       }
     
     //function to add comments inside the calendar
-    function addComment(form){
-    	var newcomment = form.elements["comment"].value;
+    function addComment(mycomment){
+    	var newcomment = mycomment;
   
     	client.createComment(local, newcomment, 
     			function(error) {

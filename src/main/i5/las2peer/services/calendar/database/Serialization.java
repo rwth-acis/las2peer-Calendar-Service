@@ -20,6 +20,10 @@ public class Serialization {
 		if(a.getComments().isEmpty()==false){
 		res.put("comments", a.getComments());
 		}
+		else{
+		ArrayList<Comment> empty = new ArrayList<>(10);
+		res.put("comments", empty);
+		}
 		if(a.getStart()!=null){
 		res.put("syear", a.getStart().get(Calendar.YEAR));
 		res.put("smonth", a.getStart().get(Calendar.MONTH));

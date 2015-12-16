@@ -225,9 +225,10 @@ public class StorageTest {
 			result = c.sendRequest("PUT", mainPath + "setStart/" + dateID + "/2013/12/11/15/12", "");
 			result = c.sendRequest("PUT", mainPath + "setEnd/" + dateID + "/2013/12/12/16/12", "");
 			assertEquals(200,result.getHttpCode());
-			
+		
 			result = c.sendRequest("GET", mainPath + "getDay/2013/12/11", "");
 			assertEquals(200,result.getHttpCode());
+			
 
 			
 			

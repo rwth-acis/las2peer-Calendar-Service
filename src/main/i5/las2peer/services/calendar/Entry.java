@@ -337,7 +337,7 @@ public class Entry implements XmlAble {
 					
 				for(int i = 0; i<comment.size(); i++){
 					JSONObject obj = (JSONObject) comment.get(i);
-					Comment a = new Comment((String) obj.get("uniqueID"), 523, null, (String) obj.get("message"));
+					Comment a = new Comment((String) obj.get("uniqueID"), (long) obj.get("creatorId"), null, (String) obj.get("message"));
 					res.comments.add(a);				}
 				
 				}

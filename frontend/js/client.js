@@ -61,8 +61,9 @@ function renderDay(data) {
 		
 		//add comments to window
 		for(var j = 0; j<data[i].comments.length; j++){
-			$('<div class="list-group-item ach-'+data[i].comments[j].id +'"> '+data[i].comments[j].message +' ' +
-		              '</div>').appendTo('#comment-list');
+			$('<div class="list-group-item ach-'+data[i].comments[j].id +'"> <strong>'+data[i].comments[j].message +'</strong> created by ' +
+					+ data[i].comments[j].creator + 
+		              ' </div>').appendTo('#comment-list');
 		}
 	}
 	
