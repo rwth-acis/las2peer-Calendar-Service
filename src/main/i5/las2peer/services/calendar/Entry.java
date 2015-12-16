@@ -333,10 +333,14 @@ public class Entry implements XmlAble {
 			
 			try{
 				
+				if(comment != null){ //if there are comments
+					
 				for(int i = 0; i<comment.size(); i++){
 					JSONObject obj = (JSONObject) comment.get(i);
 					Comment a = new Comment((String) obj.get("uniqueID"), 523, null, (String) obj.get("message"));
 					res.comments.add(a);				}
+				
+				}
 				
 				res.setStart((int) params.get("syear"), (int) params.get("smonth"), (int) params.get("sday"), (int) params.get("shour"), (int) params.get("sminute"));
 				res.setEnd((int) params.get("eyear"), (int) params.get("emonth"), (int) params.get("eday"), (int) params.get("ehour"), (int) params.get("eminute"));
