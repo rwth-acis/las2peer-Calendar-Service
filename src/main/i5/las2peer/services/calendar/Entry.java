@@ -13,6 +13,7 @@ import i5.las2peer.services.calendar.database.Serialization;
 import i5.las2peer.services.calendar.security.IdGeneration;
 import net.minidev.json.*;
 import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 /**
  * Class that represents a date created by the user. It will be used by the {@link MyCalendar} to organize dates.<br>
@@ -321,12 +322,12 @@ public class Entry implements XmlAble {
 	
 	}
 	
-	public static Entry createFromXml(String xml) throws MalformedXMLException {
+	public static Entry readJSON(String json) throws ParseException {
 		
 		try{
 			
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
-			JSONObject params = (JSONObject)parser.parse(xml);
+			JSONObject params = (JSONObject)parser.parse(json);
 			JSONArray comment = (JSONArray) params.get("comments");
 			
 			Entry res = new Entry((String) params.get("entry_id"), (long) params.get("creator"), (String) params.get("title"), (String) params.get("description"), 10);

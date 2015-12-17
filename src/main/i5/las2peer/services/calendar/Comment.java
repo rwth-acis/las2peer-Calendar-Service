@@ -15,7 +15,7 @@ public class Comment {
 	/** unique String Id to identify this comment**/
 	private String uniqueID;
 	/** agent id of the agent who created the comment**/
-	private final long creatorId;
+	private long creatorId;
 	/** time at which the comment was created**/
 	private Calendar time;
 	/** the comment itself saved as a string*/

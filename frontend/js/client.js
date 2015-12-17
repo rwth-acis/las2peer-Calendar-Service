@@ -162,7 +162,7 @@ TemplateServiceClient.prototype.createComment = function(id, comment, errorCallb
 	);	
 }
 
-TemplateServiceClient.prototype.deleteComment = function(id. errorCallback){
+TemplateServiceClient.prototype.deleteComment = function(id, errorCallback){
 	this.sendRequest("delete", 
 			"example/deleteComment/" + id,
 			"",

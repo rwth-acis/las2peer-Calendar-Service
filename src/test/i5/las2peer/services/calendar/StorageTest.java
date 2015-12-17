@@ -262,6 +262,7 @@ public class StorageTest {
 			
 			result = c.sendRequest("GET", mainPath + "getEntry/" + ID, "");
 			assertEquals(200, result.getHttpCode());
+			assertTrue(result.getResponse().contains(String.valueOf(testAgent.getId()))); //creator id needs to be returned too
 		
 			assertTrue(result.getResponse().contains("firstComment"));
 		
@@ -273,6 +274,25 @@ public class StorageTest {
 			e.printStackTrace();
 			fail("Exception: " + e);
 		}		
+	}
+	
+	@Test
+	public void nameTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("GET", mainPath + "name/" + testAgent.getId(), "");
+		
+			assertEquals(result.getHttpCode(), 200);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}	
 	}
 	
 	@Test

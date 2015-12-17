@@ -38,7 +38,7 @@ public class EntryBox implements Serializable {
 			try{
 			for(String anEntry : entries) {
 				if(anEntry.contains(id)){
-					return Entry.createFromXml(anEntry);
+					return Entry.readJSON(anEntry);
 				}
 			}
 			Context.logError(this, "couldn't find entry '");
@@ -57,13 +57,13 @@ public class EntryBox implements Serializable {
 		 */
 		public Entry[] getEntries(){
 			ArrayList<Entry> result = new ArrayList<>(entries.size());
-			for (String xml : entries) {
+			for (String json : entries) {
 				try {
-					Entry newEntry = Entry.createFromXml(xml);
+					Entry newEntry = Entry.readJSON(json);
 					result.add(newEntry);
 				}
-				catch (MalformedXMLException e){
-					Context.logError(this, "can't parse massage from XML '" + xml);
+				catch (Exception e){
+					Context.logError(this, "can't parse massage from JSON '" + json);
 				}
 		   }
 			
