@@ -136,14 +136,15 @@ TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, e
 	);
 }
 
-TemplateServiceClient.prototype.createWeekly = function(title, description, year, month, day, weeks, shour, sminute, ehour, eminute, successCallback, errorCallback) {
+TemplateServiceClient.prototype.createRegular = function(title, description, year, month, day, shour, sminute, ehour, eminute, interval, number, successCallback, errorCallback) {
 	this.sendRequest("post", 
-			"example/createWeekly/" + year + "/" + month + "/" + day + "/" + weeks + "/" + shour + "/" + sminute + "/" + ehour + "/" + eminute + "/" +title + "/" + description,
+			"example/createRegular/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute + "/" + ehour + "/" + eminute + "/" +title + "/" 
+			+ description + "/" + interval + "/" + number,
 			"",
 			"application/json",
 			{},
 			function(data){
-			alert(data);
+				alert(data);
 			},
 			errorCallback
 	);

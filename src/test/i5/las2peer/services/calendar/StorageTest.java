@@ -19,6 +19,53 @@ import i5.las2peer.webConnector.client.MiniClient;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+
+import i5.las2peer.api.Service;
+import i5.las2peer.p2p.AgentNotKnownException;
+import i5.las2peer.persistency.Envelope;
+import i5.las2peer.restMapper.HttpResponse;
+import i5.las2peer.restMapper.MediaType;
+import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.restMapper.tools.ValidationResult;
+import i5.las2peer.restMapper.tools.XMLCheck;
+import i5.las2peer.security.Context;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.services.calendar.database.DatabaseManager;
+import i5.las2peer.services.calendar.database.Serialization;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Contact;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.restMapper.HttpResponse;
+import i5.las2peer.restMapper.MediaType;
+import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.ContentParam;
+import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.restMapper.tools.ValidationResult;
+import i5.las2peer.restMapper.tools.XMLCheck;
+import i5.las2peer.api.Service;
+
 public class StorageTest {
 
 
@@ -284,10 +331,14 @@ public class StorageTest {
 		
 		try{
 			
+			
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
 			ClientResponse result = c.sendRequest("GET", mainPath + "name/" + testAgent.getId(), "");
 		
 			assertEquals(result.getHttpCode(), 200);
+			
+			result = c.sendRequest("POST", mainPath + "create/authorentry/junit", "");
+			assertTrue(result.getResponse().contains(String.valueOf(testAgent.getId())));
 			
 		} catch(Exception e) {
 			e.printStackTrace();

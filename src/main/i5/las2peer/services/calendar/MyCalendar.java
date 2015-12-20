@@ -191,7 +191,7 @@ public class MyCalendar extends Service {
 			 return new HttpResponse ("one of the parameters is empty", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		 
-		 Entry newEntry = new Entry( ((UserAgent) getActiveAgent()).getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
+		 Entry newEntry = new Entry( getActiveAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
 		 
 		 // save entry using envelopes
 		 try{

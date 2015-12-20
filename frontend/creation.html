@@ -183,15 +183,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container" style="margin-top:10px">
 	    <form>
-	  Week amount:<br>
-	  <input type="text" name="weeks" id ="weeks">
+	  Amount of entries:<br>
+	  <input type="text" name="amount" id ="occur">
  		 <br>
 		</form> 
+		
+
+  <label for="interval">Select interval:</label>
+  <select class="form-control" id="inval">
+    <option>Weekly</option>
+    <option>Bi-Weekly</option>
+    <option>Monthly</option>
+    <option>Bi-Monthly</option>
+    <option>Quarterly</option>
+    <option>Yearly</option>
+  </select>
 </div>
 
 <div align="left">
 <div class="container" style="margin-top:10px">
-    <button onclick="createW();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Weekly date</span></button>
+    <button onclick="interval();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right">Create regular date</span></button>
     <p id="getExampleOutput"></p>
 </div>
 </div>
@@ -368,27 +379,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           }
       
       //function defined to create entries on a weekly basis
-      function createW(input) {
-      client.createWeekly(
+      function interval(input) {
+      client.createRegular(
     		  
     		  document.getElementById('title').value, 
     		  document.getElementById('description').value,
     		  document.getElementById('year').value, 
     		  getMonth(document.getElementById('creMon')),
     		  document.getElementById('day').value,
-    		  document.getElementById('weeks').value, 
     		  document.getElementById('shour').value,
     		  document.getElementById('sminute').value, 
     		  document.getElementById('ehour').value,
     		  document.getElementById('eminute').value,
+    		  getInterval(document.getElementById('inval').value),
+    		  document.getElementById('occur').value,
     		     		  
         function(data,type) {
-          // this is the success callback
-          data = JSON.parse(data)
-          id = data.entry_id;
-          console.log(data);
-          $("#postExampleOutput").html(data);
-        },
+		          // this is the success callback
+		          console.log(data);
+		          $("#postExampleOutput").html(data);
+		},
         function(error) {
           // this is the error callback
           console.log(error);
@@ -396,6 +406,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         }
       );
     }
+     
+      //function to parse correct interval enum term
+      function getInterval(term){
+    	  if(term == "Weekly"){
+    		  return "week";
+    	  }
+    	  if(term == "Monthly"){
+    		  return "month";
+    	  }
+    	  if(term == "Yearly"){
+    		  return "year";
+    	  }
+    	  if(term == "Quarterly"){
+    		  return "quarter";
+    	  }
+    	  if(term == "Bi-Weekly"){
+    		  return "biweek";
+    	  }
+    	  else{
+    		  return "bimonth";
+    	  }
+      }
       
   </script>
 </body>
