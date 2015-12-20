@@ -61,9 +61,10 @@ function renderDay(data) {
 		for(var j = 0; j<data[i].comments.length; j++){
 		
 			client.getName(data[i].comments[j].creatorId);
-			$('<div class="list-group-item ach-'+data[i].comments[j].id +'"> <strong>'+data[i].comments[j].message +'</strong> created by ' +
+			var comid = data[i].comments[j].uniqueID;
+			$('<div class="list-group-item ach-'+ comid +'"> <strong>'+data[i].comments[j].message +'</strong> created by ' +
 					+ name + 
-		              ' </div>').appendTo('#comment-list');
+		              ' </div>' + "<button class=\"btn btn-default\" onClick=deleteComment('" + comid + "') data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-remove\"></span> Delete</button>").appendTo('#comment-list');
 		}
 	}
 	
