@@ -185,29 +185,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       );
     }
     
-    //function defined as a response to a click on a day in the calendar
-    function getDay(day) {
-    	var year = document.getElementById('iyear').value;
-    	var month = getMonth(document.getElementById('sel1'));
-    	client.getDay(year, month, day,
-    	function(data,type) {
-          // this is the success callback
-          console.log(data);
-          $("#postExampleOutput").html(data);
-         },
-         function(error) {
-           // this is the error callback
-           console.log(error);
-           $("#postExampleOutput").html(error);
-          }
-        );
-      }
-    
     
     function process(){
-    	var y = document.getElementById("myFile").files;
-    	document.body.appendChild(y);
+    	var file = document.getElementById("myFile").files[0];
+    	
+    	if(file){
+    	    getAsText(file);
+    	  }
+    	
     }
+    
+    function getAsText(readFile){
+    	var reader = new FileReader();
+    	
+    	// Read file into memory as UTF-16      
+    	reader.onload = loaded;
+    	
+    	reader.readAsBinaryString(readFile);
+    }
+    
+   function loaded(e){
+	   alert(evt.target.result);
+   }
 
   </script>
 
