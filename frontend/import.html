@@ -199,13 +199,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     	var reader = new FileReader();
     	
     	// Read file into memory as UTF-16      
-    	reader.onload = loaded;
+    	reader.onprogress = loaded;
     	
     	reader.readAsBinaryString(readFile);
     }
     
    function loaded(e){
-	   alert(evt.target.result);
+	   var result = e.target.result;
+	   
+	   //split calendar file by lines to extract info
+	   var lines = result.split('\n');
+	   
+	   //extract info
+	   for(var line = 0; line < lines.length; line++){
+		   if(lines[line].contains("DTSTART")){
+			   var start = lines[line];
+			   var splitting = start.split(":");
+			   //get line with stat date
+			   var sdate = splitting[1];
+		   }
+		   if(lines[line].contains("DTEND")){
+			   var end = lines[line];
+			   var splitting = end.split(":");
+			   //get line with end date
+			   var edate = splitting[1];
+		   }
+		   if(lines[line].contains("SUMMARY")){
+			   var summary = lines[line];
+			   var splitting = summary.split(":");
+			   //get line with end date
+			   var title = splitting[1];
+		   }
+		   if(lines[line].contains("SUMMARY")){
+			   var summary = lines[line];
+			   var splitting = summary.split(":");
+			   //get line with end date
+			   var title = splitting[1];
+		   }
+		   if(lines[line].contains("DESCRIPTION")){
+			   var summary = lines[line];
+			   var splitting = summary.split(":");
+			   //get line with end date
+			   var title = splitting[1];
+		   }
+	   }
+	   
+	   
+	   
+	   
+	   alert(sdate);
+	   alert(e.target.result);
    }
 
   </script>

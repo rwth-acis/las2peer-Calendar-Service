@@ -207,6 +207,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 </div>
 
+<div align="center" class="year" style="margin-top:0px">
+ <form>
+  <b> Import function: </b>
+  <input type="file" id="myFile">
+  <button onclick="process()">Upload Entry</button>
+</form> 
+</div>
+
   <!-- import jQuery for AJAX calls (must) -->
   <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 
@@ -428,6 +436,84 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     		  return "bimonth";
     	  }
       }
+      
+      //function to get ics file
+      function process(){
+      	var file = document.getElementById("myFile").files[0];
+      	
+      	if(file){
+      	    getAsText(file);
+      	  }
+      	
+      }
+      
+      //function to process ics file
+      function getAsText(readFile){
+      	var reader = new FileReader();
+      	
+      	// Read file into memory as UTF-16      
+      	reader.onprogress = loaded;
+      	
+      	reader.readAsBinaryString(readFile);
+      }
+      
+     function loaded(e){
+  	   var result = e.target.result;
+  	   
+  	   //split calendar file by lines to extract info
+  	   var lines = result.split('\n');
+  	   
+  	   //extract info
+  	   for(var line = 0; line < lines.length; line++){
+  		   if(lines[line].contains("DTSTART")){
+  			   var start = lines[line];
+  			   var splitting = start.split(":");
+  			   //get line with stat date
+  			   var sdate = splitting[1];
+  			   var year = sdate.substr(0,4);
+  			   document.getElementById("year").value = year;
+  			   var monthstring = sdate.substr(4);
+  			   var split = monthstring.substr(0,2);
+  			   var month = parseInt(split) - 1;
+  			   var day = monthstring.substr(2);
+  			   document.getElementById('creMon').options.selectedIndex = month;
+  			   document.getElementById('day').value = day;
+  			   var sday = sdate.substr(6,6);
+  		   }
+  		   if(lines[line].contains("DTEND")){
+  			   var end = lines[line];
+  			   var splitting = end.split(":");
+  			   //get line with end date
+  			   var edate = splitting[1];
+  		   }
+  		   if(lines[line].contains("SUMMARY")){
+  			   var summary = lines[line];
+  			   var splitting = summary.split(":");
+  			   //get line with end date
+  			   var title = splitting[1];
+  		   }
+  		   if(lines[line].contains("SUMMARY")){
+  			   var summary = lines[line];
+  			   var splitting = summary.split(":");
+  			   //get line with end date
+  			   var title = splitting[1];
+  		   }
+  		   if(lines[line].contains("DESCRIPTION")){
+  			   var summary = lines[line];
+  			   var splitting = summary.split(":");
+  			   //get line with end date
+  			   var title = splitting[1];
+  		   }
+  	   }
+  	   
+  	   
+  	   
+  	   
+  	   alert(sdate);
+  	   alert(month);
+  	   alert(e.target.result);
+     
+     }
       
   </script>
 </body>
