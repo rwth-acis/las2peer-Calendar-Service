@@ -1,34 +1,4 @@
-<!DOCTYPE html>
-<!--
-Copyright (c) 2014 Advanced Community Information Systems (ACIS) Group,
-Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
-All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the ACIS Group nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -64,7 +34,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <ul class="nav navbar-nav">
           <li><a href="index.html">Calendar Navigation</a></li>
           <li><a href="creation.html">Entry creation</a></li>
-          <li><a href="import.html">Import</a></li>
         </ul>
         <!-- OpenID Connect Button: add HTML element representing button -->
         <span id="signinButton">
@@ -211,7 +180,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  <form>
   <b> Import function: </b>
   <input type="file" id="myFile">
-  <button onclick="process()">Upload Entry</button>
+  <button type="button" onclick="process()">Upload Entry</button>
 </form> 
 </div>
 
@@ -465,6 +434,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   	   
   	   //extract info
   	   for(var line = 0; line < lines.length; line++){
+  		   
   		   if(lines[line].contains("DTSTART")){
   			   var start = lines[line];
   			   var splitting = start.split(":");
@@ -477,42 +447,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   			   var month = parseInt(split) - 1;
   			   var day = monthstring.substr(2);
   			   document.getElementById('creMon').options.selectedIndex = month;
-  			   document.getElementById('day').value = day;
+  			   
   			   var sday = sdate.substr(6,6);
+  			   day = sday.substr(0,2); 
+  			   document.getElementById('day').value = day;
+  			   var sstart = sdate.substr(9,9);
+  			   var shour = sstart.substr(0,2);
+  			   sstart = sdate.substr(9,9);
+  			   var sminute = sstart.substr(2,4);
+  			   document.getElementById('shour').value = shour;
+  			   sminute = sminute.substr(0,2);
+  			   document.getElementById('sminute').value = sminute;
   		   }
+  		   
   		   if(lines[line].contains("DTEND")){
   			   var end = lines[line];
   			   var splitting = end.split(":");
   			   //get line with end date
   			   var edate = splitting[1];
+  			   edate = edate.substr(9);
+  			   ehour = edate.substr(0,2);
+  			   edate = splitting[1];
+			   edate = edate.substr(9);
+			   eminute = edate.substr(2,4);
+			   eminute = eminute.substr(0,2);
+  			   document.getElementById('ehour').value = ehour;
+  			   document.getElementById('eminute').value = eminute;
   		   }
+  		   
   		   if(lines[line].contains("SUMMARY")){
   			   var summary = lines[line];
   			   var splitting = summary.split(":");
   			   //get line with end date
   			   var title = splitting[1];
+  			   document.getElementById('title').value = title;
   		   }
-  		   if(lines[line].contains("SUMMARY")){
-  			   var summary = lines[line];
-  			   var splitting = summary.split(":");
-  			   //get line with end date
-  			   var title = splitting[1];
-  		   }
+  		   
   		   if(lines[line].contains("DESCRIPTION")){
   			   var summary = lines[line];
   			   var splitting = summary.split(":");
   			   //get line with end date
-  			   var title = splitting[1];
+  			   var description = splitting[1];
+  			   document.getElementById('description').value = description;
   		   }
   	   }
   	   
-  	   
-  	   
-  	   
-  	   alert(sdate);
-  	   alert(month);
-  	   alert(e.target.result);
-     
      }
       
   </script>
