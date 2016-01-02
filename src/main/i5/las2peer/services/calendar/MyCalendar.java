@@ -25,7 +25,6 @@ import i5.las2peer.restMapper.tools.ValidationResult;
 import i5.las2peer.restMapper.tools.XMLCheck;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
-import i5.las2peer.services.calendar.database.DatabaseManager;
 import i5.las2peer.services.calendar.database.Serialization;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,16 +36,7 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import i5.las2peer.security.UserAgent;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.restMapper.MediaType;
-import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.ContentParam;
-import i5.las2peer.restMapper.annotations.Version;
-import i5.las2peer.restMapper.tools.ValidationResult;
-import i5.las2peer.restMapper.tools.XMLCheck;
-import i5.las2peer.api.Service;
-
 
 /**
  * LAS2peer Calendaqr Service
@@ -104,14 +94,12 @@ public class MyCalendar extends Service {
 	private String jdbcPass;
 	private String jdbcUrl;
 	private String jdbcSchema;
-	private DatabaseManager dbm;
 
 	public MyCalendar() {
 		// read and set properties values
 		// IF THE SERVICE CLASS NAME IS CHANGED, THE PROPERTIES FILE NAME NEED TO BE CHANGED TOO!
 		setFieldValues();
-		// instantiate a database manager to handle database connection pooling and credentials
-		dbm = new DatabaseManager(jdbcDriverClassName, jdbcLogin, jdbcPass, jdbcUrl, jdbcSchema);
+
 	}
 	
 	public UserAgent getUserAgent(){
