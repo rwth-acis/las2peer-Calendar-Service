@@ -36,7 +36,16 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.restMapper.HttpResponse;
+import i5.las2peer.restMapper.MediaType;
+import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.ContentParam;
+import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.restMapper.tools.ValidationResult;
+import i5.las2peer.restMapper.tools.XMLCheck;
+import i5.las2peer.api.Service;
+
 
 /**
  * LAS2peer Calendaqr Service

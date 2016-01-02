@@ -10,8 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import i5.las2peer.p2p.LocalNode;
-import i5.las2peer.security.ServiceAgent;
-import i5.las2peer.security.UserAgent;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.WebConnector;
 import i5.las2peer.webConnector.client.ClientResponse;
@@ -29,9 +27,6 @@ public class ServiceTest {
 	private static WebConnector connector;
 	private static ByteArrayOutputStream logStream;
 
-	private static UserAgent testAgent;
-	private static final String testPass = "adamspass";
-	
 	private static final String testTemplateService = MyCalendar.class.getCanonicalName();
 
 	private static final String mainPath = "example/";
@@ -51,11 +46,6 @@ public class ServiceTest {
 		node.storeAgent(MockAgentFactory.getAdam());
 		node.launch();
 
-		ServiceAgent testService = ServiceAgent.generateNewAgent(testTemplateService, "a pass");
-		testService.unlockPrivateKey("a pass");
-
-		node.registerReceiver(testService);
-
 		// start connector
 		logStream = new ByteArrayOutputStream();
 
@@ -63,7 +53,6 @@ public class ServiceTest {
 		connector.setLogStream(new PrintStream(logStream));
 		connector.start(node);
 		Thread.sleep(1000); // wait a second for the connector to become ready
-		testAgent = MockAgentFactory.getAdam();
 
 		connector.updateServiceList();
 		// avoid timing errors: wait for the repository manager to get all services before continuing
