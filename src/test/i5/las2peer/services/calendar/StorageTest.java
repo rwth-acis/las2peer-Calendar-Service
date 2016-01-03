@@ -44,6 +44,7 @@ import i5.las2peer.restMapper.tools.ValidationResult;
 import i5.las2peer.restMapper.tools.XMLCheck;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
+import i5.las2peer.services.calendar.database.DatabaseManager;
 import i5.las2peer.services.calendar.database.Serialization;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
