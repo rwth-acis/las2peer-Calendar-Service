@@ -103,11 +103,12 @@ public class MyCalendar extends Service {
 	private String jdbcPass;
 	private String jdbcUrl;
 	private String jdbcSchema;
-
+	
 	public MyCalendar() {
 		// read and set properties values
 		// IF THE SERVICE CLASS NAME IS CHANGED, THE PROPERTIES FILE NAME NEED TO BE CHANGED TOO!
 		setFieldValues();
+		// instantiate a database manager to handle database connection pooling and credentials
 
 	}
 	

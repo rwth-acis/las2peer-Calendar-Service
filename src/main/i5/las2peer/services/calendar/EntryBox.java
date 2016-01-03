@@ -3,6 +3,7 @@ package i5.las2peer.services.calendar;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import i5.las2peer.persistency.MalformedXMLException;
 import i5.las2peer.security.Context;
 
 public class EntryBox implements Serializable {
