@@ -19,6 +19,7 @@ import i5.las2peer.webConnector.client.MiniClient;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
+@SuppressWarnings("unused")
 public class ServiceTest {
 
 
@@ -51,7 +52,7 @@ public class ServiceTest {
 		node.storeAgent(MockAgentFactory.getAdam());
 		node.launch();
 
-		ServiceAgent testService = ServiceAgent.generateNewAgent(testTemplateService, "a pass");
+		ServiceAgent testService = ServiceAgent.createServiceAgent(testTemplateService, "a pass");
 		testService.unlockPrivateKey("a pass");
 
 		node.registerReceiver(testService);

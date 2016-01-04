@@ -54,7 +54,7 @@ public class StorageTest {
 		node.storeAgent(MockAgentFactory.getEve());
 		node.launch();
 
-		ServiceAgent testService = ServiceAgent.generateNewAgent(testTemplateService, "a pass");
+		ServiceAgent testService = ServiceAgent.createServiceAgent(testTemplateService, "a pass");
 		testService.unlockPrivateKey("a pass");
 
 		node.registerReceiver(testService);
