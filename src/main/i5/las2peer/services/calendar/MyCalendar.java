@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.logging.Level;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -15,6 +16,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import i5.las2peer.api.Service;
+import i5.las2peer.logging.L2pLogger;
+import i5.las2peer.logging.NodeObserver.Event;
 import i5.las2peer.p2p.AgentNotKnownException;
 import i5.las2peer.persistency.Envelope;
 import i5.las2peer.restMapper.HttpResponse;
@@ -36,15 +39,6 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import i5.las2peer.security.UserAgent;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.restMapper.MediaType;
-import i5.las2peer.restMapper.RESTMapper;
-import i5.las2peer.restMapper.annotations.ContentParam;
-import i5.las2peer.restMapper.annotations.Version;
-import i5.las2peer.restMapper.tools.ValidationResult;
-import i5.las2peer.restMapper.tools.XMLCheck;
-import i5.las2peer.api.Service;
 
 
 /**
@@ -80,6 +74,9 @@ import i5.las2peer.api.Service;
 				)
 		))
 public class MyCalendar extends Service {
+	
+	// instantiate the logger class
+	private final L2pLogger logger = L2pLogger.getInstance(MyCalendar.class.getName());
 
 	/**
 	 * service properties with default values, can be overwritten with properties file
@@ -95,15 +92,6 @@ public class MyCalendar extends Service {
 		return entries;
 	}
 
-	/*
-	 * Database configuration
-	 */
-	private String jdbcDriverClassName;
-	private String jdbcLogin;
-	private String jdbcPass;
-	private String jdbcUrl;
-	private String jdbcSchema;
-
 	public MyCalendar() {
 		// read and set properties values
 		// IF THE SERVICE CLASS NAME IS CHANGED, THE PROPERTIES FILE NAME NEED TO BE CHANGED TOO!
@@ -112,7 +100,7 @@ public class MyCalendar extends Service {
 	}
 	
 	public UserAgent getUserAgent(){
-		return (UserAgent) getActiveAgent();
+		return (UserAgent) Context.getCurrent().getMainAgent();
 	}
 	
 	public void createEntry(String title, String description, String year, String month, String day, 
@@ -188,7 +176,7 @@ public class MyCalendar extends Service {
 			 return new HttpResponse ("one of the parameters is empty", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		 
-		 Entry newEntry = new Entry( getActiveAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
+		 Entry newEntry = new Entry( Context.getCurrent().getMainAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
 		 
 		 // save entry using envelopes
 		 try{
@@ -200,7 +188,10 @@ public class MyCalendar extends Service {
 			 }
 			 
 			 catch (Exception e){
-				 Context.logMessage(this, "Network storage not found. Creating new one. " + e);
+				 // write error to logfile and console
+				 logger.log(Level.SEVERE, e.toString(), e);
+				 // create and publish a monitoring message
+				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not found. Creating new one. " + e.toString());
 				 env = Envelope.createClassIdEnvelope(new EntryBox(1), STORAGE_NAME, getAgent());
 			 }
 			 
@@ -213,13 +204,19 @@ public class MyCalendar extends Service {
 			 env.close();
 			 
 			 JSONObject toString = Serialization.serializeEntry(newEntry);
-			 
-			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+	
+			 //store information in log
+			 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
 			 return new HttpResponse(toString.toJSONString(), HttpURLConnection.HTTP_OK);
 		     } catch (Exception e) {
-				Context.logError(this, "Can't persist entries to network storage! " + e.getMessage());
+		    	 
+		    	// write error to log file and console 	 
+				logger.log(Level.SEVERE, e.toString(), e);
+				// create and publish a monitoring message
+				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Can't persist entries to network storage! " + e.getMessage());;
 				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
 		     }
+		 
 	}
 		
 	
@@ -289,15 +286,23 @@ public class MyCalendar extends Service {
 			 }
 			 
 			 catch (Exception e){
-				 Context.logMessage(this, "Network storage not found. " + e);
-				 return new HttpResponse("There is not network storage yet", HttpURLConnection.HTTP_BAD_REQUEST);
+				// write error to log file and console
+				 logger.log(Level.SEVERE, e.toString(), e);
+				 // create and publish a monitoring message
+				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not found. Creating new one. " + e.toString());
+				 env = Envelope.createClassIdEnvelope(new EntryBox(1), STORAGE_NAME, getAgent());
 			 }
 			 
 			 env.open(getAgent());
 			 EntryBox stored = env.getContent(EntryBox.class);
 			 Entry toDelete = stored.returnEntry(id);
-			 if(toDelete.getCreatorId()!=getActiveAgent().getId()){
-				 Context.logMessage(this, "cannot delete this entry by another user");
+			 if(toDelete.getCreatorId()!=Context.getCurrent().getMainAgent().getId()){
+				 
+				 // write error to log file and console
+				 logger.log(Level.SEVERE, "cannot delete this entry by another user");
+				 // create and publish a monitoring message
+				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "cannot delete this entry by another user");
+
 				 return new HttpResponse("entry couldn't be deleted", HttpURLConnection.HTTP_FORBIDDEN);
 			 }
 			 boolean result = stored.delete(id);
@@ -307,7 +312,8 @@ public class MyCalendar extends Service {
 			 env.close();
 			 
 			 if(result==true){
-			 Context.logMessage(this, "deleted" + stored.size() + " entries in network storage");
+			 //store information in log
+		     logger.log(Level.FINE, "deleted " + stored.size() + " entries in network storage");	 
 			 return new HttpResponse(Serialization.serializeEntry(toDelete).toJSONString(), HttpURLConnection.HTTP_OK);
 			 }
 			 
@@ -318,7 +324,12 @@ public class MyCalendar extends Service {
 			 }
 			 
 		     } catch (Exception e) {
-				Context.logError(this, "Couldn't delete the entry" + e.getMessage());
+		    	 
+		    	// write error to log file and console
+				logger.log(Level.SEVERE, "Couldn't delete the entry", e);
+				// create and publish a monitoring message
+				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Couldn't delete the entry" + e.getMessage());
+		    	 
 				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
 		     }
 		
@@ -346,7 +357,10 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 catch (Exception e){
-			 Context.logMessage(this, "Network storage not found." + e);
+			 
+			 // write info to log file and console
+			 logger.log(Level.FINE, "Network storage not found.", e);
+
 			 return new HttpResponse("0", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		 
@@ -361,8 +375,13 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 catch(Exception e){
-			 Context.logError(this, "Can't read messages from storage");
-		     }
+			 
+			 // write error to log file and console
+			 logger.log(Level.SEVERE, "Can't read messages from storage", e);
+			 // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Can't read messages from storage" + e.getMessage());
+	     
+		 }
 		 return new HttpResponse("GetNumber Fail", HttpURLConnection.HTTP_BAD_REQUEST);
 	}
 	
@@ -401,7 +420,7 @@ public class MyCalendar extends Service {
 		
 			int yearInt   = Integer.parseInt(year);
 			int monthInt  = Integer.parseInt(month);
-			monthInt--; //Calender month start at 0 so reduce
+			monthInt--; //Calendar month start at 0 so reduce
 			int dayInt    = Integer.parseInt(day);
 			int hourInt   = Integer.parseInt(hour);
 			int minuteInt = Integer.parseInt(minute);
@@ -413,8 +432,11 @@ public class MyCalendar extends Service {
 			 }
 			 
 			 catch (Exception e){
-				 Context.logMessage(this, "there is not a storage yet");
-				 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
+				// write error to log file and console
+				logger.log(Level.SEVERE, e.toString(), e);
+				// create and publish a monitoring message
+				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
+				return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 			 }
 			
 			 try{
@@ -434,12 +456,16 @@ public class MyCalendar extends Service {
 			 env.store();
 			 env.close();
 			 
-			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+			 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
 			 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 			 } 
 			 catch(Exception e){
-				 Context.logMessage(this, "couldn't open the storage");
-				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
+				// write error to log file and console 	 
+			    logger.log(Level.SEVERE, e.toString(), e);
+				// create and publish a monitoring message
+				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());;
+				
+				return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
 			 }
 	}
 	
@@ -490,7 +516,10 @@ public class MyCalendar extends Service {
 			 }
 			 
 			 catch (Exception e){
-				 Context.logMessage(this, "there is not storage yet");
+				 // write error to log file and console
+				 logger.log(Level.SEVERE, e.toString(), e);
+				 // create and publish a monitoring message
+				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
 				 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 			 }
 			
@@ -512,11 +541,14 @@ public class MyCalendar extends Service {
 			 env.store();
 			 env.close();
 			 
-			 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+			 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
 			 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 			 }
 			 catch(Exception e){
-				 Context.logMessage(this, "couldn't open the storage");
+				 // write error to log file and console 	 
+				 logger.log(Level.SEVERE, e.toString(), e);
+			     // create and publish a monitoring message
+				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
 			 }
 	}
@@ -548,7 +580,10 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 catch (Exception e){
-			 Context.logMessage(this, "there is not storage yet");
+			 // write error to log file and console
+			 logger.log(Level.SEVERE, e.toString(), e);
+			 // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
 			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		
@@ -562,7 +597,7 @@ public class MyCalendar extends Service {
 		 if(updatedEntry==null){
 			 return new HttpResponse("Could not find entry to comment on ", HttpURLConnection.HTTP_NOT_FOUND);
 		 }
-		 updatedEntry.createComment(getActiveAgent().getId(), comment); //add the comment
+		 updatedEntry.createComment(Context.getCurrent().getMainAgent().getId(), comment); //add the comment
 		 stored.delete(id); //delete the former entry
 		 stored.addEntry(updatedEntry); //upload the new entry
 		 JSONObject entry = Serialization.serializeEntry(updatedEntry);
@@ -573,11 +608,14 @@ public class MyCalendar extends Service {
 		 env.store();
 		 env.close();
 		 
-		 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+		 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
 		 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 		 } 
 		 catch(Exception e){
-			 Context.logMessage(this, "couldn't open the storage");
+			// write error to log file and console 	 
+			 logger.log(Level.SEVERE, e.toString(), e);
+		     // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 			 return new HttpResponse("could not use storage", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 	}
@@ -608,7 +646,10 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 catch (Exception e){
-			 Context.logMessage(this, "there is not storage yet");
+			 // write error to log file and console
+			 logger.log(Level.SEVERE, e.toString(), e);
+			 // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
 			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		
@@ -620,15 +661,19 @@ public class MyCalendar extends Service {
 		 EntryBox stored = env.getContent(EntryBox.class);
 		 String entryID = stored.findComment(id);
 		 if(entryID.equals("")){
-			 Context.logMessage(this, "Comment was not found");
+			 // write error to log file and console
+			 logger.log(Level.SEVERE, "comment cannot be found");
+			 // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Comment was not found");
 			 return new HttpResponse("Comment was not found", HttpURLConnection.HTTP_NOT_FOUND);
 		 }
 		 
 		 Entry newEntry = stored.returnEntry(entryID);
 		 Comment deleteComment = newEntry.returnComment(id);
-		 if((deleteComment.getCreatorId()!=getActiveAgent().getId()) && (newEntry.getCreatorId()!=getActiveAgent().getId())){
+		 if((deleteComment.getCreatorId()!=Context.getCurrent().getMainAgent().getId()) && (newEntry.getCreatorId()!=Context.getCurrent().getMainAgent().getId())){
 			 
-				 Context.logMessage(this, "cannot delete this comment by another user");
+			 	 // write error to log file and console
+			     logger.log(Level.SEVERE, "this comment cannot be deleted by another user");
 				 return new HttpResponse("comment couldn't be deleted", HttpURLConnection.HTTP_FORBIDDEN);
 				 
 		 }
@@ -641,11 +686,14 @@ public class MyCalendar extends Service {
 		 env.store();
 		 env.close();
 		 
-		 Context.logMessage(this, "stored " + stored.size() + " entries in network storage");
+		 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
 		 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
 		 } 
 		 catch(Exception e){
-			 Context.logMessage(this, "couldn't open the storage");
+			 // write error to log file and console 	 
+			 logger.log(Level.SEVERE, e.toString(), e);
+		     // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 			 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 	}
@@ -673,7 +721,10 @@ public class MyCalendar extends Service {
 		 }
 		 
 		 catch (Exception e){
-			 Context.logMessage(this, "there is not storage yet");
+			 // write error to log file and console
+			 logger.log(Level.SEVERE, e.toString(), e);
+			 // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
 			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
 		 }
 		 
@@ -725,7 +776,10 @@ public class MyCalendar extends Service {
 		}
 		 
 		catch(Exception e){
-			 Context.logMessage(this, "couldn't open the storage" + e.getMessage());
+			 // write error to log file and console 	 
+			 logger.log(Level.SEVERE, e.toString(), e);
+		     // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 			 return new HttpResponse("entry could not be found" + e.getMessage(), HttpURLConnection.HTTP_BAD_REQUEST);
 		}
 		

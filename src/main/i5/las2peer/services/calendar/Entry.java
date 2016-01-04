@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.apache.commons.lang3.StringUtils;
-
-import i5.las2peer.persistency.MalformedXMLException;
 import i5.las2peer.persistency.XmlAble;
 import i5.las2peer.services.calendar.MyCalendar;
 import i5.las2peer.services.calendar.database.Serialization;
