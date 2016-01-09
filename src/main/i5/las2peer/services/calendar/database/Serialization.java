@@ -18,7 +18,12 @@ public class Serialization {
 		res.put("description", a.getDescription());
 		res.put("creator", a.getCreatorId());
 		if(a.getComments().isEmpty()==false){
-		res.put("comments", a.getComments());
+		JSONArray jsArray = new JSONArray();
+		for (int i=0; i < a.getComments().size(); i++) {
+			
+	        jsArray.add(a.getComments().get(i).getJSONObject()); //turn to JSONObjects and fill array
+	        res.put("comments", jsArray);
+	    }
 		}
 		else{
 		ArrayList<Comment> empty = new ArrayList<>(10);
