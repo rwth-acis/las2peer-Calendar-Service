@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.IOException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -18,13 +19,14 @@ import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import java.net.ServerSocket;
 
 @SuppressWarnings("unused")
 public class ServiceTest {
 
 
 	private static final String HTTP_ADDRESS = "http://127.0.0.1";
-	private static final int HTTP_PORT = WebConnector.DEFAULT_HTTP_PORT;
+	private static int HTTP_PORT = WebConnector.DEFAULT_HTTP_PORT;
 
 	private static LocalNode node;
 	private static WebConnector connector;
@@ -39,6 +41,22 @@ public class ServiceTest {
 
 	private static final String mainPath = "example/";
 
+	
+	private static int getUnusedPort() {
+		
+				int port = HTTP_PORT;
+				try {
+					
+					ServerSocket socket = new ServerSocket(0);
+					port = socket.getLocalPort();
+					socket.close();
+					
+				} catch (IOException e) {
+					
+				}
+				return port;
+		}
+	
 	/**
 	 * Called before the tests start.
 	 * 
@@ -48,6 +66,9 @@ public class ServiceTest {
 	 */
 	@BeforeClass
 	public static void startServer() throws Exception {
+		
+		 // get unused port
+		 HTTP_PORT = getUnusedPort();
 
 		// start node
 		node = LocalNode.newNode();
