@@ -31,7 +31,9 @@ public class ServiceTest {
 	private static ByteArrayOutputStream logStream;
 
 	private static UserAgent testAgent;
+	private static UserAgent secondAgent;
 	private static final String testPass = "adamspass";
+	private static final String secondPass = "evespass";
 	
 	private static final String testTemplateService = MyCalendar.class.getCanonicalName();
 
@@ -112,8 +114,7 @@ public class ServiceTest {
 		try{
 			
 			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); 
-			assertTrue(result.getResponse().contains("0"));
-			
+
             result = c.sendRequest("POST", mainPath + "create/imMonat/Dieser Eintrag ist im Monat drinnen", ""); //create another entry
 			
             JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
@@ -153,6 +154,218 @@ public class ServiceTest {
 			fail("Exception: " + e);
 		}		
 	}
+	
+	@Test
+	public void arrayTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try
+		{
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("POST", mainPath + "create/testentry/forcomments/", "");
+			assertEquals(200, result.getHttpCode());
+			
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+			String ID = (String) params.get("entry_id"); //get the id of the entry
+			
+			result = c.sendRequest("POST", mainPath + "createComment/" + ID + "/pleasework", "");
+			assertEquals(200, result.getHttpCode());
+			assertTrue(result.getResponse().contains("pleasework"));
+			
+			result = c.sendRequest("PUT", mainPath + "setStart/" + ID + "/2013/3/11/15/12", "");
+			assertEquals(200, result.getHttpCode());
+		}
+		
+		catch(Exception e) {
+		e.printStackTrace();
+		fail("Exception: " + e);
+		
+	}	
+	}
+//
+//	@Test
+//	public void saveTEST()
+//	{
+//		MiniClient c = new MiniClient();
+//		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//		MiniClient c2 = new MiniClient();
+//		c2.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+//		
+//		try{
+//			
+//			c.setLogin(Long.toString(testAgent.getId()), testPass);
+//			c2.setLogin(Long.toString(secondAgent.getId()), secondPass);
+//			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); //assert there are no entries
+//
+//			assertEquals(400,result.getHttpCode());
+//			
+//		    result = c.sendRequest("POST", mainPath + "create/hello/test", ""); //create an entry
+//			assertEquals(200,result.getHttpCode());
+//			result = c.sendRequest("GET", mainPath + "getNumber", ""); // should return one 
+//			
+//			result = c.sendRequest("POST", mainPath + "create/neuereintrag/willkommen", ""); //create another entry
+//			
+//			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+//			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+//			
+//			String deleteID = (String) params.get("entry_id"); //get the id of the second entry
+//			result = c.sendRequest("GET", mainPath + "getNumber", "");
+//			
+//			result = c.sendRequest("PUT", mainPath + "setStart/" + deleteID + "/2002/3/9/15/12", "");
+//			assertEquals(200,result.getHttpCode());
+//			 
+//			result = c.sendRequest("PUT", mainPath + "setEnd/" + deleteID + "/2002/3/9/15/22", "");
+//			
+//			result = c.sendRequest("GET", mainPath + "getDay/2002/3/9", "");
+//			result = c.sendRequest("GET", mainPath + "getDay/2002/3/8", "");
+//			assertFalse(result.getResponse().contains("willkommen"));
+//			
+//			result = c.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); //delete the second entry
+//			assertEquals(200,result.getHttpCode());
+//			
+//			result = c.sendRequest("POST", mainPath + "create/deletethis/iwanttobedeleted", "");
+//			params = (JSONObject)parser.parse(result.getResponse());
+//			
+//			deleteID = (String) params.get("entry_id"); // get the id
+//			
+//			result = c2.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); 
+//			assertEquals(403,result.getHttpCode()); //shouldn't be able to delete this time
+//			
+//			result = c.sendRequest("DELETE", mainPath + "deleteEntry/" + deleteID, ""); //should be able to delete
+//			assertEquals(200,result.getHttpCode());
+//			
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			fail("Exception: " + e);
+//		}
+//		
+//	}
+//	
+	@Test
+	public void intervallTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			ClientResponse result = c.sendRequest("GET", mainPath + "getNumber", ""); //assert there is one entry from the previous test
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			result = c.sendRequest("POST", mainPath + "createRegular/2012/2/3/14/22/15/24/wocheneintrag/jedewoche/week/2", ""); //create two entries
+			assertEquals(200, result.getHttpCode());
+		
+			result = c.sendRequest("GET", mainPath + "getDay/2012/2/10", "");
+			assertEquals(200, result.getHttpCode());
+			
+			result = c.sendRequest("GET", mainPath + "getDay/2042/2/3", ""); 
+			
+			result = c.sendRequest("POST", mainPath + "createRegular/2002/5/10/12/12/17/34/monatseintrag/jedermonat/month/4", ""); //create 4 entries
+			assertEquals(200, result.getHttpCode());
+		
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}		
+	}
+	
+	
+	@Test
+	public void dateTEST()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("POST", mainPath + "create/hello/test", ""); //create an entry
+		
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+			String dateID = (String) params.get("entry_id"); //get the id of the second entry
+			
+			result = c.sendRequest("PUT", mainPath + "setStart/" + dateID + "/2013/12/11/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + dateID + "/2013/12/12/16/12", "");
+			assertEquals(200,result.getHttpCode());
+		
+			result = c.sendRequest("GET", mainPath + "getDay/2013/12/11", "");
+			assertEquals(200,result.getHttpCode());
+			
+
+			
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}
+	}
+	
+	@Test
+	public void commentTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("POST", mainPath + "create/firstEntry/myentry/", "");
+			assertEquals(200, result.getHttpCode());
+			
+			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+			JSONObject params = (JSONObject)parser.parse(result.getResponse());
+			String ID = (String) params.get("entry_id"); //get the id of the second entry
+			
+			result = c.sendRequest("POST", mainPath + "createComment/" + ID + "/firstComment", "");
+			assertEquals(200, result.getHttpCode());
+			
+			result = c.sendRequest("PUT", mainPath + "setStart/" + ID + "/2013/3/11/15/12", "");
+			result = c.sendRequest("PUT", mainPath + "setEnd/" + ID + "/2013/3/12/16/12", "");
+			
+			result = c.sendRequest("GET", mainPath + "getEntry/" + ID, "");
+			assertEquals(200, result.getHttpCode());
+			assertTrue(result.getResponse().contains(String.valueOf(testAgent.getId()))); //creator id needs to be returned too
+		
+			assertTrue(result.getResponse().contains("firstComment"));
+		
+			result = c.sendRequest("GET", mainPath + "getDay/2013/3/11", "");
+			assertTrue(result.getResponse().contains("firstComment"));
+
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}		
+	}
+	
+	@Test
+	public void nameTest()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try{
+			
+			
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse result = c.sendRequest("GET", mainPath + "name/" + testAgent.getId(), "");
+		
+			assertEquals(result.getHttpCode(), 200);
+			
+			result = c.sendRequest("POST", mainPath + "create/authorentry/junit", "");
+			assertTrue(result.getResponse().contains(String.valueOf(testAgent.getId())));
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}	
+	}
+	
 	
 	@Test
 	public void testDebugMapping()
