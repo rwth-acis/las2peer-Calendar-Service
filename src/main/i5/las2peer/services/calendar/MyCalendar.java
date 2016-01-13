@@ -991,6 +991,34 @@ public class MyCalendar extends Service {
 	    }
 	}
 	
+	/**
+	 * function to get the current id of the active agent
+	 * 
+	 * @return
+	 *		the id of the current agent
+	 */
+	@GET
+	@Path("/id")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Name"),
+			@ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal error")
+	})
+	@ApiOperation(value = "name",
+			notes = "get the name of an agent")
+	public HttpResponse getId(){
+		 
+	    try{
+	    	UserAgent fred = (UserAgent) getContext().getMainAgent();
+	    	long id = fred.getId();
+	    	String rString = Long.toString(id);
+	    	return new HttpResponse(rString, HttpURLConnection.HTTP_OK);
+	    }
+	    catch(Exception e){
+	    	String error = "Internal error";
+	    	return new HttpResponse(error, HttpURLConnection.HTTP_INTERNAL_ERROR);
+	    }
+	}
+	
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Methods required by the LAS2peer framework.
 	// //////////////////////////////////////////////////////////////////////////////////////
