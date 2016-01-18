@@ -172,6 +172,24 @@ pause
                 <attribute name="Library-SymbolicName" value="${service.name}" />
             </manifest>
         </jar>
+    	
+    	<!-- Workaround -->
+    	    	<jar jarfile="${lib}/${service.name}-${service.version}.jar">
+    	    		<fileset dir="${tmp.classes}" includes="${service.path}/**" />
+    	            <manifest>
+    	                <attribute name="Library-Version" value="${service.version}" />
+    	                <attribute name="Library-SymbolicName" value="${service.name}" />
+    	            </manifest>
+    	        </jar>
+    	    	<jar jarfile="${lib}/${service2.name}-${service2.version}.jar">
+    	    	    		<fileset dir="${tmp.classes}" includes="${service2.path}/**" />
+    	    	            <manifest>
+    	    	                <attribute name="Library-Version" value="${service2.version}" />
+    	    	                <attribute name="Library-SymbolicName" value="${service2.name}" />
+    	    	            </manifest>
+    	    	</jar>    	
+
+
     </target>
 	
 	
