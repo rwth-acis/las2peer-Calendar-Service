@@ -39,7 +39,7 @@ public class ServiceTest {
 	
 	private static final String testTemplateService = MyCalendar.class.getCanonicalName();
 
-	private static final String mainPath = "example/";
+	private static final String mainPath = "calendar/";
 
 	
 	private static int getUnusedPort() {

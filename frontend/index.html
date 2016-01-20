@@ -67,14 +67,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </ul>
         <!-- OpenID Connect Button: add HTML element representing button -->
         <span id="signinButton">
-          <span class="oidc-signin"
-          data-callback="signinCallback"
-          data-name="Learning Layers"
-          data-logo="http://learning-layers.eu/wp-content/themes/learninglayers/images/logo.png"
-          data-server="https://api.learning-layers.eu/o/oauth2"
-          data-clientid="b90a333d-722c-4c94-aca8-bdbba2cbef3d"
-          data-scope="openid phone email address profile">
-         </span>
+          <span class="oidc-signin navbar-btn navbar-right btn-default"
+                data-callback="signinCallback"
+                data-name="OpenID Connect"
+                data-logo="logo.png"
+                data-size="sm"
+                data-server="https://api.learning-layers.eu/o/oauth2"
+                data-clientid="c39130bb-8f9b-4082-b9c5-e5a4dcab5467"
+                data-scope="openid email profile">
+          </span>
+        </span>
       </div><!--/.nav-collapse -->
     </div>
   </div>
@@ -250,10 +252,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         // OpenID Connect user info
         console.log(oidc_userinfo);
-        $("#uname").html(oidc_userinfo.name);
-        $(".authenticated").removeClass("hidden");
+		alert(oidc_userinfo.name);
+       
       } else {
         // anonymous
+    	// OpenID Connect user info
+          console.log(oidc_userinfo);
       }
     }
 

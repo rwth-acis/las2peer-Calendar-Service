@@ -42,7 +42,7 @@ import net.minidev.json.parser.JSONParser;
 
 
 /**
- * LAS2peer Calendaqr Service
+ * LAS2peer Calendar Service
  * 
  * This is a simple calendar service to store 
  * entries inside.
@@ -54,7 +54,7 @@ import net.minidev.json.parser.JSONParser;
  * the entire ApiInfo annotation should be removed.
  * 
  */
-@Path("/example")
+@Path("/calendar")
 @Version("0.1") // this annotation is used by the XML mapper
 @Api
 @SwaggerDefinition(
