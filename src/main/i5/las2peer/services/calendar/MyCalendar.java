@@ -222,6 +222,8 @@ public class MyCalendar extends Service {
 	
 	/**
 	 * gets the entry by the id
+	 * @param id 
+	 * @return 
 	 */
 	@GET
 	@Path("/getEntry/{id}")
@@ -702,6 +704,10 @@ public class MyCalendar extends Service {
 	
 	/**
 	 * get all the ids of the entries on a certain day
+	 * @param year 
+	 * @param month 
+	 * @param day 
+	 * @return 
 	 * 
 	 */
 	@GET
@@ -795,8 +801,6 @@ public class MyCalendar extends Service {
 	 * 			starting month of the first date
 	 * @param day
 	 * 			starting day of the month of the first date
-	 * @param lengthWeek
-	 * 			the amount of entries that should be created (one per week)
 	 * @param sHour
 	 * 			the starting hour of the entries
 	 * @param sMinute
@@ -811,6 +815,8 @@ public class MyCalendar extends Service {
 	 * 			the description of the entries
 	 * @param interval	
 	 * 			the interval between the dates
+	 * @param number 
+	 * @return 
 	 */
 	@POST
 	@Path("/createRegular/{year}/{month}/{day}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}/{interval}/{number}")

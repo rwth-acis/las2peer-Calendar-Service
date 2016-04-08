@@ -13,6 +13,7 @@ public class EntryBox implements Serializable {
 		
 		/**
 		 * Constructor to create the storage of the entries with capacity
+		 * @param storageSize 
 		 */
 		public EntryBox(int storageSize){
 			entries = new ArrayList<>(storageSize);
@@ -30,9 +31,9 @@ public class EntryBox implements Serializable {
 		
 		/**
 		 * get Entry by putting in ID
-		 * 
-		 * @param newEntry
+		 * @param id 
 		 * 			   entry that should be returned
+		 * @return 
 		 */
 		public Entry returnEntry(String id){
 			try{
@@ -77,6 +78,8 @@ public class EntryBox implements Serializable {
 		 * delete an entry by putting in its id
 		 * 
 		 * return whether or not entry was found
+		 * @param id 
+		 * @return 
 		 */
 		public boolean delete(String id){
 			for(String anEntry : entries) {
@@ -94,6 +97,7 @@ public class EntryBox implements Serializable {
 		
 		/**
 		 * returns the size of the entry storage
+		 * @return 
 		 */
 		public int size(){
 			return entries.size();
@@ -109,6 +113,8 @@ public class EntryBox implements Serializable {
 		/**
 		 * find the entry id for a comment i
 		 * return the id of the entry
+		 * @param commentID 
+		 * @return 
 		 */
 		public String findComment(String commentID){
 			for(String anEntry: entries){
