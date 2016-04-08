@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import i5.las2peer.p2p.LocalNode;
+import i5.las2peer.security.Agent;
 import i5.las2peer.security.ServiceAgent;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.testing.MockAgentFactory;
@@ -19,6 +20,7 @@ import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+
 import java.net.ServerSocket;
 
 @SuppressWarnings("unused")
@@ -69,10 +71,14 @@ public class ServiceTest {
 		
 		 // get unused port
 		 HTTP_PORT = getUnusedPort();
+		 
+		 // unlock agents
+		 UserAgent adam = MockAgentFactory.getAdam();
+		 adam.unlockPrivateKey(testPass);
 
 		// start node
 		node = LocalNode.newNode();
-		node.storeAgent(MockAgentFactory.getAdam());
+		node.storeAgent(adam);
 		node.launch();
 
 		ServiceAgent testService = ServiceAgent.createServiceAgent(testTemplateService, "a pass");
