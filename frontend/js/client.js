@@ -82,7 +82,7 @@ function renderDay(data) {
  */
 TemplateServiceClient.prototype.getDay = function(year, month, day, successCallback, errorCallback) {
 	this.sendRequest("GET", 
-			"example/getDay/" + year + "/" + month + "/" + day,
+			"calendar/getDay/" + year + "/" + month + "/" + day,
 			"",
 			"application/json",
 			{},
@@ -98,7 +98,7 @@ TemplateServiceClient.prototype.getDay = function(year, month, day, successCallb
  */
 TemplateServiceClient.prototype.create = function(title, description, year, month, day, successCallback, errorCallback) {
 	this.sendRequest("POST", 
-			"example/create/" + title + "/" + description,
+			"calendar/create/" + title + "/" + description,
 			"",
 			"application/json",
 			{},
@@ -113,7 +113,7 @@ TemplateServiceClient.prototype.create = function(title, description, year, mont
 
 TemplateServiceClient.prototype.setStart = function(id, year, month, day, shour, sminute, successCallback, errorCallback) {
 	this.sendRequest("put", 
-			"example/setStart/" + id + "/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute,
+			"calendar/setStart/" + id + "/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute,
 			"",
 			"application/json",
 			{},
@@ -126,7 +126,7 @@ TemplateServiceClient.prototype.setStart = function(id, year, month, day, shour,
 
 TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, eminute, successCallback, errorCallback) {
 	this.sendRequest("put", 
-			"example/setEnd/" + id + "/" + year + "/" + month + "/" + day + "/" + ehour + "/" + eminute,
+			"calendar/setEnd/" + id + "/" + year + "/" + month + "/" + day + "/" + ehour + "/" + eminute,
 			"",
 			"application/json",
 			{},
@@ -139,7 +139,7 @@ TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, e
 
 TemplateServiceClient.prototype.createRegular = function(title, description, year, month, day, shour, sminute, ehour, eminute, interval, number, successCallback, errorCallback) {
 	this.sendRequest("post", 
-			"example/createRegular/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute + "/" + ehour + "/" + eminute + "/" +title + "/" 
+			"calendar/createRegular/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute + "/" + ehour + "/" + eminute + "/" +title + "/" 
 			+ description + "/" + interval + "/" + number,
 			"",
 			"application/json",
@@ -153,7 +153,7 @@ TemplateServiceClient.prototype.createRegular = function(title, description, yea
 
 TemplateServiceClient.prototype.createComment = function(id, comment, errorCallback){
 	this.sendRequest("post", 
-			"example/createComment/" + id + "/" + comment,
+			"calendar/createComment/" + id + "/" + comment,
 			"",
 			"application/json",
 			{},
@@ -166,7 +166,7 @@ TemplateServiceClient.prototype.createComment = function(id, comment, errorCallb
 
 TemplateServiceClient.prototype.deleteComment = function(id, errorCallback){
 	this.sendRequest("delete", 
-			"example/deleteComment/" + id,
+			"calendar/deleteComment/" + id,
 			"",
 			"application/json",
 			{},
@@ -179,7 +179,7 @@ TemplateServiceClient.prototype.deleteComment = function(id, errorCallback){
 
 TemplateServiceClient.prototype.getName = function(id){
 	this.sendRequest("get", 
-			"example/getName/" + id,
+			"calendar/getName/" + id,
 			"",
 			"application/json",
 			{},
