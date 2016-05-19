@@ -23,10 +23,10 @@ import i5.las2peer.persistency.Envelope;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.ContentParam;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.restMapper.tools.ValidationResult;
 import i5.las2peer.restMapper.tools.XMLCheck;
-import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.Serialization;
 import io.swagger.annotations.Api;
@@ -38,6 +38,7 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 import net.minidev.json.parser.JSONParser;
 
 
@@ -52,6 +53,19 @@ import net.minidev.json.parser.JSONParser;
  * in the ApiInfo annotation to suit your project.
  * If you do not intend to provide a Swagger documentation of your service API,
  * the entire ApiInfo annotation should be removed.
+ * 
+ * 
+ * SERVICE_CUSTOM_MESSAGE_1 - Added entry
+ * SERVICE_CUSTOM_MESSAGE_2 - Fetched entry
+ * SERVICE_CUSTOM_MESSAGE_3 - Deleted entry
+ * SERVICE_CUSTOM_MESSAGE_4 - GetNumberOFEntries Call
+ * SERVICE_CUSTOM_MESSAGE_5 - Set Start Call
+ * SERVICE_CUSTOM_MESSAGE_6 - Set End Call
+ * SERVICE_CUSTOM_MESSAGE_7 - Created Comment
+ * SERVICE_CUSTOM_MESSAGE_8 - Deleted Comment
+ * SERVICE_CUSTOM_MESSAGE_9 - Get Day Call
+ * SERVICE_CUSTOM_MESSAGE_10 - Get Month Call
+ * SERVICE_CUSTOM_MESSAGE_11 - Create Regular Call
  * 
  */
 @Path("/calendar")
@@ -100,20 +114,23 @@ public class MyCalendar extends Service {
 	}
 	
 	public UserAgent getUserAgent(){
-		return (UserAgent) Context.getCurrent().getMainAgent();
+		return (UserAgent) getContext().getMainAgent();
 	}
 	
-	public void createEntry(String title, String description, String year, String month, String day, 
-							String sHour, String sMinute, String eHour, String eMinute){
-		String result = create(title, description).getResult();
+	public void createEntry(String title, String description, String sYear, String sMonth, String sDay, 
+							String sHour, String sMinute, String eYear, String eMonth, String eDay, String eHour, String eMinute){
+		
+		String content = "{\"title\":\""+ title + "\",\"description\":\""+ description +"\"}";
+		String result = create(content).getResult();
 		JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 		
 		try{
-		JSONObject params = (JSONObject)parser.parse(result);
-		String id = (String) params.get("entry_id");
-		
-		result = setStart(id, year, month, day, sHour,sMinute).getResult();
-		result = setEnd(id, year, month, day, eHour, eMinute).getResult();
+			JSONObject params = (JSONObject)parser.parse(result);
+			String id = (String) params.get("entry_id");
+			content = "{\"year\":\""+ sYear + "\", \"month\":\""+ sMonth +"\", \"day\":\""+ sDay + "\", \"hour\":\""+ sHour+"\", \"minute\":\""+ sMinute +"\"}";
+			result = setStart(id, content).getResult();
+			content = "{\"year\":\""+ eYear + "\", \"month\":\""+ eMonth +"\", \"day\":\""+ eDay + "\", \"hour\":\""+ eHour+"\", \"minute\":\""+ eMinute +"\"}";
+			result = setEnd(id, content).getResult();
 		} catch (Exception e){
 			return;
 		}
@@ -143,6 +160,13 @@ public class MyCalendar extends Service {
 			return null; //id wasn't found within an entry
 		}
 	
+		private static String stringfromJSON(JSONObject obj, String key) throws Exception {
+			String s = (String) obj.get(key);
+			if (s == null) {
+				throw new Exception("Key " + key + " is missing in JSON");
+			}
+			return s;
+		}
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Service methods.
 	// //////////////////////////////////////////////////////////////////////////////////////
@@ -153,16 +177,14 @@ public class MyCalendar extends Service {
 	 * THIS DOES NOT WORK YET UNFORTUNATELY BUT THIS IS THE WAY TO GO
 	 * To create temporary entries use the method createEntry.
 	 * 
-	 * @param title
-	 * 			title of the new entry
-	 * @param description
-	 * 			description of the new entry
+	 * @param content
+	 * 			Containing title and description
 	 * @return
-	 * 		   whether or not creation was successful
+	 * 		   Whether or not creation was successful
 	 */
 		
 	@POST
-	@Path("/create/{title}/{description}")
+	@Path("/create")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiResponses(value = {
 			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry"),
@@ -170,58 +192,70 @@ public class MyCalendar extends Service {
 	})
 	@ApiOperation(value = "create",
 			notes = "Create an entry inside a Calendar")
-	public HttpResponse create( @PathParam("title") String title, @PathParam ("description") String description){
-		 
-		 if((title.equals("")) || (description.equals(""))){
-			 return new HttpResponse ("one of the parameters is empty", HttpURLConnection.HTTP_BAD_REQUEST);
-		 }
-		 
-		 Entry newEntry = new Entry( Context.getCurrent().getMainAgent().getId(), title, description, MAXIMUM_COMMENT_AMOUNT);
-		 
-		 // save entry using envelopes
-		 try{
+	public HttpResponse create( @ContentParam String content){
+		JSONObject o;
+		try{
+			o = (JSONObject) JSONValue.parseWithException(content);
+			String title = stringfromJSON(o, "title");
+			String description = stringfromJSON(o, "description");
+			
+			
+			 if((title.equals("")) || (description.equals(""))){
+				 return new HttpResponse ("one of the parameters is empty", HttpURLConnection.HTTP_BAD_REQUEST);
+			 }
 			 
-			 Envelope env = null;
-			 
+			 Entry newEntry = new Entry( getContext().getMainAgent().getId() , title, description, MAXIMUM_COMMENT_AMOUNT);
+			
+			 // save entry using envelopes
 			 try{
-				 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
-			 }
-			 
-			 catch (Exception e){
-				 // write error to logfile and console
-				 logger.log(Level.SEVERE, e.toString(), e);
-				 // create and publish a monitoring message
-				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not found. Creating new one. " + e.toString());
-				 env = Envelope.createClassIdEnvelope(new EntryBox(1), STORAGE_NAME, getAgent());
-			 }
-			 
-			 env.open(getAgent());
-			 EntryBox stored = env.getContent(EntryBox.class);
-			 stored.addEntry(newEntry);
-			 env.updateContent(stored);
-			 env.addSignature(getAgent());
-			 env.store();
-			 env.close();
-			 
-			 JSONObject toString = Serialization.serializeEntry(newEntry);
-	
-			 //store information in log
-			 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
-			 return new HttpResponse(toString.toJSONString(), HttpURLConnection.HTTP_OK);
-		     } catch (Exception e) {
-		    	 
-		    	// write error to log file and console 	 
-				logger.log(Level.SEVERE, e.toString(), e);
-				// create and publish a monitoring message
-				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Can't persist entries to network storage! " + e.getMessage());;
-				return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
-		     }
-		 
+				 
+				 Envelope env = null;
+				 
+				 try{
+					 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+				 }
+				 
+				 catch (Exception e){
+					 // write error to logfile and console
+					 logger.log(Level.SEVERE, e.toString(), e);
+					 // create and publish a monitoring message
+					 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not found. Creating new one. " + e.toString());
+					 env = Envelope.createClassIdEnvelope(new EntryBox(1), STORAGE_NAME, getAgent());
+				 }
+				 
+				 env.open(getAgent());
+				 EntryBox stored = env.getContent(EntryBox.class);
+				 stored.addEntry(newEntry);
+				 env.updateContent(stored);
+				 env.addSignature(getAgent());
+				 env.store();
+				 env.close();
+				 
+				 JSONObject toString = Serialization.serializeEntry(newEntry);
+		
+				 //store information in log
+				 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
+				 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_1, getContext().getMainAgent(), ""+title);
+				 return new HttpResponse(toString.toJSONString(), HttpURLConnection.HTTP_OK);
+			     } catch (Exception e) {
+			    	 
+			    	// write error to log file and console 	 
+					logger.log(Level.SEVERE, e.toString(), e);
+					// create and publish a monitoring message
+					L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Can't persist entries to network storage! " + e.getMessage());;
+					return new HttpResponse("error" + e, HttpURLConnection.HTTP_BAD_REQUEST);
+			     }
+		}catch(Exception e){
+			L2pLogger.logEvent(this, Event.SERVICE_ERROR, e.toString());
+			HttpResponse res = new HttpResponse("Received invalid JSON");
+			res.setStatus(400);
+			return res;
+		}
 	}
 		
 	
 	/**
-	 * gets the entry by the id
+	 * Gets the entry by the id
 	 * @param id 
 	 * @return 
 	 */
@@ -250,7 +284,8 @@ public class MyCalendar extends Service {
 			JSONObject res = Serialization.serializeEntry(returnEntry);
 			String returnString = res.toJSONString();
 			env.close();
-			
+
+			L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_2, getContext().getMainAgent(), ""+id);
 			return new HttpResponse(returnString, HttpURLConnection.HTTP_OK);
 		
 		}
@@ -260,11 +295,11 @@ public class MyCalendar extends Service {
 	}
 	
 	/**
-	 * deletes an entry inside the calendar
+	 * Deletes an entry inside the calendar
 	 * 
 	 * @param id
-	 * 			  the id of the entry
-	 * @return success or error message
+	 * 			  The id of the entry
+	 * @return Success or error message
 	 */
 	@DELETE
 	@Path("/deleteEntry/{id}")
@@ -298,7 +333,7 @@ public class MyCalendar extends Service {
 			 env.open(getAgent());
 			 EntryBox stored = env.getContent(EntryBox.class);
 			 Entry toDelete = stored.returnEntry(id);
-			 if(toDelete.getCreatorId()!=Context.getCurrent().getMainAgent().getId()){
+			 if(toDelete.getCreatorId()!=getUserAgent().getId()){
 				 
 				 // write error to log file and console
 				 logger.log(Level.SEVERE, "cannot delete this entry by another user");
@@ -315,7 +350,8 @@ public class MyCalendar extends Service {
 			 
 			 if(result==true){
 			 //store information in log
-		     logger.log(Level.FINE, "deleted " + stored.size() + " entries in network storage");	 
+		     logger.log(Level.FINE, "deleted " + stored.size() + " entries in network storage");	
+			 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_3, getContext().getMainAgent(), ""+id);
 			 return new HttpResponse(Serialization.serializeEntry(toDelete).toJSONString(), HttpURLConnection.HTTP_OK);
 			 }
 			 
@@ -338,9 +374,9 @@ public class MyCalendar extends Service {
 	}
 	
 	/**
-	 * gets the number of entries in the calendar
+	 * Gets the number of entries in the calendar
 	 * 
-	 * @return success or error message
+	 * @return Success or error message
 	 */
 	@GET
 	@ApiResponses(value = {
@@ -372,6 +408,7 @@ public class MyCalendar extends Service {
 		 EntryBox stored = env.getContent(EntryBox.class);
 		 int size = stored.size();
 		 env.close();
+		 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_4, getContext().getMainAgent(), "");
 		 return new HttpResponse("The amount of entries is: " + size, HttpURLConnection.HTTP_OK);
 		 
 		 }
@@ -392,23 +429,15 @@ public class MyCalendar extends Service {
 	 * Sets the start date of an entry
 	 * 
 	 * @param id
-	 * 			  the id of the entry whose start date is supposed to be changed
-	 * @param year
-	 * 			  year of the start date
-	 * @param month
-	 * 			  month of the start date
-	 * @param day 
-	 *            day in the month of the start date
-	 * @param hour 
-	 * 			  hour of the start date
-	 * @param minute 
-	 * 			  minute of the start date
+	 * 			  The id of the entry whose start date is supposed to be changed
+	 * @param content
+	 * 			  Containing the year, month, day, hour and minute of the start of the entry
 	 * 
-	 * @return success or error message
+	 * @return Success or error message
 	 */
 	
 	@PUT
-	@Path("/setStart/{id}/{year}/{month}/{day}/{hour}/{minute}")
+	@Path("/setStart/{id}")
 	@ApiResponses(value = {
 			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "start date set"),
 			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
@@ -416,10 +445,15 @@ public class MyCalendar extends Service {
 	})
 	@ApiOperation(value = "setStart",
 	notes = "set startdate of entry")
-	public HttpResponse setStart( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
-			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
-	{
-		
+	public HttpResponse setStart( @PathParam("id") String id, @ContentParam String content){
+		JSONObject o;
+		try{
+			o = (JSONObject) JSONValue.parseWithException(content);
+			String year = stringfromJSON(o,"year");
+			String month = stringfromJSON(o,"month");
+			String day = stringfromJSON(o,"day");
+			String hour = stringfromJSON(o,"hour");
+			String minute = stringfromJSON(o,"minute");
 			int yearInt   = Integer.parseInt(year);
 			int monthInt  = Integer.parseInt(month);
 			monthInt--; //Calendar month start at 0 so reduce
@@ -459,6 +493,7 @@ public class MyCalendar extends Service {
 			 env.close();
 			 
 			 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
+			 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_5, getContext().getMainAgent(), ""+id);
 			 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 			 } 
 			 catch(Exception e){
@@ -469,6 +504,12 @@ public class MyCalendar extends Service {
 				
 				return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
 			 }
+		}catch(Exception e){
+			L2pLogger.logEvent(this, Event.SERVICE_ERROR, e.toString());
+			HttpResponse res = new HttpResponse("Received invalid JSON");
+			res.setStatus(400);
+			return res;
+		}
 	}
 	
 	
@@ -476,23 +517,15 @@ public class MyCalendar extends Service {
 	 * Sets the end date of an entry
 	 * 
 	 * @param id
-	 * 			  the id of the entry whose end date is supposed to be changed
-	 * @param year
-	 * 			  year of the end date
-	 * @param month
-	 * 			  month of the end date
-	 * @param day 
-	 *            day in the month of the end date
-	 * @param hour 
-	 * 			  hour of the end date
-	 * @param minute 
-	 * 			  minute of the end date
+	 * 			  The id of the entry whose end date is supposed to be changed
+	 * @param content
+	 * 			  Containing the year, month, day, hour and minute of the end of the entry
 	 * 
-	 * @return success or error message
+	 * @return Success or error message
 	 */
 	
 	@PUT
-	@Path("/setEnd/{id}/{year}/{month}/{day}/{hour}/{minute}")
+	@Path("/setEnd/{id}")
 	@ApiResponses(value = {
 			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "end date set"),
 			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
@@ -500,16 +533,16 @@ public class MyCalendar extends Service {
 	})
 	@ApiOperation(value = "setEnd",
 	notes = "set end date of entry")
-	public HttpResponse setEnd( @PathParam("id") String id, @PathParam ("year") String year, @PathParam ("month") String month,
-			@PathParam ("day") String day, @PathParam ("hour") String hour, @PathParam ("minute") String minute)
-	{
-		
-			int yearInt   = Integer.parseInt(year);
-			int monthInt  = Integer.parseInt(month);
-			monthInt--;  //Calendar starts from 0 so reduce
-			int dayInt    = Integer.parseInt(day);
-			int hourInt   = Integer.parseInt(hour);
-			int minuteInt = Integer.parseInt(minute);
+	public HttpResponse setEnd( @PathParam("id") String id, @ContentParam String content){
+		JSONObject o;
+		try{
+			o = (JSONObject) JSONValue.parseWithException(content);
+			int yearInt   = Integer.parseInt(stringfromJSON(o,"year"));
+			int monthInt  = Integer.parseInt(stringfromJSON(o,"month"));
+			monthInt--; //Calendar month start at 0 so reduce
+			int dayInt    = Integer.parseInt(stringfromJSON(o,"day"));
+			int hourInt   = Integer.parseInt(stringfromJSON(o,"hour"));
+			int minuteInt = Integer.parseInt(stringfromJSON(o,"minute"));
 			
 			 Envelope env = null;
 			 
@@ -544,6 +577,7 @@ public class MyCalendar extends Service {
 			 env.close();
 			 
 			 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
+			 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_6, getContext().getMainAgent(), ""+id);
 			 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 			 }
 			 catch(Exception e){
@@ -553,19 +587,25 @@ public class MyCalendar extends Service {
 				 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 				 return new HttpResponse("entry could not be found", HttpURLConnection.HTTP_NOT_FOUND);
 			 }
+		}catch(Exception e){
+			L2pLogger.logEvent(this, Event.SERVICE_ERROR, e.toString());
+			HttpResponse res = new HttpResponse("Received invalid JSON");
+			res.setStatus(400);
+			return res;
+		}
 	}
 	
 	/**
 	 * Create a comment for an entry
 	 * 
 	 * @param id
-	 * 			  the id of the entry which a comment is to be created for
+	 * 			  The id of the entry which a comment is to be created for
 	 * @param comment
-	 * 			  the content of the comment
+	 * 			  The content of the comment
 	 * @return success or error message
 	 */
 	@POST
-	@Path("/createComment/{id}/{comment}")
+	@Path("/createComment/{id}")
 	@ApiResponses(value = {
 			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry number"),
 			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
@@ -573,7 +613,7 @@ public class MyCalendar extends Service {
 	})
 	@ApiOperation(value = "createComment",
 	notes = "add comment to entry")
-	public HttpResponse createComment( @PathParam("id") String id, @PathParam("comment") String comment) {
+	public HttpResponse createComment( @PathParam("id") String id, @ContentParam String comment) {
 		
 		Envelope env = null;
 		 
@@ -599,7 +639,7 @@ public class MyCalendar extends Service {
 		 if(updatedEntry==null){
 			 return new HttpResponse("Could not find entry to comment on ", HttpURLConnection.HTTP_NOT_FOUND);
 		 }
-		 updatedEntry.createComment(Context.getCurrent().getMainAgent().getId(), comment); //add the comment
+		 updatedEntry.createComment(getContext().getMainAgent().getId(), comment); //add the comment
 		 stored.delete(id); //delete the former entry
 		 stored.addEntry(updatedEntry); //upload the new entry
 		 JSONObject entry = Serialization.serializeEntry(updatedEntry);
@@ -611,6 +651,7 @@ public class MyCalendar extends Service {
 		 env.close();
 		 
 		 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
+		 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_7, getContext().getMainAgent(), ""+id);
 		 return new HttpResponse(rest, HttpURLConnection.HTTP_OK);
 		 } 
 		 catch(Exception e){
@@ -626,7 +667,7 @@ public class MyCalendar extends Service {
 	 * Delete a comment
 	 * 
 	 * @param id
-	 * 			  the id of the comment that shall be deleted
+	 * 			  The id of the comment that shall be deleted
 	 * @return success or error message
 	 */
 	@DELETE
@@ -672,7 +713,7 @@ public class MyCalendar extends Service {
 		 
 		 Entry newEntry = stored.returnEntry(entryID);
 		 Comment deleteComment = newEntry.returnComment(id);
-		 if((deleteComment.getCreatorId()!=Context.getCurrent().getMainAgent().getId()) && (newEntry.getCreatorId()!=Context.getCurrent().getMainAgent().getId())){
+		 if((deleteComment.getCreatorId()!=getUserAgent().getId()) && (newEntry.getCreatorId()!=getUserAgent().getId())){
 			 
 			 	 // write error to log file and console
 			     logger.log(Level.SEVERE, "this comment cannot be deleted by another user");
@@ -689,6 +730,7 @@ public class MyCalendar extends Service {
 		 env.close();
 		 
 		 logger.log(Level.FINE, "stored " + stored.size() + " entries in network storage");
+		 L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_8, getContext().getMainAgent(), ""+id);
 		 return new HttpResponse("entry with id:" + id +":was sucessfully changed. ", HttpURLConnection.HTTP_OK);
 		 } 
 		 catch(Exception e){
@@ -703,7 +745,7 @@ public class MyCalendar extends Service {
 	
 	
 	/**
-	 * get all the ids of the entries on a certain day
+	 * Get all the ids of the entries on a certain day
 	 * @param year 
 	 * @param month 
 	 * @param day 
@@ -776,7 +818,96 @@ public class MyCalendar extends Service {
 	
 		
 		String returnString = Serialization.serializeEntries(entryList).toJSONString();
+
+		L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_9, getContext().getMainAgent(), "");
+		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
 		
+		}
+		 
+		catch(Exception e){
+			 // write error to log file and console 	 
+			 logger.log(Level.SEVERE, e.toString(), e);
+		     // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
+			 return new HttpResponse("entry could not be found" + e.getMessage(), HttpURLConnection.HTTP_BAD_REQUEST);
+		}
+		
+	}
+	
+	/**
+	 * Get all the ids of the entries on a certain month
+	 * @param year 
+	 * @param month 
+	 * @return 
+	 * 
+	 */
+	@GET
+	@Path("/getMonth/{year}/{month}")
+	@ApiResponses(value = {
+			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entry number"),
+			@ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Bad Request"),
+	})
+	@ApiOperation(value = "getMonth",
+	notes = "get all entries of a month")
+	public HttpResponse getMonth ( @PathParam("year") String year, @PathParam ("month") String month){
+		
+		Envelope env = null;
+		
+		 try{
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+		 }
+		 
+		 catch (Exception e){
+			 // write error to log file and console
+			 logger.log(Level.SEVERE, e.toString(), e);
+			 // create and publish a monitoring message
+			 L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
+			 return new HttpResponse("fail", HttpURLConnection.HTTP_BAD_REQUEST);
+		 }
+		 
+		 try{
+			 
+			 ArrayList<Entry> entryList = new ArrayList<>();
+			 env = getContext().getStoredObject(EntryBox.class, STORAGE_NAME);
+			
+			 env.open(getAgent());
+			 EntryBox stored = env.getContent(EntryBox.class);
+			 
+			 Entry[] entries = stored.getEntries();
+			 int yearInt = Integer.parseInt(year);
+			 int monthInt = Integer.parseInt(month);
+			 monthInt--;
+			 GregorianCalendar dayDate = new GregorianCalendar(yearInt, monthInt, 1);
+			 
+		
+		for(Entry anEntry: entries){
+			if((anEntry.getEnd()!= null) && (anEntry.getStart() != null)) {
+			Calendar date = anEntry.getStart(); 
+			Calendar end = anEntry.getEnd();
+			if((date.get(Calendar.YEAR) == yearInt) && (date.get(Calendar.MONTH) == monthInt)){ // if entry starts on the day
+	
+						entryList.add(anEntry);
+			
+			}
+			
+			else if((end.get(Calendar.YEAR) == yearInt) && (end.get(Calendar.MONTH) == monthInt)){ // if entry ends on the day
+				
+						entryList.add(anEntry);
+				
+			}
+			
+			else{  //if entry starts before the day and ends after the day
+				if(date.before(dayDate) && end.after(dayDate)){
+					entryList.add(anEntry);
+				}
+			}
+		  }
+		}
+	
+		
+		String returnString = Serialization.serializeEntries(entryList).toJSONString();
+
+		L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_10, getContext().getMainAgent(), "");
 		return new HttpResponse (returnString, HttpURLConnection.HTTP_OK);
 		
 		}
@@ -795,31 +926,12 @@ public class MyCalendar extends Service {
 	/**
 	 * method to create entries on a regular basis
 	 * 
-	 * @param year
-	 * 			the year in which the dates should start
-	 * @param sMonth
-	 * 			starting month of the first date
-	 * @param day
-	 * 			starting day of the month of the first date
-	 * @param sHour
-	 * 			the starting hour of the entries
-	 * @param sMinute
-	 * 			the starting minute of the entries
-	 * @param eHour
-	 * 			the end hour of the entries
-	 * @param eMinute
-	 * 			the ending minute of the entries
-	 * @param title
-	 * 			the title of the entries
-	 * @param description
-	 * 			the description of the entries
-	 * @param interval	
-	 * 			the interval between the dates
-	 * @param number 
+	 * @param content
+	 * 			Containing all information for the entries, like title, description, interval, number, startDate (year, month, day...) and endDate (year, month, day...)
 	 * @return 
 	 */
 	@POST
-	@Path("/createRegular/{year}/{month}/{day}/{startHour}/{startMinute}/{endHour}/{endMinute}/{title}/{description}/{interval}/{number}")
+	@Path("/createRegular")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiResponses(value = {
 			@ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entries created"),
@@ -827,49 +939,56 @@ public class MyCalendar extends Service {
 	})
 	@ApiOperation(value = "create regular entries",
 	notes = "creates entries on a regular basis")
-	public HttpResponse createRegular ( @PathParam("year") String year, @PathParam("month") String sMonth, 
-									   @PathParam("day") String day, 
-									   @PathParam ("startHour") String sHour,
-									   @PathParam("startMinute") String sMinute, @PathParam("endHour") String eHour, 
-									   @PathParam("endMinute") String eMinute, @PathParam("title") String title, @PathParam("description") String description,
-									   @PathParam("interval") String interval, @PathParam("number") String number){
+	public HttpResponse createRegular ( @ContentParam String content){
 
 		//parse Strings to integers
-		int startYear, month,  startDay, startHour, startMinute, endHour, endMinute, numbers;
-		
+		int startYear, startMonth,  startDay, startHour, startMinute, endYear, endMonth, endDay ,endHour, endMinute, numbers;
+		String title, description, interval;
+		JSONObject o;
 		try{
-		startYear = Integer.parseInt(year);
-		month = Integer.parseInt(sMonth);
-		numbers = Integer.parseInt(number);
-		startDay = Integer.parseInt(day);
-		startHour = Integer.parseInt(sHour);
-		startMinute = Integer.parseInt(sMinute);
-		endHour = Integer.parseInt(eHour);
-		endMinute = Integer.parseInt(eMinute);
-		} catch (NumberFormatException e){
-			String error = "strings invalid";
+		o = (JSONObject) JSONValue.parseWithException(content);
+		title = stringfromJSON(o,"title");
+		description = stringfromJSON(o,"description");
+		interval = stringfromJSON(o,"interval");
+		
+		startYear = Integer.parseInt(stringfromJSON(o,"syear"));
+		startMonth = Integer.parseInt(stringfromJSON(o,"smonth"));
+		startDay = Integer.parseInt(stringfromJSON(o,"sday"));
+		startHour = Integer.parseInt(stringfromJSON(o,"shour"));
+		startMinute = Integer.parseInt(stringfromJSON(o,"sminute"));
+		endYear = Integer.parseInt(stringfromJSON(o,"eyear"));
+		endMonth = Integer.parseInt(stringfromJSON(o,"emonth"));
+		endDay = Integer.parseInt(stringfromJSON(o,"eday"));
+		endHour = Integer.parseInt(stringfromJSON(o,"ehour"));
+		endMinute = Integer.parseInt(stringfromJSON(o,"eminute"));
+		numbers = Integer.parseInt(stringfromJSON(o,"number"));
+		} catch (Exception e){
+			String error = "Strings invalid";
 			return new HttpResponse(error, HttpURLConnection.HTTP_BAD_REQUEST);
 		}
 		
-		GregorianCalendar start = new GregorianCalendar(startYear, month, startDay, startHour, startMinute);
-		GregorianCalendar end = new GregorianCalendar(startYear, month, startDay, endHour, endMinute);
+		GregorianCalendar start = new GregorianCalendar(startYear, startMonth, startDay, startHour, startMinute);
+		GregorianCalendar end = new GregorianCalendar(endYear, endMonth, endDay, endHour, endMinute);
 		
 		if(start.after(end)){
 			return new HttpResponse("start was after end", HttpURLConnection.HTTP_BAD_REQUEST);
 		}
-
 		
 		switch (interval) {
 		case "week": 
-			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			createEntry(title, description, Integer.toString(startYear), Integer.toString(startMonth), Integer.toString(startDay), Integer.toString(startHour), Integer.toString(startMinute), Integer.toString(endYear), Integer.toString(endMonth), Integer.toString(endDay), Integer.toString(endHour), Integer.toString(endMinute));
 			numbers--;
 			
 			while(numbers>(0)){
 				start.add(Calendar.DATE, 7);
-				year = Integer.toString(start.get(Calendar.YEAR));
-				sMonth = Integer.toString(start.get(Calendar.MONTH));
-				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
-				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				end.add(Calendar.DATE, 7);
+				String sYear = Integer.toString(start.get(Calendar.YEAR));
+				String sMonth = Integer.toString(start.get(Calendar.MONTH));
+				String sDay = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				String eYear = Integer.toString(end.get(Calendar.YEAR));
+				String eMonth = Integer.toString(end.get(Calendar.MONTH));
+				String eDay = Integer.toString(end.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, sYear, sMonth, sDay, Integer.toString(startHour), Integer.toString(startMinute), eYear, eMonth, eDay, Integer.toString(endHour), Integer.toString(endMinute));
 				numbers--;
 			}
 			
@@ -877,15 +996,19 @@ public class MyCalendar extends Service {
 			
 			
 		case "month":
-			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			createEntry(title, description, Integer.toString(startYear), Integer.toString(startMonth), Integer.toString(startDay), Integer.toString(startHour), Integer.toString(startMinute), Integer.toString(endYear), Integer.toString(endMonth), Integer.toString(endDay), Integer.toString(endHour), Integer.toString(endMinute));
 			numbers--;
 			
 			while(numbers>(0)){
 				start.add(Calendar.MONTH, 1);
-				year = Integer.toString(start.get(Calendar.YEAR));
-				sMonth = Integer.toString(start.get(Calendar.MONTH));
-				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
-				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				end.add(Calendar.MONTH, 1);
+				String sYear = Integer.toString(start.get(Calendar.YEAR));
+				String sMonth = Integer.toString(start.get(Calendar.MONTH));
+				String sDay = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				String eYear = Integer.toString(end.get(Calendar.YEAR));
+				String eMonth = Integer.toString(end.get(Calendar.MONTH));
+				String eDay = Integer.toString(end.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, sYear, sMonth, sDay, Integer.toString(startHour), Integer.toString(startMinute), eYear, eMonth, eDay, Integer.toString(endHour), Integer.toString(endMinute));
 				numbers--;
 			}
 			
@@ -893,60 +1016,76 @@ public class MyCalendar extends Service {
 		
 		case "year":
 			
-			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			createEntry(title, description, Integer.toString(startYear), Integer.toString(startMonth), Integer.toString(startDay), Integer.toString(startHour), Integer.toString(startMinute), Integer.toString(endYear), Integer.toString(endMonth), Integer.toString(endDay), Integer.toString(endHour), Integer.toString(endMinute));
 			numbers--;
 			
 			while(numbers>(0)){
 				start.add(Calendar.YEAR, 1);
-				year = Integer.toString(start.get(Calendar.YEAR));
-				sMonth = Integer.toString(start.get(Calendar.MONTH));
-				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
-				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				end.add(Calendar.YEAR, 1);
+				String sYear = Integer.toString(start.get(Calendar.YEAR));
+				String sMonth = Integer.toString(start.get(Calendar.MONTH));
+				String sDay = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				String eYear = Integer.toString(end.get(Calendar.YEAR));
+				String eMonth = Integer.toString(end.get(Calendar.MONTH));
+				String eDay = Integer.toString(end.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, sYear, sMonth, sDay, Integer.toString(startHour), Integer.toString(startMinute), eYear, eMonth, eDay, Integer.toString(endHour), Integer.toString(endMinute));
 				numbers--;
 			}
 			
 			break;
 		case "biweek": 
 
-			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			createEntry(title, description, Integer.toString(startYear), Integer.toString(startMonth), Integer.toString(startDay), Integer.toString(startHour), Integer.toString(startMinute), Integer.toString(endYear), Integer.toString(endMonth), Integer.toString(endDay), Integer.toString(endHour), Integer.toString(endMinute));
 			numbers--;
 			
 			while(numbers>(0)){
 				start.add(Calendar.DATE, 14);
-				year = Integer.toString(start.get(Calendar.YEAR));
-				sMonth = Integer.toString(start.get(Calendar.MONTH));
-				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
-				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				end.add(Calendar.DATE, 14);
+				String sYear = Integer.toString(start.get(Calendar.YEAR));
+				String sMonth = Integer.toString(start.get(Calendar.MONTH));
+				String sDay = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				String eYear = Integer.toString(end.get(Calendar.YEAR));
+				String eMonth = Integer.toString(end.get(Calendar.MONTH));
+				String eDay = Integer.toString(end.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, sYear, sMonth, sDay, Integer.toString(startHour), Integer.toString(startMinute), eYear, eMonth, eDay, Integer.toString(endHour), Integer.toString(endMinute));
 				numbers--;
 			}
 			
 			break;
 		
 		case "bimonth": 
-		createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
-		numbers--;
+			createEntry(title, description, Integer.toString(startYear), Integer.toString(startMonth), Integer.toString(startDay), Integer.toString(startHour), Integer.toString(startMinute), Integer.toString(endYear), Integer.toString(endMonth), Integer.toString(endDay), Integer.toString(endHour), Integer.toString(endMinute));
+			numbers--;
 		
 		while(numbers>(0)){
 			start.add(Calendar.MONTH, 2);
-			year = Integer.toString(start.get(Calendar.YEAR));
-			sMonth = Integer.toString(start.get(Calendar.MONTH));
-			day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
-			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			end.add(Calendar.MONTH, 2);
+			String sYear = Integer.toString(start.get(Calendar.YEAR));
+			String sMonth = Integer.toString(start.get(Calendar.MONTH));
+			String sDay = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+			String eYear = Integer.toString(end.get(Calendar.YEAR));
+			String eMonth = Integer.toString(end.get(Calendar.MONTH));
+			String eDay = Integer.toString(end.get(Calendar.DAY_OF_MONTH));
+			createEntry(title, description, sYear, sMonth, sDay, Integer.toString(startHour), Integer.toString(startMinute), eYear, eMonth, eDay, Integer.toString(endHour), Integer.toString(endMinute));
 			numbers--;
 		}
 		
 		break;		
 		case "quarter":
 			
-			createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+			createEntry(title, description, Integer.toString(startYear), Integer.toString(startMonth), Integer.toString(startDay), Integer.toString(startHour), Integer.toString(startMinute), Integer.toString(endYear), Integer.toString(endMonth), Integer.toString(endDay), Integer.toString(endHour), Integer.toString(endMinute));
 			numbers--;
 			
 			while(numbers>(0)){
 				start.add(Calendar.MONTH, 3);
-				year = Integer.toString(start.get(Calendar.YEAR));
-				sMonth = Integer.toString(start.get(Calendar.MONTH));
-				day = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
-				createEntry(title, description, year, sMonth, day, sHour, sMinute, eHour, eMinute);
+				end.add(Calendar.MONTH, 3);
+				String sYear = Integer.toString(start.get(Calendar.YEAR));
+				String sMonth = Integer.toString(start.get(Calendar.MONTH));
+				String sDay = Integer.toString(start.get(Calendar.DAY_OF_MONTH));
+				String eYear = Integer.toString(end.get(Calendar.YEAR));
+				String eMonth = Integer.toString(end.get(Calendar.MONTH));
+				String eDay = Integer.toString(end.get(Calendar.DAY_OF_MONTH));
+				createEntry(title, description, sYear, sMonth, sDay, Integer.toString(startHour), Integer.toString(startMinute), eYear, eMonth, eDay, Integer.toString(endHour), Integer.toString(endMinute));
 				numbers--;
 			}
 			
@@ -957,18 +1096,20 @@ public class MyCalendar extends Service {
 		}
 		
 		String error = "entries successfully created";
+
+		L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_11, getContext().getMainAgent(), ""+title);
 		return new HttpResponse(error, HttpURLConnection.HTTP_OK);
 		
 	}
 	
 	
 	/**
-	 * function to get the login name of an agent
+	 * Function to get the login name of an agent
 	 * 
 	 * @param id
-	 * 		the id of the agent 
+	 * 		The id of the agent 
 	 * @return
-	 *		the login name
+	 *		The login name
 	 */
 	@GET
 	@Path("/name/{id}")
@@ -998,10 +1139,10 @@ public class MyCalendar extends Service {
 	}
 	
 	/**
-	 * function to get the current id of the active agent
+	 * Function to get the current id of the active agent
 	 * 
 	 * @return
-	 *		the id of the current agent
+	 *		The id of the current agent
 	 */
 	@GET
 	@Path("/id")
@@ -1014,8 +1155,8 @@ public class MyCalendar extends Service {
 	public HttpResponse getId(){
 		 
 	    try{
-	    	UserAgent fred = (UserAgent) getContext().getMainAgent();
-	    	long id = fred.getId();
+	    	UserAgent user = (UserAgent) getContext().getMainAgent();
+	    	long id = user.getId();
 	    	String rString = Long.toString(id);
 	    	return new HttpResponse(rString, HttpURLConnection.HTTP_OK);
 	    }
@@ -1060,7 +1201,7 @@ public class MyCalendar extends Service {
 	/**
 	 * This method is needed for every RESTful application in LAS2peer. There is no need to change!
 	 * 
-	 * @return the mapping
+	 * @return The mapping
 	 */
 	public String getRESTMapping() {
 		String result = "";

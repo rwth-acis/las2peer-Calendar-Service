@@ -70,7 +70,7 @@ public class Comment {
 		JSONObject obj = new JSONObject();
         try {
             obj.put("uniqueID", this.uniqueID);
-            obj.put("creatorId", this.creatorId);
+            obj.put("creatorId", Long.toString(this.creatorId));
             obj.put("time", "0");
             obj.put("message", this.message);
         } catch (Exception e) {

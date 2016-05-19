@@ -16,7 +16,7 @@ public class Serialization {
 		res.put("entry_id", a.getUniqueID());
 		res.put("title", a.getTitle());
 		res.put("description", a.getDescription());
-		res.put("creator", a.getCreatorId());
+		res.put("creator", Long.toString(a.getCreatorId()));
 		if(a.getComments().isEmpty()==false){
 		JSONArray jsArray = new JSONArray();
 		for (int i=0; i < a.getComments().size(); i++) {

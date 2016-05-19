@@ -327,7 +327,7 @@ public class Entry implements XmlAble {
 			JSONObject params = (JSONObject)parser.parse(json);
 			JSONArray comment = (JSONArray) params.get("comments");
 			
-			Entry res = new Entry((String) params.get("entry_id"), (long) params.get("creator"), (String) params.get("title"), (String) params.get("description"), 10);
+			Entry res = new Entry((String) params.get("entry_id"), (long) Long.parseLong((String) params.get("creator")), (String) params.get("title"), (String) params.get("description"), 10);
 			
 			try{
 				
@@ -335,7 +335,7 @@ public class Entry implements XmlAble {
 					
 				for(int i = 0; i<comment.size(); i++){
 					JSONObject obj = (JSONObject) comment.get(i);
-					Comment a = new Comment((String) obj.get("uniqueID"), (long) obj.get("creatorId"), null, (String) obj.get("message"));
+					Comment a = new Comment((String) obj.get("uniqueID"), (long) Long.parseLong((String)obj.get("creatorId")), null, (String) obj.get("message"));
 					res.comments.add(a);				}
 				
 				}
