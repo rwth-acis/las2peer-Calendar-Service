@@ -8,57 +8,46 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 public class Serialization {
-	
+
 	public static JSONObject serializeEntry(Entry a) {
-		
+
 		JSONObject res = new JSONObject();
-		
+
 		res.put("entry_id", a.getUniqueID());
 		res.put("title", a.getTitle());
 		res.put("description", a.getDescription());
 		res.put("creator", Long.toString(a.getCreatorId()));
-		if(a.getComments().isEmpty()==false){
-		JSONArray jsArray = new JSONArray();
-		for (int i=0; i < a.getComments().size(); i++) {
-			
-	        jsArray.add(a.getComments().get(i).getJSONObject()); //turn to JSONObjects and fill array
-	        res.put("comments", jsArray);
-	    }
-		}
-		else{
-		ArrayList<Comment> empty = new ArrayList<>(10);
-		res.put("comments", empty);
-		}
+		res.put("comments", a.getCommentId());
 		if(a.getStart()!=null){
-		res.put("syear", a.getStart().get(Calendar.YEAR));
-		res.put("smonth", a.getStart().get(Calendar.MONTH));
-		res.put("sday", a.getStart().get(Calendar.DAY_OF_MONTH));
-		res.put("shour", a.getStart().get(Calendar.HOUR));
-		res.put("sminute", a.getStart().get(Calendar.MINUTE));
+			res.put("syear", a.getStart().get(Calendar.YEAR));
+			res.put("smonth", a.getStart().get(Calendar.MONTH));
+			res.put("sday", a.getStart().get(Calendar.DAY_OF_MONTH));
+			res.put("shour", a.getStart().get(Calendar.HOUR_OF_DAY));
+			res.put("sminute", a.getStart().get(Calendar.MINUTE));
 		}
-		
+
 		if(a.getEnd()!=null){
-		res.put("eyear", a.getEnd().get(Calendar.YEAR));
-		res.put("emonth", a.getEnd().get(Calendar.MONTH));
-		res.put("eday", a.getEnd().get(Calendar.DAY_OF_MONTH));
-		res.put("ehour",a.getEnd().get(Calendar.HOUR));
-		res.put("eminute",a.getEnd().get(Calendar.MINUTE));
+			res.put("eyear", a.getEnd().get(Calendar.YEAR));
+			res.put("emonth", a.getEnd().get(Calendar.MONTH));
+			res.put("eday", a.getEnd().get(Calendar.DAY_OF_MONTH));
+			res.put("ehour",a.getEnd().get(Calendar.HOUR_OF_DAY));
+			res.put("eminute",a.getEnd().get(Calendar.MINUTE));
 		}
-		
+
 		return res;
 	}
 
 	public static JSONArray serializeEntries(ArrayList<Entry> entries){
-		
+
 		JSONArray res = new JSONArray();
-		
+
 		for(Entry a : entries){
 			res.add(serializeEntry(a));
 		}
-		
+
 		return res;
-		
+
 	}
-	
-	
+
+
 }

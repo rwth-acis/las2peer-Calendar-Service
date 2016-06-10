@@ -1,6 +1,5 @@
 package i5.las2peer.services.calendar;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -32,9 +31,7 @@ public class Entry implements XmlAble {
 	/** description of the entry**/
 	private String description;
 	/** list with comments of the calendar entry**/
-	private ArrayList<Comment> comments;
-	
-	public int commentAmount;
+	private String commentID;
 	
 	/**
 	 * Gets the title of this {@link Comment} .
@@ -79,8 +76,8 @@ public class Entry implements XmlAble {
 	 * 
 	 * @return a list of the comments.
 	 */
-	public ArrayList<Comment> getComments() {
-		return comments;
+	public String getCommentId() {
+		return commentID;
 	}
 	
 	/**
@@ -92,25 +89,21 @@ public class Entry implements XmlAble {
 	 * 		      title of the new entry
 	 * @param description
 	 * 			  description of the new entry
-	 * @param amount
-	 * 			  amount of comments that can be added
 	 * 				           
 	 */
 	
-	public Entry(long idCreatedBy, String title, String description, int amount){
+	public Entry(long idCreatedBy, String title, String description, String commentID){
 		this.uniqueID = IdGeneration.createID();
-		commentAmount = amount;
 		this.creatorId = idCreatedBy;
-		this.comments = new ArrayList<Comment>(amount);
+		this.commentID = commentID;
 		this.title = title;
 		this.description = description;
 	}
 	
-	public Entry(String uniqueID, long idCreatedBy, String title, String description, int amount){
+	public Entry(String uniqueID, long idCreatedBy, String title, String description, String commentID){
 		this.uniqueID = uniqueID;
-		commentAmount = amount;
 		this.creatorId = idCreatedBy;
-		this.comments = new ArrayList<Comment>(amount);
+		this.commentID = commentID;
 		this.title = title;
 		this.description = description;
 	}
@@ -203,74 +196,6 @@ public class Entry implements XmlAble {
 		return true;
 	}
 	
-	
-	/**
-	 * creates a comment of this entry
-	 * 
-	 * @param id
-	 * 			the id of the current agent 	 
-	 * @param comment
-	 * 			the content of the comment
-	 * @return
-	 * 			the id of the comment. nothing if comment was empty
-	 */
-	
-	public String createComment(long id, String comment){
-		
-		if(this.comments.size() >= commentAmount){
-			return "";
-		}
-		
-		if(comment == null || comment == ""){ //comment cannot be empty
-			return "";
-		}
-		
-		GregorianCalendar stamp = new GregorianCalendar();
-		
-		Comment c1 = new Comment(id, stamp, comment);
-		this.comments.add(c1);
-		return c1.getUniqueID();
-		
-	}
-	
-	/**
-	 * deletes a comment of this entry
-	 * 
-	 * @param id
-	 * 			the id of the comment that shall be deleted 	 
-	 * @return
-	 * 			if the comment could be found and deleted
-	 */
-	
-	public boolean deleteComment(String id){
-		
-		for(Comment aComment: this.comments){
-			if(aComment.getUniqueID().equals(id)){	
-				this.comments.remove(aComment);
-				return true;	
-			}	
-		}
-		return false;
-	}
-	
-	/**
-	 * searches for a specific comment with an id
-	 * 
-	 * @param id
-	 *  		the id of the wanted comment
-	 * @return
-	 * 		 the comment or null if not found
-	 */
-	public Comment returnComment(String id){
-		for(Comment aComment: this.comments){
-			if(aComment.getUniqueID().equals(id)){
-				return aComment;
-			}
-		}
-		
-		return null;
-	}
-	
 	/**
 	 * turns a calendar date into a string
 	 * 
@@ -325,24 +250,14 @@ public class Entry implements XmlAble {
 			
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			JSONObject params = (JSONObject)parser.parse(json);
-			JSONArray comment = (JSONArray) params.get("comments");
+			String comment = (String) params.get("comments");
 			
-			Entry res = new Entry((String) params.get("entry_id"), (long) Long.parseLong((String) params.get("creator")), (String) params.get("title"), (String) params.get("description"), 10);
+			Entry res = new Entry((String) params.get("entry_id"), (long) Long.parseLong((String) params.get("creator")), (String) params.get("title"), (String) params.get("description"), comment);
 			
 			try{
 				
-				if(comment != null){ //if there are comments
-					
-				for(int i = 0; i<comment.size(); i++){
-					JSONObject obj = (JSONObject) comment.get(i);
-					Comment a = new Comment((String) obj.get("uniqueID"), (long) Long.parseLong((String)obj.get("creatorId")), null, (String) obj.get("message"));
-					res.comments.add(a);				}
-				
-				}
-				
 				res.setStart((int) params.get("syear"), (int) params.get("smonth"), (int) params.get("sday"), (int) params.get("shour"), (int) params.get("sminute"));
 				res.setEnd((int) params.get("eyear"), (int) params.get("emonth"), (int) params.get("eday"), (int) params.get("ehour"), (int) params.get("eminute"));
-				
 				
 				return res;
 			}
