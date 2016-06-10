@@ -1,6 +1,6 @@
-![LAS2peer](https://github.com/rwth-acis/LAS2peer/blob/master/img/logo/bitmap/las2peer-logo-128x128.png)
+![las2peer](https://github.com/rwth-acis/las2peer/blob/master/img/logo/bitmap/las2peer-logo-128x128.png)
 
-LAS2peer-Calendar-Service  [![Build Status](https://travis-ci.org/rwth-acis/LAS2peer-Calendar-Service.svg?branch=master)](https://travis-ci.org/rwth-acis/LAS2peer-Calendar-Service)
+las2peer-Calendar-Service  [![Build Status](https://travis-ci.org/rwth-acis/las2peer-Calendar-Service.svg?branch=master)](https://travis-ci.org/rwth-acis/las2peer-Calendar-Service)
 =======================
 This is a calendar service for the las2peer platform. Users can create entries in a common calender and also comment on them. Entries are stored long-term inside the Node storage. A frontend can be used to look at entries and create them. Furthermore, Users can import their .ics files to store them in the calendar via the frontend.
 
