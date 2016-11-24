@@ -28,6 +28,8 @@ import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.Serialization;
+import i5.las2peer.tools.CryptoException;
+import i5.las2peer.tools.SerializationException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -206,16 +208,19 @@ public class MyCalendar extends RESTService {
 
 					try {
 						env = Context.getCurrent().fetchEnvelope(STORAGE_NAME);
+						EntryBox stored = (EntryBox) env.getContent();
+						stored.addEntry(newEntry);
+						env = Context.getCurrent().createEnvelope(env, stored);
 					} catch (ArtifactNotFoundException eA) {
 						L2pLogger.logEvent(this, Event.SERVICE_ERROR,
 								"Network storage not found. Creating new one. " + eA.toString());
-						env = Context.getCurrent().createEnvelope(STORAGE_NAME, new EntryBox(1));
+						EntryBox stored = new EntryBox(1);
+						stored.addEntry(newEntry);
+						env = Context.getCurrent().createEnvelope(STORAGE_NAME, stored);
 					} catch (Exception e) {
+						// TODO
 					}
 
-					EntryBox stored = (EntryBox) env.getContent();
-					stored.addEntry(newEntry);
-					env = Context.getCurrent().createEnvelope(env, stored);
 					storeEnvelope(env);
 
 					JSONObject toString = Serialization.serializeEntry(newEntry);
@@ -440,16 +445,6 @@ public class MyCalendar extends RESTService {
 				Envelope env = null;
 
 				try {
-					env = Context.getCurrent().fetchEnvelope(STORAGE_NAME);
-				}
-
-				catch (Exception e) {
-					// create and publish a monitoring message
-					L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
-					return Response.status(Status.BAD_REQUEST).entity("Fail").build();
-				}
-
-				try {
 
 					env = Context.getCurrent().fetchEnvelope(STORAGE_NAME);
 
@@ -513,16 +508,6 @@ public class MyCalendar extends RESTService {
 				int minuteInt = Integer.parseInt(stringfromJSON(o, "minute"));
 
 				Envelope env = null;
-
-				try {
-					env = Context.getCurrent().fetchEnvelope(STORAGE_NAME);
-				}
-
-				catch (Exception e) {
-					// create and publish a monitoring message
-					L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
-					return Response.status(Status.BAD_REQUEST).entity("fail").build();
-				}
 
 				try {
 
@@ -635,9 +620,22 @@ public class MyCalendar extends RESTService {
 
 				L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_9, Context.getCurrent().getMainAgent(), "");
 				return Response.status(Status.OK).entity(returnString).build();
-			}
+			} catch (ArtifactNotFoundException eA) {
+				L2pLogger.logEvent(this, Event.SERVICE_ERROR,
+						"Network storage not found. Creating new one. " + eA.toString());
+				EntryBox stored = new EntryBox(1);
+				try {
+					env = Context.getCurrent().createEnvelope(STORAGE_NAME, stored);
+					storeEnvelope(env);
+					return Response.status(Status.OK).entity("").build();
+				} catch (IllegalArgumentException | SerializationException | CryptoException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return Response.status(Status.BAD_REQUEST).entity("entry could not be found" + e.getMessage())
+							.build();
 
-			catch (Exception e) {
+				}
+			} catch (Exception e) {
 				// create and publish a monitoring message
 				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 				return Response.status(Status.BAD_REQUEST).entity("entry could not be found" + e.getMessage()).build();
@@ -676,7 +674,7 @@ public class MyCalendar extends RESTService {
 			catch (Exception e) {
 				// create and publish a monitoring message
 				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
-				return Response.status(Status.BAD_REQUEST).entity("Fail").build();
+				return Response.status(Status.NOT_FOUND).entity("No entry found.").build();
 			}
 
 			try {
@@ -731,9 +729,22 @@ public class MyCalendar extends RESTService {
 				L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_10, Context.getCurrent().getMainAgent(), "");
 				return Response.status(Status.OK).entity(returnString).build();
 
-			}
+			} catch (ArtifactNotFoundException eA) {
+				L2pLogger.logEvent(this, Event.SERVICE_ERROR,
+						"Network storage not found. Creating new one. " + eA.toString());
+				EntryBox stored = new EntryBox(1);
+				try {
+					env = Context.getCurrent().createEnvelope(STORAGE_NAME, stored);
+					storeEnvelope(env);
+					return Response.status(Status.OK).entity("").build();
+				} catch (IllegalArgumentException | SerializationException | CryptoException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return Response.status(Status.BAD_REQUEST).entity("entry could not be found" + e.getMessage())
+							.build();
 
-			catch (Exception e) {
+				}
+			} catch (Exception e) {
 				// create and publish a monitoring message
 				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Could not open storage! " + e.getMessage());
 				return Response.status(Status.BAD_REQUEST).entity("entry could not be found" + e.getMessage()).build();
