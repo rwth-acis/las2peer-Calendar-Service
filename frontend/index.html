@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<html lang="en"> 
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <!--
 Copyright (c) 2014 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
@@ -29,12 +33,9 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LAS2peer Calendar Service</title>
+  <title>las2peer Calendar Service</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -42,9 +43,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
   <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
-
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js">
+    </script>
   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+  <link rel="import" href="../bower_components/paper-material/paper-material.html">
+  <link rel="import" href="../bower_components/las2peer-comment-thread-widget/comment-thread-widget.html">
+  <link rel="import" href="../bower_components/las2peer-frontend-user-widget/las2peer-frontend-user-widget.html">
 </head>
 <body>
 
@@ -58,14 +66,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">Calendar Service</a>
+        <a class="navbar-brand" href="index.html">Calendar Service</a>
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="index.html">Calendar Navigation</a></li>
-          <li><a href="creation.html">Entry creation</a></li>
+          <li><a href="#" onclick="createEntry();">Entry Creation</a></li>
         </ul>
         <!-- OpenID Connect Button: add HTML element representing button -->
+
+        <span class="navbar-right"> <div id="user-information" style="width:76px;height:55px"><las2peer-frontend-user-widget></las2peer-frontend-user-widget></div></span>
         <span id="signinButton">
           <span class="oidc-signin navbar-btn navbar-right btn-default"
                 data-callback="signinCallback"
@@ -73,8 +82,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 data-logo="logo.png"
                 data-size="sm"
                 data-server="https://api.learning-layers.eu/o/oauth2"
-                data-clientid="c39130bb-8f9b-4082-b9c5-e5a4dcab5467"
-                data-scope="openid email profile">
+                data-clientid="2022a312-913f-407a-bad1-7061f358d7f4"
+                data-scope="openid email profile"> <!--  8faf3dc2-fe60-4b77-8e34-7bd34496f3ca-->
           </span>
         </span>
       </div><!--/.nav-collapse -->
@@ -85,20 +94,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- Container for actual page content -->
   
-<div class="container" style="margin-top:20x">
-<div class="year" style="margin-top:70px">
+<div class="container" style="margin-top:20px;">
+<paper-material elevation="3" style="width:700px;margin-left: auto; margin-right: auto;">
+<div style="margin:25px;">
+<br>
+<div class="year">
  <form>
   Year:<br>
-  <input type="text" name="year" id="iyear">
+  <paper-input type="number" label="Number of reps" no-label-float style="width:150px;" onchange="showMonthEvents();" id="iyear">14</paper-input>
   <br>
 </form> 
 </div>
-</div>
 
-<div class="container" style="margin-top:10px">
   <label for="month">Select month:</label>
-  <select class="form-control" id="sel1">
-    <option>Januar</option>
+  <select class="form-control" id="sel1" onchange="showMonthEvents();">
+    <option>January</option>
     <option>February</option>
     <option>March</option>
     <option>April</option>
@@ -111,7 +121,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <option>November</option>
     <option>December</option>
   </select>
-</div>
 
 <div class="modal fade" id="comments" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 <div class="modal-dialog" role="document">
@@ -119,97 +128,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 <form onsubmit="return addComment(this);">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Add comment</h4>
+                    <h4 class="modal-title" id="myModalLabel">Comments</h4>
                   </div>
                   <div class="modal-body">
                     <div  class="list-group" id="comment-list">
                     </div>
-                    <div class="input-group">
-                      <span class="input-group-addon" id="basic-addon2">Your comment</span>
-                      <input type="text" id="inputcomment" class="form-control" aria-describedby="basic-addon2" placeholder="comment" name="comment" />
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" onClick="addComment(document.getElementById('inputcomment').value);" class="btn btn-default" data-dismiss="modal">Add your comment</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                   </div>
            </form>
          </div>
        </div>
 </div>
-
-<div class="container" style="margin-top:20px">
+<br>
 <TABLE BORDER=3 CELLSPACING=3 CELLPADDING=3>
 <TR>
-<TD COLSPAN="7" ALIGN=center><B>LAS2peer Calendar</B></TD>
+<TD COLSPAN="7" ALIGN=center><B>las2peer Calendar</B></TD>
 </TR>
 
 <TR>
-<TD COLSPAN="7" ALIGN=center><I>Another year comes to an end</I></TD>
+<TD COLSPAN="7" ALIGN=center><I><div id='dailymessage' style="width:233px;"></div></I></TD>
 </TR>
 
 <TR>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center><button onclick="getDay(1);">1</button></TD>
+<td align="center">Mon</td>
+<td align="center">Tue</td>
+<td align="center">Wed</td>
+<td align="center">Thu</td>
+<td align="center">Fri</td>
+<td align="center">Sat</td>
+<td align="center">Sun</td>
 </TR>
+<tbody id="calendercontent">
 
-<TR>
-<TD ALIGN=center><button onclick="getDay(2);">2</button></TD>
-<TD ALIGN=center><button onclick="getDay(3);">3</button></TD>
-<TD ALIGN=center><button onclick="getDay(4);">4</button></TD>
-<TD ALIGN=center><button onclick="getDay(5);">5</button></TD>
-<TD ALIGN=center><button onclick="getDay(6);">6</button></TD>
-<TD ALIGN=center><button onclick="getDay(7);">7</button></TD>
-<TD ALIGN=center><button onclick="getDay(8);">8</button></TD>
-</TR>
-
-<TR>
-<TD ALIGN=center><button onclick="getDay(9);">9</button></TD>
-<TD ALIGN=center><button onclick="getDay(10);">10</button></TD>
-<TD ALIGN=center><button onclick="getDay(11);">11</button></TD>
-<TD ALIGN=center><button onclick="getDay(12);">12</button></TD>
-<TD ALIGN=center><button onclick="getDay(13);">13</button></TD>
-<TD ALIGN=center><button onclick="getDay(14);">14</button></TD>
-<TD ALIGN=center><button onclick="getDay(15);">15</button></TD>
-</TR>
-
-<TR>
-<TD ALIGN=center><button onclick="getDay(16);">16</button></TD>
-<TD ALIGN=center><button onclick="getDay(17);">17</button></TD>
-<TD ALIGN=center><button onclick="getDay(18);">18</button></TD>
-<TD ALIGN=center><button onclick="getDay(19);">19</button></TD>
-<TD ALIGN=center><button onclick="getDay(20);">20</button></TD>
-<TD ALIGN=center><button onclick="getDay(21);">21</button></TD>
-<TD ALIGN=center><button onclick="getDay(22);">22</button></TD>
-</TR>
-
-<TR>
-<TD ALIGN=center><button onclick="getDay(23);">23</button></TD>
-<TD ALIGN=center><button onclick="getDay(24);">24</button></TD>
-<TD ALIGN=center><button onclick="getDay(25);">25</button></TD>
-<TD ALIGN=center><button onclick="getDay(26);">26</button></TD>
-<TD ALIGN=center><button onclick="getDay(27);">27</button></TD>
-<TD ALIGN=center><button onclick="getDay(28);">28</button></TD>
-<TD ALIGN=center><button onclick="getDay(29);">29</button></TD>
-</TR>
-
-<TR>
-<TD ALIGN=center><button onclick="getDay(30);">30</button></TD>
-<TD ALIGN=center><button onclick="getDay(31);">31</button></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-<TD ALIGN=center></TD>
-
-</TR>
+</tbody>
 
 </TABLE> 
+<br>
+
+<div id = "daily">
+ 
+</div> 
+</div>
+<br>
+</paper-material>
 </div>
 
   <!-- import jQuery for AJAX calls (must) -->
@@ -232,9 +192,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="js/jsrsasign/rsasign-1.2.min.js"></script>
   <script type="text/javascript" src="js/jsrsasign/x509-1.1.min.js"></script>
   <script type="text/javascript" src="js/jsrsasign/crypto-1.1.min.js"></script>
+  
+  
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/iron-label/iron-label.html">
+  <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+  <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+  <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+  
+  <link rel="import" href="../bower_components/paper-styles/demo-pages.html">
+  <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+  <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+  <link rel="import" href="../bower_components/file-upload/file-upload.html">
 
   <!-- import OpenID Connect Button -->
   <script type="text/javascript">
+  var selected_year;
+  var selected_month;
+  var selected_day;
+
+  function createEntry(){
+    window.location = "http://dbis.rwth-aachen.de/las2peer/calendar-service/creation.html?year="+selected_year+ "&month="+(selected_month-1)+"&day="+selected_day;
+  }
+
 
     (function() {
       var po = document.createElement('script');
@@ -252,7 +235,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         // OpenID Connect user info
         console.log(oidc_userinfo);
-		alert(oidc_userinfo.name);
+		//alert(oidc_userinfo.name);
+        showUserInformation();
+        showMonthEvents();
+        showToday();
        
       } else {
         // anonymous
@@ -265,14 +251,66 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- import client library for service -->
   <script type="text/javascript" src="js/client.js"></script>
-
+  <script type="text/javascript" src="data/fortune.json"></script>
   <!-- instantiate and use the client library -->
   <script type="text/javascript">
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = today.getMonth();
+    showCalender(year,month);
+    document.getElementById("iyear").value = year;
+    document.getElementById('sel1').value= monthNames[month];
+
+
+
     // create new instance of TemplateServiceClient, given its endpoint URL
-    var client = new TemplateServiceClient("http://localhost:8080/");
+    var client = new TemplateServiceClient("https://steen.informatik.rwth-aachen.de:9080/");
     var local = 0;
     var name;
 
+    function showCalender(year,month){
+      var numberOfDays = daysInMonth(month,year);
+      var startDay = startWeekDay(month,year);
+      var i =0;
+      var j = 0;
+      $("#calendercontent").empty();
+      while(j<startDay){
+        if(j==0){
+          $("#calendercontent").append("<tr>");
+        }
+        $("#calendercontent").append("<td align=center></td>");
+        if(j==6){
+          $("#calendercontent").append("</tr>");
+        }
+        j++;
+      }
+      while( i<numberOfDays){
+        if(j==0){
+          $("#calendercontent").append("<tr>");
+        }
+        $("#calendercontent").append('<td align=center><button  id="button'+(i+1)+'" onclick="getDay('+(i+1)+');" style="width:100%;">'+(i+1)+'</button></td>');
+        if(j==6){
+          $("#calendercontent").append("</tr>");
+        }
+        j= (j+1)%7;
+        i++;
+      }
+      if(j==0) return;
+      while(j<7){
+        $("#calendercontent").append("<td align=center></td>");
+        j++;
+      }
+      $("#calendercontent").append("</tr>");
+    }
+
+    function daysInMonth(month,year) {
+      return new Date(year, month, 0).getDate();
+    }
+
+    function startWeekDay(month,year){
+      return new Date(year, month, 1).getDay()-1;
+    }
 
     // function defined as response to a click on the first button (see below)
     function getExample() {
@@ -309,9 +347,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     //function defined as a response to a click on a day in the calendar
     function getDay(day) {
     	var year = document.getElementById('iyear').value;
-    	var month = getMonth(document.getElementById('sel1'));
+    	var month = document.getElementById('sel1').options.selectedIndex+1;
+
+        $( "#dailymessage" ).empty();
+        var myFortunes = JSON.parse(fortunes);
+        $( "#dailymessage" ).append( myFortunes[day]);
+
+      selected_year = year;
+      selected_month = month;
+      selected_day = day;
     	client.getDay(year, month, day,
     	function(data,type) {
+          // this is the success callback
+          console.log(data);
+          $("#postExampleOutput").html(data);
+         },
+         function(error) {
+           // this is the error callback
+           console.log(error);
+           $("#postExampleOutput").html(error);
+          }
+        );
+      }
+
+      function getMonth(month) {
+      var year = document.getElementById('iyear').value;
+      client.getMonth(year, month,
+      function(data,type) {
           // this is the success callback
           console.log(data);
           $("#postExampleOutput").html(data);
@@ -346,17 +408,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     
     function update(id){
     	local = id;
+      showComment(id);
+    }
+
+    function showMonthEvents(){
+      var month = document.getElementById('sel1').options.selectedIndex;
+      selected_year = document.getElementById("iyear").value;
+      showCalender(selected_year,month);
+      selected_month = month;
+      month++;
+      getMonth(month);
     }
     
-    
-    
+    function showToday(){
+      var date = new Date();
+      getDay(date.getUTCDate());
+    }
   
 
   </script>
 
-<div id = "daily" style="margin-bottom:30px" style="margin-left:20px">
- 
-</div> 
+
 
 </body>
 </html>

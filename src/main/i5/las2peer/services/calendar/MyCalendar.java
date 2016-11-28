@@ -26,6 +26,7 @@ import i5.las2peer.p2p.AgentNotKnownException;
 import i5.las2peer.persistency.Envelope;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
+import i5.las2peer.security.Agent;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.calendar.database.Serialization;
 import i5.las2peer.tools.CryptoException;
@@ -64,7 +65,7 @@ import net.minidev.json.parser.JSONParser;
 @SwaggerDefinition(
 		info = @Info(
 				title = "LAS2peer Calendar Service",
-				version = "0.3",
+				version = "0.1",
 				description = "A LAS2peer Calendar Service.",
 				termsOfService = "http://your-terms-of-service-url.com",
 				contact = @Contact(
@@ -176,7 +177,10 @@ public class MyCalendar extends RESTService {
 				String title = stringfromJSON(o, "title");
 				String description = stringfromJSON(o, "description");
 				String group = stringfromJSON(o, "groupID");
-				Long groupID = Long.valueOf(group);
+				Long groupID = Context.getCurrent().getLocalNode().getAnonymous().getId();
+				if (group.length() > 0) {
+					groupID = Long.valueOf(group);
+				}
 				String threadID = "";
 
 				if ((title.equals("")) || (description.equals(""))) {
@@ -210,18 +214,18 @@ public class MyCalendar extends RESTService {
 						env = Context.getCurrent().fetchEnvelope(STORAGE_NAME);
 						EntryBox stored = (EntryBox) env.getContent();
 						stored.addEntry(newEntry);
-						env = Context.getCurrent().createEnvelope(env, stored);
+						env = Context.getCurrent().createUnencryptedEnvelope(env, stored);
 					} catch (ArtifactNotFoundException eA) {
 						L2pLogger.logEvent(this, Event.SERVICE_ERROR,
 								"Network storage not found. Creating new one. " + eA.toString());
 						EntryBox stored = new EntryBox(1);
 						stored.addEntry(newEntry);
-						env = Context.getCurrent().createEnvelope(STORAGE_NAME, stored);
+						env = Context.getCurrent().createUnencryptedEnvelope(STORAGE_NAME, stored);
 					} catch (Exception e) {
 						// TODO
 					}
 
-					storeEnvelope(env);
+					storeEnvelope(env, Context.getCurrent().getServiceAgent());
 
 					JSONObject toString = Serialization.serializeEntry(newEntry);
 					L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_1, Context.getCurrent().getMainAgent(), "" + title);
@@ -321,7 +325,7 @@ public class MyCalendar extends RESTService {
 					// create and publish a monitoring message
 					L2pLogger.logEvent(this, Event.SERVICE_ERROR,
 							"Network storage not found. Creating new one. " + e.toString());
-					env = Context.getCurrent().createEnvelope(STORAGE_NAME, new EntryBox(1));
+					env = Context.getCurrent().createUnencryptedEnvelope(STORAGE_NAME, new EntryBox(1));
 				}
 
 				EntryBox stored = (EntryBox) env.getContent();
@@ -332,8 +336,8 @@ public class MyCalendar extends RESTService {
 					return Response.status(Status.FORBIDDEN).entity("entry couldn't be deleted").build();
 				}
 				boolean result = stored.delete(id);
-				Context.getCurrent().createEnvelope(env, stored);
-				storeEnvelope(env);
+				Context.getCurrent().createUnencryptedEnvelope(env, stored);
+				storeEnvelope(env, Context.getCurrent().getServiceAgent());
 
 				if (result == true) {
 					// store information in log
@@ -456,8 +460,8 @@ public class MyCalendar extends RESTService {
 					stored.addEntry(updatedEntry);
 					JSONObject entry = Serialization.serializeEntry(updatedEntry);
 					String rest = entry.toJSONString();
-					env = Context.getCurrent().createEnvelope(env, stored);
-					storeEnvelope(env);
+					env = Context.getCurrent().createUnencryptedEnvelope(env, stored);
+					storeEnvelope(env, Context.getCurrent().getServiceAgent());
 
 					L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_5, Context.getCurrent().getMainAgent(), "" + id);
 					return Response.status(Status.OK).entity(rest).build();
@@ -522,8 +526,8 @@ public class MyCalendar extends RESTService {
 					stored.delete(id);
 					stored.addEntry(updatedEntry);
 
-					env = Context.getCurrent().createEnvelope(env, stored);
-					storeEnvelope(env);
+					env = Context.getCurrent().createUnencryptedEnvelope(env, stored);
+					storeEnvelope(env, Context.getCurrent().getServiceAgent());
 
 					L2pLogger.logEvent(Event.SERVICE_CUSTOM_MESSAGE_6, Context.getCurrent().getMainAgent(), "" + id);
 					return Response.status(Status.OK).entity(rest).build();
@@ -566,16 +570,6 @@ public class MyCalendar extends RESTService {
 
 			Envelope env = null;
 			ArrayList<Entry> entryList = new ArrayList<>();
-			try {
-				env = Context.getCurrent().fetchEnvelope(STORAGE_NAME);
-			}
-
-			catch (Exception e) {
-				// create and publish a monitoring message
-				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "Network storage not there yet" + e.toString());
-				return Response.status(Status.BAD_REQUEST).entity("fail").build();
-
-			}
 
 			try {
 
@@ -625,8 +619,8 @@ public class MyCalendar extends RESTService {
 						"Network storage not found. Creating new one. " + eA.toString());
 				EntryBox stored = new EntryBox(1);
 				try {
-					env = Context.getCurrent().createEnvelope(STORAGE_NAME, stored);
-					storeEnvelope(env);
+					env = Context.getCurrent().createUnencryptedEnvelope(STORAGE_NAME, stored);
+					storeEnvelope(env, Context.getCurrent().getServiceAgent());
 					return Response.status(Status.OK).entity("").build();
 				} catch (IllegalArgumentException | SerializationException | CryptoException e) {
 					// TODO Auto-generated catch block
@@ -734,8 +728,8 @@ public class MyCalendar extends RESTService {
 						"Network storage not found. Creating new one. " + eA.toString());
 				EntryBox stored = new EntryBox(1);
 				try {
-					env = Context.getCurrent().createEnvelope(STORAGE_NAME, stored);
-					storeEnvelope(env);
+					env = Context.getCurrent().createUnencryptedEnvelope(STORAGE_NAME, stored);
+					storeEnvelope(env, Context.getCurrent().getServiceAgent());
 					return Response.status(Status.OK).entity("").build();
 				} catch (IllegalArgumentException | SerializationException | CryptoException e) {
 					// TODO Auto-generated catch block
@@ -1035,9 +1029,9 @@ public class MyCalendar extends RESTService {
 		}
 
 		// envelope methods
-		private void storeEnvelope(Envelope env) {
+		private void storeEnvelope(Envelope env, Agent owner) {
 			try {
-				Context.getCurrent().storeEnvelope(env);
+				Context.getCurrent().storeEnvelope(env, owner);
 			} catch (StorageException e) {
 
 				e.printStackTrace();

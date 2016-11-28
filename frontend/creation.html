@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LAS2peer Calendar Service</title>
+  <title>las2peer Calendar Service</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -14,7 +14,21 @@
   <![endif]-->
 
   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/iron-label/iron-label.html">
+  <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+  <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+  <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+  
+  <link rel="import" href="../bower_components/paper-styles/demo-pages.html">
+  <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+  <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+  <link rel="import" href="../bower_components/file-upload/file-upload.html">
+  <link rel="import" href="../bower_components/paper-material/paper-material.html">
+  <link rel="import" href="../bower_components/las2peer-frontend-user-widget/las2peer-frontend-user-widget.html">
 </head>
 <body>
 
@@ -28,23 +42,24 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">Calendar Service</a>
+        <a class="navbar-brand" href="index.html">Calendar Service</a>
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="index.html">Calendar Navigation</a></li>
-          <li><a href="creation.html">Entry creation</a></li>
+          <li><a href="creation.html">Entry Creation</a></li>
         </ul>
         <!-- OpenID Connect Button: add HTML element representing button -->
+        <span class="navbar-right"> <div id="user-information" style="width:76px;height:55px"><las2peer-user-widget></las2peer-user-widget></div></span>
         <span id="signinButton">
-          <span class="oidc-signin"
-          data-callback="signinCallback"
-          data-name="Learning Layers"
-          data-logo="http://learning-layers.eu/wp-content/themes/learninglayers/images/logo.png"
-          data-server="https://api.learning-layers.eu/o/oauth2"
-          data-clientid="b90a333d-722c-4c94-aca8-bdbba2cbef3d"
-          data-scope="openid phone email address profile">
-         </span>
+          <span class="oidc-signin navbar-btn navbar-right btn-default"
+                data-callback="signinCallback"
+                data-name="OpenID Connect"
+                data-logo="logo.png"
+                data-size="sm"
+                data-server="https://api.learning-layers.eu/o/oauth2"
+                data-clientid="2022a312-913f-407a-bad1-7061f358d7f4"
+                data-scope="openid email profile">
+          </span>
         </span>
       </div><!--/.nav-collapse -->
     </div>
@@ -55,133 +70,93 @@
   <!-- Container for actual page content -->
   
 <div class="container" style="margin-top:50px">
-<div class="year" style="margin-top:0px">
- <form>
-  Year:<br>
-  <input type="text" name="year" id="year">
-  <br>
-</form> 
-</div>
-</div>
+<paper-material elevation="3" style="width:550px;margin-left: auto; margin-right: auto;">
+<br>
+ <form style="margin-left:25px; width:500px;">
+ <!-- <input type="text" name="year" id="year">-->
+ <h5>Entry title:</h5>
+  <paper-input id="title" label="Type an entry title" no-label-float style="width:350px;"></paper-input><br>
+  <h5>Entry description</h5>
+  <paper-textarea id="description" label="Write a description of your entry" no-label-float style="width:350px;"></paper-textarea><br>
+  <h5>Entry for Group: </h5><select class="form-control" id="groupID" onchange="getName();" style="width:200px;">
+  </select><br>
+  <input id="group" type="hidden">
+ <p><h5>Choose a date for your entry</h5></p>
 
-<div class="container" style="margin-top:10px">
-  <label for="month">Select month:</label>
-  <select class="form-control" id="creMon">
-    <option>Januar</option>
-    <option>February</option>
-    <option>March</option>
-    <option>April</option>
-    <option>May</option>
-    <option>June</option>
-    <option>July</option>
-    <option>August</option>
-    <option>September</option>
-    <option>October</option>
-    <option>November</option>
-    <option>December</option>
-  </select>
-</div>
-
-<div class="container" style="margin-top:10px">
-<div class="day" style="margin-top:0px">
- <form>
-  Day:<br>
-  <input type="text" name="day" id ="day">
-  <br>
-</form> 
-</div>
-</div>
-
-<div class="container" style="margin-top:10px">
-<div class="sminute" style="margin-top:0px">
- <form>
-  Start time: (use both boxes)<br>
-  <input type="text" name="shour" id ="shour"> : 
-  <input type="text" name="sminute" id ="sminute"> 
-  <br>
-</form> 
-</div>
-</div>
-
-<div class="container" style="margin-top:10px">
-<div class="sminute" style="margin-top:0px">
- <form>
-  End time: (use both boxes)<br>
-  <input type="text" name="ehour" id ="ehour"> : 
-  <input type="text" name="eminute" id ="eminute"> 
-  <br>
-</form> 
-</div>
-</div>
-
-<div class="container" style="margin-top:10px">
-<div class="title" style="margin-top:0px">
- <form>
-  Your title:<br>
-  <input type="text" name="title" id ="title">
-  <br>
-</form> 
-</div>
-</div>
-
-<div class="container" style="margin-top:10px">
-<div class="description" style="margin-top:0px">
- <form>
-  Your description<br>
-  <input type="text" name="description" id ="description">
-  <br>
-</form> 
-</div>
-</div>
-
-<div class="container" style="margin-top:10px">
-    <button onclick="createEntry();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Create Entry!</span></button>
-    <p id="getExampleOutput"></p>
-</div>
-
-<div class="container" style="margin-top:10px">
-    <button onclick="set();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Add start date</span></button>
-    <p id="getExampleOutput"></p>
-</div>
-
-<div class="container" style="margin-top:10px">
-    <button onclick="setEnd();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Add end date</span></button>
-    <p id="getExampleOutput"></p>
-</div>
-
-<div class="container" style="margin-top:10px">
-	    <form>
-	  Amount of entries:<br>
-	  <input type="text" name="amount" id ="occur">
- 		 <br>
-		</form> 
-		
-
-  <label for="interval">Select interval:</label>
-  <select class="form-control" id="inval">
+<template is="dom-bind" id="startDate">
+    <section>
+      <div style="float:left;width:250px;"><iron-label ><h5>Start date: {{dateFormat(date, 'LL')}} - {{dateFormat(date, 'LT')}}</h5></iron-label></div>
+	  <div><paper-button class="btn" on-tap="showDialog" raised>Change start date</paper-button></div><br>
+      <paper-dialog id="dialog" modal on-iron-overlay-closed="dismissDialog">
+		<paper-date-picker id="picker" date="[[date]]" style="height:210px; margin-left:-24px; margin-top: 0px;"></paper-date-picker>
+		<div style="margin-left:-24px;"><paper-time-picker id="picker2" time="{{dateFormat(date, 'LT')}}" style="height:280px;"></paper-time-picker></div><br>
+        <div class="buttons" style="background-color:#3F51B5;">
+          <paper-button dialog-dismiss style="color:#FFF;">Cancel</paper-button>
+          <paper-button dialog-confirm style="color:#FFF;">OK</paper-button>
+        </div>
+      </paper-dialog>
+    </section>
+</template>
+  
+<template is="dom-bind" id="endDate">
+    <section>
+      <div style="float:left;width:250px;"><iron-label ><h5>End date: {{dateFormat(date, 'LL')}} - {{dateFormat(date, 'LT')}}</h5></iron-label></div>
+	  <div><paper-button class="btn" on-tap="showDialog" raised>Change end date</paper-button></div><br>
+      <paper-dialog id="dialog" modal on-iron-overlay-closed="dismissDialog">
+		<paper-date-picker id="picker" date="[[date]]" style="height:210px; margin-left:-24px; margin-top: 0px;"></paper-date-picker>
+		<div style="margin-left:-24px;"><paper-time-picker id="picker2" time="{{dateFormat(date, 'LT')}}" style="height:280px;"></paper-time-picker></div><br>
+        <div class="buttons" style="background-color:#3F51B5;">
+          <paper-button dialog-dismiss style="color:#FFF;">Cancel</paper-button>
+          <paper-button dialog-confirm style="color:#FFF;">OK</paper-button>
+        </div>
+      </paper-dialog>
+    </section>
+</template>
+<template is="dom-bind" id="createEntry">
+<paper-button class="btn" on-tap="createEntry" raised>Create Entry</paper-button><br><br><br>
+	<paper-dialog id="dialog" modal>
+		<p>Entry successully created</p>.<br>
+        <div class="buttons">
+          <paper-button dialog-confirm autofocus>OK</paper-button>
+        </div>
+	</paper-dialog>
+</template>
+If you want to create an regular entry provide the additional information:<br>
+<br>
+<h5>Amount of reps:</h5>
+<paper-input type="number" id="occur" label="Number of reps" no-label-float style="width:150px;" value="2"></paper-input><br>
+<h5>Interval:</h5>
+<select class="form-control" id="inval" style="width:200px;">
     <option>Weekly</option>
     <option>Bi-Weekly</option>
     <option>Monthly</option>
     <option>Bi-Monthly</option>
     <option>Quarterly</option>
     <option>Yearly</option>
-  </select>
+  </select><br>
+  <template is="dom-bind" id="createRegular">
+<paper-button class="btn" on-tap="createRegular" raised>Create Regular Entry</paper-button><br><br><br>
+  <paper-dialog id="dialog" modal>
+    <p>Regular entries successully created</p>.<br>
+        <div class="buttons">
+          <paper-button dialog-confirm autofocus>OK</paper-button>
+        </div>
+  </paper-dialog>
+</template>
+</form> 
+</paper-material>
 </div>
-
-<div align="left">
-<div class="container" style="margin-top:10px">
-    <button onclick="interval();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right">Create regular date</span></button>
-    <p id="getExampleOutput"></p>
-</div>
-</div>
-
+<br>
 <div align="center" class="year" style="margin-top:0px">
  <form>
-  <b> Import function: </b>
-  <input type="file" id="myFile">
-  <button type="button" onclick="process()">Upload Entry</button>
+  <b> Import ics file: </b>
+  <file-upload droppable="true" raised="true" multi="false" >Choose File</file-upload>
+  <paper-button class="btn" on-tap="showDialog" raised>Upload Entry</paper-button>
 </form> 
 </div>
+
+
+
 
   <!-- import jQuery for AJAX calls (must) -->
   <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
@@ -204,6 +179,89 @@
   <script type="text/javascript" src="js/jsrsasign/x509-1.1.min.js"></script>
   <script type="text/javascript" src="js/jsrsasign/crypto-1.1.min.js"></script>
 
+  <script>
+  var qd = {};
+location.search.substr(1).split("&").forEach(function(item) {(item.split("=")[0] in qd) ? qd[item.split("=")[0]].push(item.split("=")[1]) : qd[item.split("=")[0]] = [item.split("=")[1]]})
+
+
+    HTMLImports.whenReady(function() {
+      var startDate = Polymer.dom(document).querySelector('#startDate');
+      startDate.dateFormat = function(date, format) {
+        return moment(date).format(format);
+      };
+      startDate.dismissDialog = function(event) {
+        if (event.detail.confirmed) {
+
+          startDate.date = startDate.$.picker.date;
+        var startTime = startDate.$.picker2.time;
+          var m = moment(startDate.date);
+           var tmp = new Date("1/1/2000 " + startTime); 
+          startDate.date = new Date(m.format("ddd MMMM D YYYY") + " " + tmp.getHours() + ":" + tmp.getMinutes()+ ":00");
+        }
+      };
+      startDate.showDialog = function() {
+        this.$.dialog.toggle();
+      };
+	  
+	  var endDate = Polymer.dom(document).querySelector('#endDate');
+      endDate.dateFormat = function(date, format) {
+        return moment(date).format(format);
+      };
+      endDate.dismissDialog = function(event) {
+        if (event.detail.confirmed) {
+           endDate.date = endDate.$.picker.date;
+        var startTime = endDate.$.picker2.time;
+          var m = moment(endDate.date);
+           var tmp = new Date("1/1/2000 " + startTime); 
+          endDate.date = new Date(m.format("ddd MMMM D YYYY") + " " + tmp.getHours() + ":" + tmp.getMinutes()+ ":00");
+        }
+      };
+      endDate.showDialog = function() {
+        this.$.dialog.toggle();
+      };
+	  
+	  //function definied as a resposne to a button to create entries
+	  var createEntry = Polymer.dom(document).querySelector('#createEntry');
+        var s =  document.getElementById("groupID");
+      createEntry.createEntry = function createEntry() {
+			client.create(document.getElementById('title').value, 
+			document.getElementById('description').value,
+                  s.options[s.selectedIndex].value,
+			function(data, type) {
+			  // this is the success callback
+			  //data = JSON.parse(data)
+			  id = data.entry_id;
+			  console.log(data);
+			  //alert(id);
+			  setTimeout(set, 250);
+			  setTimeout(setEnd, 750);
+			  $("#postExampleOutput").html(data);
+			},
+			function(error) {
+			  // this is the error callback
+			  console.log(error);
+			  $("#postExampleOutput").html(error);
+			}
+		  );
+    };
+
+    //function definied as a resposne to a button to create entries
+    var createRegular = Polymer.dom(document).querySelector('#createRegular');
+      createRegular.createRegular = function createRegular() {
+          interval();
+    };
+	  
+      document.addEventListener('WebComponentsReady', function() {
+		var date = new Date();
+            if(qd.year!==undefined) date.setYear(qd.year);
+            if(qd.month!==undefined) date.setMonth(qd.month);
+            if(qd.day!==undefined) date.setDate(qd.day);
+        startDate.date = date;
+        endDate.date = new Date(date.getTime() + 60*60000);
+      });
+    });
+  </script>
+  
   <!-- import OpenID Connect Button -->
   <script type="text/javascript">
 
@@ -221,6 +279,7 @@
     if(result === "success"){
         // after successful sign in, display a welcome string for the user
         $("#status").html("Hello, " + oidc_userinfo.name + "!");
+        showUserInformation();
     } else {
         // if sign in was not successful, log the cause of the error on the console
         console.log(result);
@@ -235,10 +294,12 @@
   <!-- instantiate and use the client library -->
   <script type="text/javascript">
     // create new instance of TemplateServiceClient, given its endpoint URL
-    var client = new TemplateServiceClient("http://localhost:8080/");
-    
+    var client = new TemplateServiceClient("https://steen.informatik.rwth-aachen.de:9080/");
+    setTimeout(getGroups,2000);
     var id = 0;
-
+    function getGroups(){
+      client.getGroups();
+    }
     // function defined as response to a click on the first button (see below)
     function getExample() {
       client.getMethod(
@@ -286,94 +347,86 @@
           }
         );
       }
-    
-    //function definied as a resposne to a button to create entries
-      function createEntry(input) {
-      client.create(document.getElementById('title').value, 
-    		  document.getElementById('description').value,
-    		  document.getElementById('year').value, 
-        function(data,type) {
-          // this is the success callback
-          data = JSON.parse(data)
-          id = data.entry_id;
-          console.log(data);
-          $("#postExampleOutput").html(data);
-        },
-        function(error) {
-          // this is the error callback
-          console.log(error);
-          $("#postExampleOutput").html(error);
-        }
-      );
-    }
-      function set(input) {
-      client.setStart(
-    		  id,
-    		  document.getElementById('year').value, 
-    		  getMonth(document.getElementById('creMon')),
-    		  document.getElementById('day').value,
-    		  document.getElementById('shour').value,
-    		  document.getElementById('sminute').value, 
-    		  
-		        function(data,type) {
-		          // this is the success callback
-		          console.log(data);
-		          $("#postExampleOutput").html(data);
-		        },
-		        function(error) {
-		          // this is the error callback
-		          console.log(error);
-		          $("#postExampleOutput").html(error);
-		        }
-		      );
-      }
+      
+	function set() {
+		client.setStart(
+			id,
+			startDate.date.getFullYear().toString(), 
+			(startDate.date.getMonth()+1)+"",
+			startDate.date.getUTCDate().toString(),
+			startDate.date.getHours().toString(),
+			startDate.date.getMinutes().toString(), 
+
+			function(data,type) {
+				// this is the success callback
+				console.log(data);
+				$("#postExampleOutput").html(data);
+			},
+			function(error) {
+				// this is the error callback
+				console.log(error);
+				$("#postExampleOutput").html(error);
+			}
+		);
+		}
       
       //function defined to set end
-      function setEnd(input) {
-          client.setEnd(
-        		  id,
-        		  document.getElementById('year').value, 
-        		  getMonth(document.getElementById('creMon')),
-        		  document.getElementById('day').value,
-        		  document.getElementById('ehour').value,
-        		  document.getElementById('eminute').value, 
-        		  
-    		        function(data,type) {
-    		          // this is the success callback
-    		          console.log(data);
-    		          $("#postExampleOutput").html(data);
-    		        },
-    		        function(error) {
-    		          // this is the error callback
-    		          console.log(error);
-    		          $("#postExampleOutput").html(error);
-    		        }
-    		      );
-          }
+	function setEnd() {
+		client.setEnd(
+			id,
+			endDate.date.getFullYear().toString(), 
+                  (endDate.date.getMonth()+1)+"",
+                  endDate.date.getUTCDate().toString(),
+                  endDate.date.getHours().toString(),
+                  endDate.date.getMinutes().toString(), 
+
+
+			function(data,type) {
+				// this is the success callback
+				console.log(data);
+				var createEntry = Polymer.dom(document).querySelector('#createEntry');
+				createEntry.$.dialog.toggle();
+				$("#postExampleOutput").html(data);
+			},
+			function(error) {
+				// this is the error callback
+				console.log(error);
+				$("#postExampleOutput").html(error);
+			}
+		);
+	}
       
       //function defined to create entries on a weekly basis
       function interval(input) {
+        var s = document.getElementById("groupID");;
       client.createRegular(
     		  
     		  document.getElementById('title').value, 
     		  document.getElementById('description').value,
-    		  document.getElementById('year').value, 
-    		  getMonth(document.getElementById('creMon')),
-    		  document.getElementById('day').value,
-    		  document.getElementById('shour').value,
-    		  document.getElementById('sminute').value, 
-    		  document.getElementById('ehour').value,
-    		  document.getElementById('eminute').value,
+              s.options[s.selectedIndex].value,
+    		  startDate.date.getFullYear().toString(), 
+    		  startDate.date.getMonth()+1+"", 
+              startDate.date.getUTCDate().toString(), 
+              startDate.date.getHours().toString(), 
+              startDate.date.getMinutes().toString(), 
+    		  endDate.date.getFullYear().toString(), 
+              endDate.date.getMonth()+1+"",
+              endDate.date.getUTCDate().toString(), 
+              endDate.date.getHours().toString(), 
+              endDate.date.getMinutes().toString(), 
     		  getInterval(document.getElementById('inval').value),
     		  document.getElementById('occur').value,
     		     		  
         function(data,type) {
 		          // this is the success callback
 		          console.log(data);
+                      var createRegular = Polymer.dom(document).querySelector('#createRegular');
+                      createRegular.$.dialog.toggle();
 		          $("#postExampleOutput").html(data);
 		},
         function(error) {
           // this is the error callback
+          alert(error);
           console.log(error);
           $("#postExampleOutput").html(error);
         }

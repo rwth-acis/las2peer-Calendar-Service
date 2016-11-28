@@ -42,30 +42,17 @@ function TemplateServiceClient(endpointUrl) {
 	}
 };
 
-function renderDay(data) {
+function decorateMonth(data) {
 	data = JSON.parse(data);
 	var html='<div class="dailyEntries">';
-	$('#comment-list').html("");
-	
+	for(var i = 1; i<32; i++){	
+		$('#button'+i).css('background-color', 'white');
+		$('#button'+i).css('color', 'black');
+	}
+
 	for(var i = 0; i<data.length; i++){
-		var b = i+1;
-		html+='<div id="entry-'+data[i].entry_id+'" class="entry" style="margin-left:80px;margin-top:10px">';
-		html+= "<b>" + b + ". Entry: " + "</b>" + data[i].title + " - " + data[i].description + ". Starts at  " + data[i].shour +
-			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute + ". Created by: " + data[i].creator; 
-		
-		html+= "<button class=\"btn btn-default\" onClick=update('" + data[i].entry_id + "') data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-th-list\"></span> Comments</button>";
-		
-		html+='</div>';
-		
-		//add comments to window
-		for(var j = 0; j<data[i].comments.length; j++){
-		
-			client.getName(data[i].comments[j].creatorId);
-			var comid = data[i].comments[j].uniqueID;
-			$('<div class="list-group-item ach-'+ comid +'"> <strong>'+data[i].comments[j].message +'</strong> created by ' +
-					+ name + 
-		              ' </div>' + "<button class=\"btn btn-default\" onClick=deleteComment('" + comid + "') data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-remove\"></span> Delete</button>").appendTo('#comment-list');
-		}
+		$('#button'+data[i].eday).css('background-color', '#CC071E');
+		$('#button'+data[i].eday).css('color', '#FFF');
 	}
 	
 	
@@ -74,6 +61,47 @@ function renderDay(data) {
 	document.getElementById('daily').innerHTML = html;
 	
 	
+}
+
+function renderDay(data) {
+	data = JSON.parse(data);
+	var html='<div class="dailyEntries">'
+	$('#comment-list').html("");
+	
+	for(var i = 0; i<data.length; i++){
+		var b = i+1;
+		html+='<div id="entry-'+data[i].entry_id+'" class="entry" style="margin-top:10px">';
+		html+= "<b>" + b + ". Entry: " + "</b>" + data[i].title + " - " + data[i].description + ". Starts at  " + data[i].shour +
+			  ":" + data[i].sminute + " and ends at " + data[i].ehour + ":" + data[i].eminute;
+		html+= ". <button class=\"btn btn-default\" style=\"float:right;\" onClick=update('" + data[i].comments + "') data-target=\"#comments\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-th-list\"></span> Comments</button>";
+		
+		html+= "<br><i><div id="+data[i].creator+ data[i].entry_id+ " >" + client.getName(data[i].creator, data[i].entry_id) + "</div></i>"; 
+		
+		
+		html+='</div><br>';
+		
+		//add comments to window
+		
+	}
+	
+	
+	html+= "</div>";
+
+	document.getElementById('daily').innerHTML = html;
+	
+	
+}
+
+function showComment(id){
+	$('#comment-list')[0].innerHTML = ""
+	$("<comment-thread-widget id='comments' login-oidc-provider='https://api.learning-layers.eu/o/oauth2' login-oidc-token='"+window.localStorage["access_token"]+"' thread='"+id+"'></comment-thread-widget>").appendTo('#comment-list');
+}
+
+function showUserInformation(){
+	if(!client.isAnonymous()){
+		$('#user-information')[0].innerHTML = ""
+		$("<las2peer-user-widget login-oidc-provider='https://api.learning-layers.eu/o/oauth2' login-oidc-token='"+window.localStorage["access_token"]+"'></las2peer-user-widget>").appendTo('#user-information');
+	}
 }
 
 
@@ -94,54 +122,96 @@ TemplateServiceClient.prototype.getDay = function(year, month, day, successCallb
 }
 
 /**
- * A function to create an entry on a certain date
+ * A function to retrieve the calendar entries on that given day 
  */
-TemplateServiceClient.prototype.create = function(title, description, year, month, day, successCallback, errorCallback) {
-	this.sendRequest("POST", 
-			"calendar/create/" + title + "/" + description,
+TemplateServiceClient.prototype.getMonth = function(year, month, successCallback, errorCallback) {
+	this.sendRequest("GET", 
+			"calendar/getMonth/" + year + "/" + month,
 			"",
 			"application/json",
 			{},
 			function(data){
-				
-				id = data.entry_id;
-				alert(id);
+				decorateMonth(data);
 			},
+			errorCallback
+	);
+}
+
+/**
+ * A function to create an entry on a certain date
+ */
+TemplateServiceClient.prototype.create = function(title, description, groupid, successCallback, errorCallback) {
+	var content = {};
+	content["title"] = title;
+	content["description"] = description;
+	content['groupID'] = groupid;
+	console.log(content);
+	this.sendRequest("POST", 
+			"calendar/create/",
+			JSON.stringify(content),
+			"application/json",
+			{},
+			successCallback,
 			errorCallback
 	);
 }
 
 TemplateServiceClient.prototype.setStart = function(id, year, month, day, shour, sminute, successCallback, errorCallback) {
+	var content = {};
+	content["year"] = year;
+	content["month"] = month;
+	content["day"] = day;
+	content["hour"] = shour;
+	content["minute"] = sminute;
 	this.sendRequest("put", 
-			"calendar/setStart/" + id + "/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute,
-			"",
+			"calendar/setStart/" + id ,
+			JSON.stringify(content),
 			"application/json",
 			{},
-			function(data){
-			alert(data);
-			},
+			successCallback,
 			errorCallback
 	);
 }
 
 TemplateServiceClient.prototype.setEnd = function(id, year, month, day, ehour, eminute, successCallback, errorCallback) {
+	var content = {};
+	content["year"] = year;
+	content["month"] = month;
+	content["day"] = day;
+	content["hour"] = ehour;
+	content["minute"] = eminute;
 	this.sendRequest("put", 
-			"calendar/setEnd/" + id + "/" + year + "/" + month + "/" + day + "/" + ehour + "/" + eminute,
-			"",
+			"calendar/setEnd/" + id,
+			JSON.stringify(content),
 			"application/json",
 			{},
-			function(data){
-			alert(data);
-			},
+			successCallback,
 			errorCallback
 	);
 }
 
-TemplateServiceClient.prototype.createRegular = function(title, description, year, month, day, shour, sminute, ehour, eminute, interval, number, successCallback, errorCallback) {
+TemplateServiceClient.prototype.createRegular = function(title, description, comments , group, sYear, sMonth, sDay, sHour, sMinute, eYear, eMonth, eDay, eHour, eMinute, interval, number, successCallback, errorCallback) {
+	var content = {};
+	content["title"] = title;
+	content["description"] = description;
+	content["comments"] = comments;
+
+	content["syear"] = sYear;
+	content["smonth"] = sMonth;
+	content["sday"] = sDay;
+	content["shour"] = sHour;
+	content["sminute"] = sMinute;
+	content["eyear"] = eYear;
+	content["emonth"] = eMonth;
+	content["eday"] = eDay;
+	content["ehour"] = eHour;
+	content["eminute"] = eMinute;
+
+	content["interval"] = interval;
+	content["number"] = number;
 	this.sendRequest("post", 
-			"calendar/createRegular/" + year + "/" + month + "/" + day + "/" + shour + "/" + sminute + "/" + ehour + "/" + eminute + "/" +title + "/" 
-			+ description + "/" + interval + "/" + number,
-			"",
+			"calendar/createRegular",
+			JSON.stringify(content),
 			"application/json",
 			{},
 			function(data){
@@ -153,12 +223,12 @@ TemplateServiceClient.prototype.createRegular = function(title, description, yea
 
 TemplateServiceClient.prototype.createComment = function(id, comment, errorCallback){
 	this.sendRequest("post", 
-			"calendar/createComment/" + id + "/" + comment,
-			"",
+			"calendar/createComment/" + id,
+			JSON.stringify(comment),
 			"application/json",
 			{},
 			function(data){
-			alert(data);
+			 //alert(data);
 			},
 			errorCallback
 	);	
@@ -171,7 +241,7 @@ TemplateServiceClient.prototype.deleteComment = function(id, errorCallback){
 			"application/json",
 			{},
 			function(data){
-			alert(data);
+			//alert(data);
 			},
 			errorCallback
 	);	
@@ -179,15 +249,55 @@ TemplateServiceClient.prototype.deleteComment = function(id, errorCallback){
 
 TemplateServiceClient.prototype.getName = function(id){
 	this.sendRequest("get", 
-			"calendar/getName/" + id,
+			"calendar/name/" + id,
 			"",
 			"application/json",
 			{},
 			function(data){
-			name = data;
+			document.getElementById(id).innerHTML = "&emsp;Created by: "+data;
 			},
 			function(){
 				
+			}
+	);	
+}
+
+TemplateServiceClient.prototype.getName = function(id, id2){
+	this.sendRequest("get", 
+			"calendar/name/" + id,
+			"",
+			"application/json",
+			{},
+			function(data){
+			document.getElementById(""+id+id2).innerHTML = "&emsp;Created by: "+data;
+			},
+			function(){
+				
+			}
+	);	
+}
+
+TemplateServiceClient.prototype.getGroups = function(){
+	this.sendRequest("get", 
+			"contactservice/groups",
+			"",
+			"application/json",
+			{},
+			function(data){
+				var select = document.getElementById('groupID');
+				for (var key in data) {
+				    var opt = document.createElement('option');
+					console.log(data[key]);
+				    opt.value = key;
+				    opt.innerHTML = data[key];
+				    select.appendChild(opt);
+				}
+				if (data.length>0){
+					$('#group').val(data[key]);
+				}
+			},
+			function(){
+				console.log("Error");
 			}
 	);	
 }
