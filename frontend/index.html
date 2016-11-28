@@ -258,7 +258,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var today = new Date();
     var year = today.getFullYear();
     var month = today.getMonth();
-    showCalender(year,month);
+    showCalender(year,month+1);
     document.getElementById("iyear").value = year;
     document.getElementById('sel1').value= monthNames[month];
 
@@ -414,7 +414,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function showMonthEvents(){
       var month = document.getElementById('sel1').options.selectedIndex;
       selected_year = document.getElementById("iyear").value;
-      showCalender(selected_year,month);
+      showCalender(selected_year,month+1);
       selected_month = month;
       month++;
       getMonth(month);
