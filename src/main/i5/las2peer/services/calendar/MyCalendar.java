@@ -61,20 +61,6 @@ import net.minidev.json.parser.JSONParser;
  * 
  */
 @ServicePath("/calendar")
-@Api
-@SwaggerDefinition(
-		info = @Info(
-				title = "LAS2peer Calendar Service",
-				version = "0.1",
-				description = "A LAS2peer Calendar Service.",
-				termsOfService = "http://your-terms-of-service-url.com",
-				contact = @Contact(
-						name = "Melvin Bender",
-						url = "dbis.rwth-aachen.de",
-						email = "bender@dbis.rwth-aachen.de"),
-				license = @License(
-						name = "your software license name",
-						url = "http://your-software-license-url.com")))
 public class MyCalendar extends RESTService {
 
 	// instantiate the logger class
@@ -152,6 +138,21 @@ public class MyCalendar extends RESTService {
 	// Service methods.
 	// //////////////////////////////////////////////////////////////////////////////////////
 	@Path("/") // this is the root resource
+	@Api(
+			value = "Calendar Resource")
+	@SwaggerDefinition(
+			info = @Info(
+					title = "las2peer Calendar Service",
+					version = "0.1",
+					description = "A las2peer Calendar Service.",
+					termsOfService = "",
+					contact = @Contact(
+							name = "Melvin Bender",
+							url = "dbis.rwth-aachen.de",
+							email = "bender@dbis.rwth-aachen.de"),
+					license = @License(
+							name = "ACIS License (BSD3)",
+							url = "https://raw.githubusercontent.com/rwth-acis/las2peer-Calendar-Service/master/LICENSE")))
 	public static class Resource {
 		private MyCalendar service = (MyCalendar) Context.getCurrent().getService();
 		private final String STORAGE_NAME = "entrystorage";
@@ -163,7 +164,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "Entry"),
+						message = "Entry created"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_BAD_REQUEST,
 								message = "Bad Request"), })
@@ -254,7 +255,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "Entry"),
+						message = "Received entry"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_NOT_FOUND,
 								message = "Entry not found"),
@@ -298,7 +299,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "Entry"),
+						message = "Entry deleted"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_FORBIDDEN,
 								message = "Deletion forbidden"),
@@ -420,7 +421,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "start date set"),
+						message = "Start date set"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_BAD_REQUEST,
 								message = "Bad Request"),
@@ -490,7 +491,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "end date set"),
+						message = "End date set"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_BAD_REQUEST,
 								message = "Bad Request"),
@@ -564,7 +565,7 @@ public class MyCalendar extends RESTService {
 								message = "Bad Request"), })
 		@ApiOperation(
 				value = "getDay",
-				notes = "get all entries of a day")
+				notes = "Get all entries of a day")
 		public Response getDay(@PathParam("year") String year, @PathParam("month") String month,
 				@PathParam("day") String day) {
 
@@ -650,7 +651,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "Entry number"),
+						message = "Entries"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_BAD_REQUEST,
 								message = "Bad Request"), })
@@ -759,7 +760,7 @@ public class MyCalendar extends RESTService {
 		@ApiResponses(
 				value = { @ApiResponse(
 						code = HttpURLConnection.HTTP_OK,
-						message = "Entries created"),
+						message = "Regular entries created"),
 						@ApiResponse(
 								code = HttpURLConnection.HTTP_BAD_REQUEST,
 								message = "Bad Request"), })
