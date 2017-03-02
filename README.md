@@ -1,4 +1,4 @@
-![las2peer](https://github.com/rwth-acis/las2peer/blob/master/img/logo/bitmap/las2peer-logo-128x128.png)
+![las2peer](https://rwth-acis.github.io/las2peer/logo/vector/las2peer-logo.svg)
 
 las2peer-Calendar-Service  [![Build Status](https://travis-ci.org/rwth-acis/las2peer-Calendar-Service.svg?branch=master)](https://travis-ci.org/rwth-acis/las2peer-Calendar-Service)
 =======================
