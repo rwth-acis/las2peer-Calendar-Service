@@ -3,7 +3,7 @@ package i5.las2peer.services.calendar;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import i5.las2peer.persistency.XmlAble;
+import i5.las2peer.serialization.XmlAble;
 import i5.las2peer.services.calendar.database.Serialization;
 import i5.las2peer.services.calendar.security.IdGeneration;
 import net.minidev.json.JSONObject;
@@ -20,7 +20,7 @@ public class Entry implements XmlAble {
 	/** unique String id to identify this entry **/
 	private String uniqueID;
 	/** agent id of the agent who created the entry **/
-	private final long creatorId;
+	private final String creatorId;
 	/** start date of the calendar entry **/
 	private Calendar start;
 	/** end date of the calendar entry **/
@@ -87,7 +87,7 @@ public class Entry implements XmlAble {
 	 * 
 	 */
 
-	public Entry(long idCreatedBy, String title, String description, String commentID) {
+	public Entry(String idCreatedBy, String title, String description, String commentID) {
 		this.uniqueID = IdGeneration.createID();
 		this.creatorId = idCreatedBy;
 		this.commentID = commentID;
@@ -95,7 +95,7 @@ public class Entry implements XmlAble {
 		this.description = description;
 	}
 
-	public Entry(String uniqueID, long idCreatedBy, String title, String description, String commentID) {
+	public Entry(String uniqueID, String idCreatedBy, String title, String description, String commentID) {
 		this.uniqueID = uniqueID;
 		this.creatorId = idCreatedBy;
 		this.commentID = commentID;
@@ -112,7 +112,7 @@ public class Entry implements XmlAble {
 	 * 
 	 * @return the user agent id
 	 */
-	public long getCreatorId() {
+	public String getCreatorId() {
 		return creatorId;
 	}
 
@@ -238,9 +238,8 @@ public class Entry implements XmlAble {
 			JSONObject params = (JSONObject) parser.parse(json);
 			String comment = (String) params.get("comments");
 
-			Entry res = new Entry((String) params.get("entry_id"),
-					(long) Long.parseLong((String) params.get("creator")), (String) params.get("title"),
-					(String) params.get("description"), comment);
+			Entry res = new Entry((String) params.get("entry_id"), (String) params.get("creator"),
+					(String) params.get("title"), (String) params.get("description"), comment);
 
 			try {
 

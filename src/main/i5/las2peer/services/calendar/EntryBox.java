@@ -3,9 +3,6 @@ package i5.las2peer.services.calendar;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import i5.las2peer.logging.L2pLogger;
-import i5.las2peer.logging.NodeObserver.Event;
-
 public class EntryBox implements Serializable {
 
 	private static final long serialVersionUID = -300617519857096303L;
@@ -42,11 +39,8 @@ public class EntryBox implements Serializable {
 					return Entry.readJSON(anEntry);
 				}
 			}
-
-			L2pLogger.logEvent(this, Event.SERVICE_ERROR, "could not find entry");
 			return null;
 		} catch (Exception e) {
-			L2pLogger.logEvent(this, Event.SERVICE_ERROR, "can't parse massage from XML " + e.toString());
 			return null;
 		}
 	}
@@ -63,7 +57,6 @@ public class EntryBox implements Serializable {
 				Entry newEntry = Entry.readJSON(json);
 				result.add(newEntry);
 			} catch (Exception e) {
-				L2pLogger.logEvent(this, Event.SERVICE_ERROR, "can't parse massage from JSON '" + json);
 			}
 		}
 
@@ -88,8 +81,6 @@ public class EntryBox implements Serializable {
 				return true;
 			}
 		}
-
-		L2pLogger.logEvent(this, Event.SERVICE_ERROR, "id wasn't found'");
 		return false;
 	}
 
