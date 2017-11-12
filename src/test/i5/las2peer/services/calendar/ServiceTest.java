@@ -26,7 +26,6 @@ import i5.las2peer.testing.TestSuite;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
-@SuppressWarnings("unused")
 public class ServiceTest {
 
 	private static final String HTTP_ADDRESS = "http://127.0.0.1";
@@ -38,10 +37,8 @@ public class ServiceTest {
 	private static ByteArrayOutputStream logStream;
 
 	private static UserAgentImpl testAgent;
-	private static UserAgentImpl secondAgent;
 	private static ServiceAgentImpl testService;
 	private static final String testPass = "adamspass";
-	private static final String secondPass = "evespass";
 
 	private static final String mainPath = "calendar/";
 
