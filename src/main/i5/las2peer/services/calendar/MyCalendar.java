@@ -154,6 +154,7 @@ public class MyCalendar extends RESTService {
 	public static class Resource {
 		private MyCalendar service = (MyCalendar) Context.getCurrent().getService();
 		private final String STORAGE_NAME = "entrystorage";
+		private static String tcs = "i5.las2peer.services.threadedCommentService.ThreadedCommentService@0.2";
 		// put here all your service methods
 
 		@POST
@@ -188,10 +189,8 @@ public class MyCalendar extends RESTService {
 
 				try {
 					// RMI call without parameters
-					Object result = Context.getCurrent().invoke(
-							"i5.las2peer.services.threadedCommentService.ThreadedCommentService@0.1",
-							"createCommentThread", new Serializable[] {
-									Context.getCurrent().getMainAgent().getIdentifier(), groupID, groupID });
+					Object result = Context.getCurrent().invoke(tcs, "createCommentThread", new Serializable[] {
+							Context.getCurrent().getMainAgent().getIdentifier(), groupID, groupID });
 					if (result != null) {
 						threadID = (String) result;
 					} else {

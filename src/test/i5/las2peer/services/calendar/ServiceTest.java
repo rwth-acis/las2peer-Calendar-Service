@@ -118,7 +118,7 @@ public class ServiceTest {
 	@Test
 	public void intervallTest() {
 		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		c.setConnectorEndpoint(connector.getHttpEndpoint());
 
 		try {
 
@@ -151,7 +151,7 @@ public class ServiceTest {
 	@Test
 	public void dateTEST() {
 		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		c.setConnectorEndpoint(connector.getHttpEndpoint());
 
 		try {
 
@@ -184,7 +184,7 @@ public class ServiceTest {
 	@Test
 	public void nameTest() {
 		MiniClient c = new MiniClient();
-		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		c.setConnectorEndpoint(connector.getHttpEndpoint());
 
 		try {
 
