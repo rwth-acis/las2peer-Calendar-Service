@@ -78,7 +78,7 @@ public class ServiceTest {
 		// start node
 		node.storeAgent(adam);
 		testService = ServiceAgentImpl.createServiceAgent(
-				ServiceNameVersion.fromString("i5.las2peer.services.calendar.MyCalendar@0.2"), "someNewPass");
+				ServiceNameVersion.fromString("i5.las2peer.services.calendar.MyCalendar@0.2.0"), "someNewPass");
 		testService.unlock("someNewPass");
 
 		node.registerReceiver(testService);

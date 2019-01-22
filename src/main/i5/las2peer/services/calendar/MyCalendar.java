@@ -154,7 +154,7 @@ public class MyCalendar extends RESTService {
 	public static class Resource {
 		private MyCalendar service = (MyCalendar) Context.getCurrent().getService();
 		private final String STORAGE_NAME = "entrystorage";
-		private static String tcs = "i5.las2peer.services.threadedCommentService.ThreadedCommentService@0.2";
+		private static String tcs = "i5.las2peer.services.threadedCommentService.ThreadedCommentService@0.2.0";
 		// put here all your service methods
 
 		@POST
