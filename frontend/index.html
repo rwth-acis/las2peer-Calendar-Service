@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en"> 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!--
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!--
 Copyright (c) 2014 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
 All rights reserved.
@@ -35,50 +34,48 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>las2peer Calendar Service</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>las2peer Calendar Service</title>
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
   <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
   <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js">
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js">
     </script>
-    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <link rel="import" href="../bower_components/polymer/polymer.html">
-    <link rel="import" href="../bower_components/paper-button/paper-button.html">
-    <link rel="import" href="../bower_components/paper-input/paper-input.html">
-    <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
-    <link rel="import" href="../bower_components/paper-material/paper-material.html">
-    <link rel="import" href="../bower_components/las2peer-comment-thread-widget/comment-thread-widget.html">
-    <link rel="import" href="../bower_components/las2peer-frontend-user-widget/las2peer-frontend-user-widget.html">
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script type="module" src="../node_modules/@polymer/polymer/polymer-legacy.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-button/paper-button.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-input/paper-input.js"></script>
+  <script type="module" src="../node_modules/las2peer-frontend-statusbar/las2peer-frontend-statusbar.js"></script>
+<!--  <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+  <link rel="import" href="../bower_components/paper-material/paper-material.html">
+  <link rel="import" href="comment-thread-widget.html"> -->
 </head>
-
 <body>
 
-    <!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="index.html">Calendar Service</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="#" onclick="createEntry();">Entry Creation</a>
-                    </li>
-                </ul>
-                <!-- OpenID Connect Button: add HTML element representing button -->
-
-                <span class="navbar-right"> <div id="user-information" style="width:76px;height:55px"><las2peer-frontend-user-widget></las2peer-frontend-user-widget></div></span>
-                <span id="signinButton">
+  <!-- Fixed navbar -->
+  <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">Calendar Service</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#" onclick="createEntry();">Entry Creation</a></li>
+        </ul>
+        <!-- OpenID Connect Button: add HTML element representing button -->
+        <las2peer-frontend-statusbar displaywidth="75%" service="Calendar-Service" baseurl="https://las2peer.dbis.rwth-aachen.de:9098" oidcreturnurl="http://las2peer.dbis.rwth-aachen.de/node_modules/las2peer-frontend-statusbar/callbacks" oidcclientid="2022a312-913f-407a-bad1-7061f358d7f4"></las2peer-frontend-statusbar>
+<!--        <span class="navbar-right"> <div id="user-information" style="width:76px;height:55px"><las2peer-frontend-user-widget></las2peer-frontend-user-widget></div></span>
+        <span id="signinButton">
           <span class="oidc-signin navbar-btn navbar-right btn-default"
                 data-callback="signinCallback"
                 data-name="OpenID Connect"
@@ -86,358 +83,355 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 data-size="sm"
                 data-server="https://api.learning-layers.eu/o/oauth2"
                 data-clientid="2022a312-913f-407a-bad1-7061f358d7f4"
-                data-scope="openid email profile"> <!--  8faf3dc2-fe60-4b77-8e34-7bd34496f3ca-->
-          </span>
-                </span>
-            </div>
-            <!--/.nav-collapse -->
-        </div>
+                data-scope="openid email profile"> --> <!--  8faf3dc2-fe60-4b77-8e34-7bd34496f3ca-->
+<!--          </span>
+        </span> -->
+      </div><!--/.nav-collapse -->
     </div>
+  </div>
 
 
 
-    <!-- Container for actual page content -->
+  <!-- Container for actual page content -->
+  
+<div class="container" style="margin-top:20px;">
+<paper-card elevation="3" style="display:block;width:700px;margin-left: auto; margin-right: auto; margin-top:70px">
+<div style="margin:25px;">
+<br>
+<div class="year">
+ <form>
+  Year:<br>
+  <paper-input type="number" label="Number of reps" no-label-float style="width:150px;" onchange="showMonthEvents();" id="iyear">14</paper-input>
+  <br>
+</form> 
+</div>
 
-    <div class="container" style="margin-top:20px;">
-        <paper-material elevation="3" style="width:700px;margin-left: auto; margin-right: auto;">
-            <div style="margin:25px;">
-                <br>
-                <div class="year">
-                    <form>
-                        Year:
-                        <br>
-                        <paper-input type="number" label="Number of reps" no-label-float style="width:150px;" onchange="showMonthEvents();" id="iyear">14</paper-input>
-                        <br>
-                    </form>
-                </div>
+  <label for="month">Select month:</label>
+  <select class="form-control" id="sel1" onchange="showMonthEvents();">
+    <option>January</option>
+    <option>February</option>
+    <option>March</option>
+    <option>April</option>
+    <option>May</option>
+    <option>June</option>
+    <option>July</option>
+    <option>August</option>
+    <option>September</option>
+    <option>October</option>
+    <option>November</option>
+    <option>December</option>
+  </select>
 
-                <label for="month">Select month:</label>
-                <select class="form-control" id="sel1" onchange="showMonthEvents();">
-                    <option>January</option>
-                    <option>February</option>
-                    <option>March</option>
-                    <option>April</option>
-                    <option>May</option>
-                    <option>June</option>
-                    <option>July</option>
-                    <option>August</option>
-                    <option>September</option>
-                    <option>October</option>
-                    <option>November</option>
-                    <option>December</option>
-                </select>
-
-                <div class="modal fade" id="comments" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <form onsubmit="return addComment(this);">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <h4 class="modal-title" id="myModalLabel">Comments</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="list-group" id="comment-list">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+<div class="modal fade" id="comments" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <form onsubmit="return addComment(this);">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Comments</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div  class="list-group" id="comment-list">
                     </div>
-                </div>
-                <br>
-                <TABLE BORDER=3 CELLSPACING=3 CELLPADDING=3>
-                    <TR>
-                        <TD COLSPAN="7" ALIGN=center>
-                            <B>las2peer Calendar</B>
-                        </TD>
-                    </TR>
+                  </div>
+           </form>
+         </div>
+       </div>
+</div>
+<br>
+<TABLE BORDER=3 CELLSPACING=3 CELLPADDING=3>
+<TR>
+<TD COLSPAN="7" ALIGN=center><B>las2peer Calendar</B></TD>
+</TR>
 
-                    <TR>
-                        <TD COLSPAN="7" ALIGN=center>
-                            <I><div id='dailymessage' style="width:233px;"></div></I>
-                        </TD>
-                    </TR>
+<TR>
+<TD COLSPAN="7" ALIGN=center><I><div id='dailymessage' style="width:233px;"></div></I></TD>
+</TR>
 
-                    <TR>
-                        <td align="center">Mon</td>
-                        <td align="center">Tue</td>
-                        <td align="center">Wed</td>
-                        <td align="center">Thu</td>
-                        <td align="center">Fri</td>
-                        <td align="center">Sat</td>
-                        <td align="center">Sun</td>
-                    </TR>
-                    <tbody id="calendercontent">
+<TR>
+<td align="center">Mon</td>
+<td align="center">Tue</td>
+<td align="center">Wed</td>
+<td align="center">Thu</td>
+<td align="center">Fri</td>
+<td align="center">Sat</td>
+<td align="center">Sun</td>
+</TR>
+<tbody id="calendercontent">
 
-                    </tbody>
+</tbody>
 
-                </TABLE>
-                <br>
+</TABLE> 
+<br>
 
-                <div id="daily">
+<div id = "daily">
+ 
+</div> 
+</div>
+<br>
+</paper-card>
+</div>
 
-                </div>
-            </div>
-            <br>
-        </paper-material>
-    </div>
+  <!-- import jQuery for AJAX calls (must) -->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 
-    <!-- import jQuery for AJAX calls (must) -->
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <!-- import Bootstrap for responsive UI (must) -->
+  <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
-    <!-- import Bootstrap for responsive UI (must) -->
-    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+  <!-- import JWS and JSRSASIGN (must) -->
+  <script type="text/javascript" src="js/jws-2.0.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/ext/base64-min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/base64x-1.1.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/ext/jsbn-min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/ext/jsbn2-min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/asn1hex-1.1.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/crypto-1.1.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/ext/rsa-min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/ext/rsa2-min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/rsapem-1.1.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/rsasign-1.2.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/x509-1.1.min.js"></script>
+  <script type="text/javascript" src="js/jsrsasign/crypto-1.1.min.js"></script>
+  
+  
+<!--  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/iron-label/iron-label.html">
+  <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+  <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+  <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+  
+  <link rel="import" href="../bower_components/paper-styles/demo-pages.html">
+  <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+  <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+  <link rel="import" href="../bower_components/file-upload/file-upload.html"> -->
 
-    <!-- import JWS and JSRSASIGN (must) -->
-    <script type="text/javascript" src="js/jws-2.0.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/ext/base64-min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/base64x-1.1.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/ext/jsbn-min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/ext/jsbn2-min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/asn1hex-1.1.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/crypto-1.1.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/ext/rsa-min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/ext/rsa2-min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/rsapem-1.1.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/rsasign-1.2.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/x509-1.1.min.js"></script>
-    <script type="text/javascript" src="js/jsrsasign/crypto-1.1.min.js"></script>
+  <!-- import OpenID Connect Button -->
+  <script type="text/javascript">
+  var selected_year;
+  var selected_month;
+  var selected_day;
+
+  function createEntry(){
+    window.location = "http://las2peer.dbis.rwth-aachen.de/calendar-service/creation.html?year="+selected_year+ "&month="+(selected_month-1)+"&day="+selected_day;
+  }
 
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../bower_components/polymer/polymer.html">
-    <link rel="import" href="../bower_components/paper-button/paper-button.html">
-    <link rel="import" href="../bower_components/paper-input/paper-input.html">
-    <link rel="import" href="../bower_components/iron-label/iron-label.html">
-    <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
-    <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
-    <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+    (function() {
+      var po = document.createElement('script');
+      po.type = 'text/javascript';
+      po.async = true;
+      po.src = 'js/oidc-button.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(po, s);
+    })();
 
-    <link rel="import" href="../bower_components/paper-styles/demo-pages.html">
-    <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-    <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
-    <link rel="import" href="../bower_components/file-upload/file-upload.html">
+    // OpenID Connect Button: implement a callback function
+    function signinCallback(result) {
+      if(result === "success"){
+        // authenticated
 
-    <!-- import OpenID Connect Button -->
-    <script type="text/javascript">
-        var selected_year;
-        var selected_month;
-        var selected_day;
+        // OpenID Connect user info
+        console.log(oidc_userinfo);
+		//alert(oidc_userinfo.name);
+        showUserInformation();
+        showMonthEvents();
+        showToday();
+       
+      } else {
+        // anonymous
+    	// OpenID Connect user info
+          console.log(oidc_userinfo);
+      }
+    }
 
-        function createEntry() {
-            window.location = "http://dbis.rwth-aachen.de/las2peer/calendar-service/creation.html?year=" + selected_year + "&month=" + (selected_month - 1) + "&day=" + selected_day;
+  </script>
+
+  <!-- import client library for service -->
+  <script type="text/javascript" src="js/client.js"></script>
+  <script type="text/javascript" src="data/fortune.json"></script>
+  <!-- instantiate and use the client library -->
+  <script type="text/javascript">
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = today.getMonth();
+    showCalender(year,month);
+    document.getElementById("iyear").value = year;
+    document.getElementById('sel1').value= monthNames[month];
+
+
+
+    // create new instance of TemplateServiceClient, given its endpoint URL
+    var client = new TemplateServiceClient("https://las2peer.dbis.rwth-aachen.de:9098/");
+    var local = 0;
+    var name;
+
+    function showCalender(year,month){
+      var numberOfDays = daysInMonth(month,year);
+      var startDay = startWeekDay(month,year);
+      var i =0;
+      var j = 0;
+      $("#calendercontent").empty();
+      while(j<startDay){
+        if(j==0){
+          $("#calendercontent").append("<tr>");
         }
-
-
-        (function() {
-            var po = document.createElement('script');
-            po.type = 'text/javascript';
-            po.async = true;
-            po.src = 'js/oidc-button.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(po, s);
-        })();
-
-        // OpenID Connect Button: implement a callback function
-        function signinCallback(result) {
-            if (result === "success") {
-                // authenticated
-
-                // OpenID Connect user info
-                console.log(oidc_userinfo);
-                //alert(oidc_userinfo.name);
-                showUserInformation();
-                showMonthEvents();
-                showToday();
-
-            } else {
-                // anonymous
-                // OpenID Connect user info
-                console.log(oidc_userinfo);
-            }
+        $("#calendercontent").append("<td align=center></td>");
+        if(j==6){
+          $("#calendercontent").append("</tr>");
         }
-    </script>
-
-    <!-- import client library for service -->
-    <script type="text/javascript" src="js/client.js"></script>
-    <script type="text/javascript" src="data/fortune.json"></script>
-    <!-- instantiate and use the client library -->
-    <script type="text/javascript">
-        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        var today = new Date();
-        var year = today.getFullYear();
-        var month = today.getMonth();
-        showCalender(year, month);
-        document.getElementById("iyear").value = year;
-        document.getElementById('sel1').value = monthNames[month];
-
-
-
-        // create new instance of TemplateServiceClient, given its endpoint URL
-        var client = new TemplateServiceClient("https://steen.informatik.rwth-aachen.de:9080/");
-        var local = 0;
-        var name;
-
-        function showCalender(year, month) {
-            var numberOfDays = daysInMonth(month, year);
-            var startDay = startWeekDay(month, year);
-            var i = 0;
-            var j = 0;
-            $("#calendercontent").empty();
-            while (j < startDay) {
-                if (j == 0) {
-                    $("#calendercontent").append("<tr>");
-                }
-                $("#calendercontent").append("<td align=center></td>");
-                if (j == 6) {
-                    $("#calendercontent").append("</tr>");
-                }
-                j++;
-            }
-            while (i < numberOfDays) {
-                if (j == 0) {
-                    $("#calendercontent").append("<tr>");
-                }
-                $("#calendercontent").append('<td align=center><button  id="button' + (i + 1) + '" onclick="getDay(' + (i + 1) + ');" style="width:100%;">' + (i + 1) + '</button></td>');
-                if (j == 6) {
-                    $("#calendercontent").append("</tr>");
-                }
-                j = (j + 1) % 7;
-                i++;
-            }
-            if (j == 0) return;
-            while (j < 7) {
-                $("#calendercontent").append("<td align=center></td>");
-                j++;
-            }
-            $("#calendercontent").append("</tr>");
+        j++;
+      }
+      while( i<numberOfDays){
+        if(j==0){
+          $("#calendercontent").append("<tr>");
         }
-
-        function daysInMonth(month, year) {
-            return new Date(year, month + 1, 0).getDate();
+        $("#calendercontent").append('<td align=center><button  id="button'+(i+1)+'" onclick="getDay('+(i+1)+');" style="width:100%;">'+(i+1)+'</button></td>');
+        if(j==6){
+          $("#calendercontent").append("</tr>");
         }
+        j= (j+1)%7;
+        i++;
+      }
+      if(j==0) return;
+      while(j<7){
+        $("#calendercontent").append("<td align=center></td>");
+        j++;
+      }
+      $("#calendercontent").append("</tr>");
+    }
 
-        function startWeekDay(month, year) {
-            // Normally the week starts with sunday, but we start with monday.
-            return (new Date(year, month, 1).getDay() + 6) % 7;
+    function daysInMonth(month,year) {
+      return new Date(year, month+1, 0).getDate();
+    }
+
+    function startWeekDay(month,year){
+      return (new Date(year, month, 1).getDay()+6)%7;
+    }
+
+    // function defined as response to a click on the first button (see below)
+    function getExample() {
+      client.getMethod(
+        function(data,type) {
+          // this is the success callback
+          console.log(data);
+          $("#getExampleOutput").html(data);
+        },
+        function(error) {
+          // this is the error callback
+          console.log(error);
+          $("#getExampleOutput").html(error);
         }
+      );
+    }
 
-        // function defined as response to a click on the first button (see below)
-        function getExample() {
-            client.getMethod(
-                function(data, type) {
-                    // this is the success callback
-                    console.log(data);
-                    $("#getExampleOutput").html(data);
-                },
-                function(error) {
-                    // this is the error callback
-                    console.log(error);
-                    $("#getExampleOutput").html(error);
-                }
-            );
+    // function defined as response to a click on the second button (see below)
+    function postExample(input) {
+      client.postMethod(input,
+        function(data,type) {
+          // this is the success callback
+          console.log(data);
+          $("#postExampleOutput").html(data);
+        },
+        function(error) {
+          // this is the error callback
+          console.log(error);
+          $("#postExampleOutput").html(error);
         }
+      );
+    }
+    
+    //function defined as a response to a click on a day in the calendar
+    function getDay(day) {
+    	var year = document.getElementById('iyear').value;
+    	var month = document.getElementById('sel1').options.selectedIndex+1;
 
-        // function defined as response to a click on the second button (see below)
-        function postExample(input) {
-            client.postMethod(input,
-                function(data, type) {
-                    // this is the success callback
-                    console.log(data);
-                    $("#postExampleOutput").html(data);
-                },
-                function(error) {
-                    // this is the error callback
-                    console.log(error);
-                    $("#postExampleOutput").html(error);
-                }
-            );
-        }
+        $( "#dailymessage" ).empty();
+        var myFortunes = JSON.parse(fortunes);
+        $( "#dailymessage" ).append( myFortunes[day]);
 
-        //function defined as a response to a click on a day in the calendar
-        function getDay(day) {
-            var year = document.getElementById('iyear').value;
-            var month = document.getElementById('sel1').options.selectedIndex + 1;
+      selected_year = year;
+      selected_month = month;
+      selected_day = day;
+      console.log(selected_year);
+      console.log(selected_month);
+      console.log(selected_day);
+    	client.getDay(year, month, day,
+    	function(data,type) {
+          // this is the success callback
+          console.log(data);
+          $("#postExampleOutput").html(data);
+         },
+         function(error) {
+           // this is the error callback
+           console.log(error);
+           $("#postExampleOutput").html(error);
+          }
+        );
+      }
 
-            $("#dailymessage").empty();
-            var myFortunes = JSON.parse(fortunes);
-            $("#dailymessage").append(myFortunes[day]);
+      function getMonth(month) {
+      var year = document.getElementById('iyear').value;
+      client.getMonth(year, month,
+      function(data,type) {
+          // this is the success callback
+          console.log(data);
+          $("#postExampleOutput").html(data);
+         },
+         function(error) {
+           // this is the error callback
+           console.log(error);
+           $("#postExampleOutput").html(error);
+          }
+        );
+      }
+    
+    //function to add comments inside the calendar
+    function addComment(mycomment){
+    	var newcomment = mycomment;
+  
+    	client.createComment(local, newcomment, 
+    			function(error) {
+    		//this is the error callback
+    		console.log(error);
+    		$("#postExampleOutput").html(error);
+    	});
+    }
+    
+    function deleteComment(id){
+    	client.deleteComment(id, 
+    			function(error){
+    		//this is the error callback
+    		console.log(error);
+    	});
+    }
+    
+    function update(id){
+    	local = id;
+      showComment(id);
+    }
 
-            selected_year = year;
-            selected_month = month;
-            selected_day = day;
-            client.getDay(year, month, day,
-                function(data, type) {
-                    // this is the success callback
-                    console.log(data);
-                    $("#postExampleOutput").html(data);
-                },
-                function(error) {
-                    // this is the error callback
-                    console.log(error);
-                    $("#postExampleOutput").html(error);
-                }
-            );
-        }
+    function showMonthEvents(){
+      var month = document.getElementById('sel1').options.selectedIndex;
+      selected_year = document.getElementById("iyear").value;
+      showCalender(selected_year,month);
+      selected_month = month;
+      month++;
+      getMonth(month);
+    }
+    
+    function showToday(){
+      var date = new Date();
+      getDay(date.getUTCDate());
+    }
+  
 
-        function getMonth(month) {
-            var year = document.getElementById('iyear').value;
-            client.getMonth(year, month,
-                function(data, type) {
-                    // this is the success callback
-                    console.log(data);
-                    $("#postExampleOutput").html(data);
-                },
-                function(error) {
-                    // this is the error callback
-                    console.log(error);
-                    $("#postExampleOutput").html(error);
-                }
-            );
-        }
-
-        //function to add comments inside the calendar
-        function addComment(mycomment) {
-            var newcomment = mycomment;
-
-            client.createComment(local, newcomment,
-                function(error) {
-                    //this is the error callback
-                    console.log(error);
-                    $("#postExampleOutput").html(error);
-                });
-        }
-
-        function deleteComment(id) {
-            client.deleteComment(id,
-                function(error) {
-                    //this is the error callback
-                    console.log(error);
-                });
-        }
-
-        function update(id) {
-            local = id;
-            showComment(id);
-        }
-
-        function showMonthEvents() {
-            var month = document.getElementById('sel1').options.selectedIndex;
-            selected_year = document.getElementById("iyear").value;
-            showCalender(selected_year, month);
-            selected_month = month;
-            month++;
-            getMonth(month);
-        }
-
-        function showToday() {
-            var date = new Date();
-            getDay(date.getUTCDate());
-        }
-    </script>
+  </script>
 
 
 
 </body>
-
 </html>

@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -14,21 +14,27 @@
   <![endif]-->
 
   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../bower_components/polymer/polymer.html">
-  <link rel="import" href="../bower_components/paper-button/paper-button.html">
-  <link rel="import" href="../bower_components/paper-input/paper-input.html">
-  <link rel="import" href="../bower_components/iron-label/iron-label.html">
-  <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
-  <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
-  <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+  <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2.0.0/webcomponents-loader.js"></script>
+  <script type="module" src="../node_modules/@polymer/polymer/polymer-legacy.js"></script>
+  <script type="module" src="../node_modules/las2peer-frontend-statusbar/las2peer-frontend-statusbar.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-button/paper-button.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-input/paper-input.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-input/paper-textarea.js"></script>
+  <!-- <link rel="import" href="../bower_components/paper-date-picker/paper-date-picker.html">
+  <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html"> -->
   
-  <link rel="import" href="../bower_components/paper-styles/demo-pages.html">
-  <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-  <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
-  <link rel="import" href="../bower_components/file-upload/file-upload.html">
-  <link rel="import" href="../bower_components/paper-material/paper-material.html">
-  <link rel="import" href="../bower_components/las2peer-frontend-user-widget/las2peer-frontend-user-widget.html">
+  <script type="module" src="../node_modules/@polymer/paper-dialog/paper-dialog.js"></script>
+  <script type="module" src="../node_modules/@vaadin/vaadin-time-picker/vaadin-time-picker.js"></script>
+  <script type="module" src="../node_modules/@vaadin/vaadin-date-picker/vaadin-date-picker.js"></script>
+  <script type="module" src="../node_modules/@polymer/paper-dialog-scrollable/paper-dialog-scrollable.js"></script>
+  <!-- <link type="module" src="../node_modules/file-upload/file-upload.html">
+  <link rel="import" href="../bower_components/paper-material/paper-material.html"> -->
+  <style>
+    #user-information{
+        margin-top:12px;
+        margin-left:10px;
+    }
+  </style>
 </head>
 <body>
 
@@ -49,8 +55,10 @@
           <li><a href="creation.html">Entry Creation</a></li>
         </ul>
         <!-- OpenID Connect Button: add HTML element representing button -->
-        <span class="navbar-right"> <div id="user-information" style="width:76px;height:55px"><las2peer-user-widget></las2peer-user-widget></div></span>
-        <span id="signinButton">
+        <span class="navbar-right"> <div id="user-information" ></div></span>
+    <las2peer-frontend-statusbar displaywidth="75%" service="Calendar-Service" baseurl="https://las2peer.dbis.rwth-aachen.de:9098" oidcreturnurl="http://las2peer.dbis.rwth-aachen.de/node_modules/las2peer-frontend-statusbar/callbacks" oidcclientid="2022a312-913f-407a-bad1-7061f358d7f4"></las2peer-frontend-statusbar>
+
+<!--        <span id="signinButton">
           <span class="oidc-signin navbar-btn navbar-right btn-default"
                 data-callback="signinCallback"
                 data-name="OpenID Connect"
@@ -60,7 +68,7 @@
                 data-clientid="2022a312-913f-407a-bad1-7061f358d7f4"
                 data-scope="openid email profile">
           </span>
-        </span>
+        </span> -->
       </div><!--/.nav-collapse -->
     </div>
   </div>
@@ -70,7 +78,7 @@
   <!-- Container for actual page content -->
   
 <div class="container" style="margin-top:50px">
-<paper-material elevation="3" style="width:550px;margin-left: auto; margin-right: auto;">
+<paper-card elevation="3" style="display:block;width:550px;margin-left: auto; margin-right: auto; margin-top:50px">
 <br>
  <form style="margin-left:25px; width:500px;">
  <!-- <input type="text" name="year" id="year">-->
@@ -83,44 +91,17 @@
   <input id="group" type="hidden">
  <p><h5>Choose a date for your entry</h5></p>
 
-<template is="dom-bind" id="startDate">
-    <section>
-      <div style="float:left;width:250px;"><iron-label ><h5>Start date: {{dateFormat(date, 'LL')}} - {{dateFormat(date, 'LT')}}</h5></iron-label></div>
-	  <div><paper-button class="btn" on-tap="showDialog" raised>Change start date</paper-button></div><br>
-      <paper-dialog id="dialog" modal on-iron-overlay-closed="dismissDialog">
-		<paper-date-picker id="picker" date="[[date]]" style="height:210px; margin-left:-24px; margin-top: 0px;"></paper-date-picker>
-		<div style="margin-left:-24px;"><paper-time-picker id="picker2" time="{{dateFormat(date, 'LT')}}" style="height:280px;"></paper-time-picker></div><br>
-        <div class="buttons" style="background-color:#3F51B5;">
-          <paper-button dialog-dismiss style="color:#FFF;">Cancel</paper-button>
-          <paper-button dialog-confirm style="color:#FFF;">OK</paper-button>
-        </div>
-      </paper-dialog>
-    </section>
-</template>
-  
-<template is="dom-bind" id="endDate">
-    <section>
-      <div style="float:left;width:250px;"><iron-label ><h5>End date: {{dateFormat(date, 'LL')}} - {{dateFormat(date, 'LT')}}</h5></iron-label></div>
-	  <div><paper-button class="btn" on-tap="showDialog" raised>Change end date</paper-button></div><br>
-      <paper-dialog id="dialog" modal on-iron-overlay-closed="dismissDialog">
-		<paper-date-picker id="picker" date="[[date]]" style="height:210px; margin-left:-24px; margin-top: 0px;"></paper-date-picker>
-		<div style="margin-left:-24px;"><paper-time-picker id="picker2" time="{{dateFormat(date, 'LT')}}" style="height:280px;"></paper-time-picker></div><br>
-        <div class="buttons" style="background-color:#3F51B5;">
-          <paper-button dialog-dismiss style="color:#FFF;">Cancel</paper-button>
-          <paper-button dialog-confirm style="color:#FFF;">OK</paper-button>
-        </div>
-      </paper-dialog>
-    </section>
-</template>
-<template is="dom-bind" id="createEntry">
-<paper-button class="btn" on-tap="createEntry" raised>Create Entry</paper-button><br><br><br>
-	<paper-dialog id="dialog" modal>
-		<p>Entry successully created</p>.<br>
-        <div class="buttons">
-          <paper-button dialog-confirm autofocus>OK</paper-button>
-        </div>
-	</paper-dialog>
-</template>
+    <div style="display:inline;width:250px;"><h5><vaadin-date-picker label="Start date" placeholder="Pick a start date">
+</vaadin-date-picker><vaadin-time-picker label="(hh:mm)"  style="margin-left:10px"></vaadin-time-picker>
+
+</h5></div>
+
+
+    <div style="display:inline;width:250px;"><h5><vaadin-date-picker label="End date" placeholder="Pick a start date">
+</vaadin-date-picker><vaadin-time-picker label="(hh:mm)"  style="margin-left:10px"></vaadin-time-picker></h5></div>
+
+    <paper-button class="btn" onclick="createEntry()" raised>Create Entry</paper-button><br><br><br>
+
 If you want to create an regular entry provide the additional information:<br>
 <br>
 <h5>Amount of reps:</h5>
@@ -134,17 +115,10 @@ If you want to create an regular entry provide the additional information:<br>
     <option>Quarterly</option>
     <option>Yearly</option>
   </select><br>
-  <template is="dom-bind" id="createRegular">
 <paper-button class="btn" on-tap="createRegular" raised>Create Regular Entry</paper-button><br><br><br>
-  <paper-dialog id="dialog" modal>
-    <p>Regular entries successully created</p>.<br>
-        <div class="buttons">
-          <paper-button dialog-confirm autofocus>OK</paper-button>
-        </div>
-  </paper-dialog>
-</template>
+
 </form> 
-</paper-material>
+</paper-card>
 </div>
 <br>
 <div align="center" class="year" style="margin-top:0px">
@@ -181,49 +155,18 @@ If you want to create an regular entry provide the additional information:<br>
 
   <script>
   var qd = {};
-location.search.substr(1).split("&").forEach(function(item) {(item.split("=")[0] in qd) ? qd[item.split("=")[0]].push(item.split("=")[1]) : qd[item.split("=")[0]] = [item.split("=")[1]]})
+location.search.substr(1).split("&").forEach(function(item) {(item.split("=")[0] in qd) ? qd[item.split("=")[0]].push(item.split("=")[1]) : qd[item.split("=")[0]] = [item.split("=")[1]]});
 
 
-    HTMLImports.whenReady(function() {
-      var startDate = Polymer.dom(document).querySelector('#startDate');
-      startDate.dateFormat = function(date, format) {
-        return moment(date).format(format);
-      };
-      startDate.dismissDialog = function(event) {
-        if (event.detail.confirmed) {
 
-          startDate.date = startDate.$.picker.date;
-        var startTime = startDate.$.picker2.time;
-          var m = moment(startDate.date);
-           var tmp = new Date("1/1/2000 " + startTime); 
-          startDate.date = new Date(m.format("ddd MMMM D YYYY") + " " + tmp.getHours() + ":" + tmp.getMinutes()+ ":00");
-        }
-      };
-      startDate.showDialog = function() {
-        this.$.dialog.toggle();
-      };
-	  
-	  var endDate = Polymer.dom(document).querySelector('#endDate');
-      endDate.dateFormat = function(date, format) {
-        return moment(date).format(format);
-      };
-      endDate.dismissDialog = function(event) {
-        if (event.detail.confirmed) {
-           endDate.date = endDate.$.picker.date;
-        var startTime = endDate.$.picker2.time;
-          var m = moment(endDate.date);
-           var tmp = new Date("1/1/2000 " + startTime); 
-          endDate.date = new Date(m.format("ddd MMMM D YYYY") + " " + tmp.getHours() + ":" + tmp.getMinutes()+ ":00");
-        }
-      };
-      endDate.showDialog = function() {
-        this.$.dialog.toggle();
-      };
+      
+        //startDate.date = new Date(m.format("ddd MMMM D YYYY") + " " + tmp.getHours() + ":" + tmp.getMinutes()+ ":00");
+
+        //endDate.date = new Date(m.format("ddd MMMM D YYYY") + " " + tmp.getHours() + ":" + tmp.getMinutes()+ ":00");
+      
 	  
 	  //function definied as a resposne to a button to create entries
-	  var createEntry = Polymer.dom(document).querySelector('#createEntry');
-        var s =  document.getElementById("groupID");
-      createEntry.createEntry = function createEntry() {
+	  function createEntry() {
 			client.create(document.getElementById('title').value, 
 			document.getElementById('description').value,
                   s.options[s.selectedIndex].value,
@@ -246,20 +189,10 @@ location.search.substr(1).split("&").forEach(function(item) {(item.split("=")[0]
     };
 
     //function definied as a resposne to a button to create entries
-    var createRegular = Polymer.dom(document).querySelector('#createRegular');
-      createRegular.createRegular = function createRegular() {
+    createRegular = function createRegular() {
           interval();
     };
-	  
-      document.addEventListener('WebComponentsReady', function() {
-		var date = new Date();
-            if(qd.year!==undefined) date.setYear(qd.year);
-            if(qd.month!==undefined) date.setMonth(qd.month);
-            if(qd.day!==undefined) date.setDate(qd.day);
-        startDate.date = date;
-        endDate.date = new Date(date.getTime() + 60*60000);
-      });
-    });
+	
   </script>
   
   <!-- import OpenID Connect Button -->
@@ -294,7 +227,7 @@ location.search.substr(1).split("&").forEach(function(item) {(item.split("=")[0]
   <!-- instantiate and use the client library -->
   <script type="text/javascript">
     // create new instance of TemplateServiceClient, given its endpoint URL
-    var client = new TemplateServiceClient("https://steen.informatik.rwth-aachen.de:9080/");
+    var client = new TemplateServiceClient("https://las2peer.dbis.rwth-aachen.de:9098/");
     setTimeout(getGroups,2000);
     var id = 0;
     function getGroups(){
